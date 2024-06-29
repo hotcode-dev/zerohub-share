@@ -1,0 +1,12 @@
+---
+import MainLayout from "../layouts/main.astro";
+
+import { pageTitle, pageDescription } from "../configs";
+import AppPage from "../components/AppPage.svelte";
+---
+
+<MainLayout title={pageTitle} description={pageDescription}>
+  <div class="flex flex-col items-center justify-center">
+    <AppPage client:load client:only="svelte" />
+  </div>
+</MainLayout>

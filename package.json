@@ -1,0 +1,41 @@
+{
+  "name": "zero-share-next",
+  "description": "",
+  "type": "module",
+  "version": "0.0.1",
+  "author": "Jirawat Boonkumnerd <contact@ntsd.dev> (https://ntsd.dev)",
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro check && astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@astrojs/check": "^0.7.0",
+    "@astrojs/svelte": "^5.6.0",
+    "@astrojs/tailwind": "^5.1.0",
+    "@dicebear/collection": "^9.0.0",
+    "@dicebear/core": "^9.0.0",
+    "@nuintun/qrcode": "^3.4.0",
+    "@tailwindcss/typography": "^0.5.13",
+    "@zero-hub/client": "0.0.3",
+    "@zip.js/zip.js": "^2.7.45",
+    "astro": "^4.11.3",
+    "astrojs-service-worker": "^2.0.0",
+    "autoprefixer": "^10.4.16",
+    "daisyui": "^4.12.2",
+    "daisyui-ntsd": "^1.0.10",
+    "eventemitter3": "^5.0.1",
+    "html5-qrcode": "^2.3.8",
+    "nanostores": "^0.10.3",
+    "postcss": "^8.4.32",
+    "protobufjs": "^7.3.1",
+    "sdp-compact": "^0.0.6",
+    "svelte": "5.0.0-next.133",
+    "tailwindcss": "^3.4.4",
+    "typescript": "^5.4.5",
+    "unique-names-generator": "^4.7.1",
+    "vite": "^5.3.2"
+  }
+}
