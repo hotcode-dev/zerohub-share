@@ -1,7 +1,12 @@
 <script lang="ts">
   import DragAndDrop from "./DragAndDrop.svelte";
   import EventEmitter from "eventemitter3";
-  import { FileStatus, type SendingFile } from "../../type";
+  import {
+    FileStatus,
+    type PeerMetaData,
+    type SendingFile,
+    type SendingFileSelection,
+  } from "../../type";
   import SendingFileList from "./SendingFileList.svelte";
   import {
     encryptAesGcm,
@@ -15,53 +20,114 @@
     ReceiveEvent,
     receiveEventToJSON,
   } from "../../proto/message";
-  import { addToastMessage } from "../../stores/toastStore";
+  import { addToastMessage } from "../../stores/toast";
 
-  export let dataChannel: RTCDataChannel;
-  export let chunkSize: number;
-  export let isEncrypt: boolean;
-  export let rsaPub: CryptoKey | undefined;
+  type Props = {
+    peers: {
+      [peerId: string]: {
+        isOnline: boolean;
+        dataChannel: RTCDataChannel;
+        metadata: PeerMetaData;
+        svgAvatar: string;
+      };
+    };
+  };
 
-  let sendingFiles: { [key: string]: SendingFile } = {};
+  let { peers }: Props = $props();
 
-  export function onReceiveEvent(id: string, receiveEvent: ReceiveEvent) {
-    const sendingFile = sendingFiles[id];
+  let sendingFileSelections: { [key: string]: SendingFileSelection } = $state(
+    {}
+  );
+
+  export function onReceiveEvent(
+    fileId: string,
+    peerId: string,
+    receiveEvent: ReceiveEvent
+  ) {
+    const sendingFile = sendingFileSelections[fileId].sendingFiles[peerId];
     if (sendingFile && sendingFile.event) {
       sendingFile.event.emit(receiveEventToJSON(receiveEvent));
+
+      // trigger update
+      sendingFileSelections[fileId].sendingFiles[peerId] = sendingFile;
+      sendingFileSelections[fileId] = sendingFileSelections[fileId];
+      sendingFileSelections = sendingFileSelections;
     }
   }
 
-  async function onSend(key: string) {
-    const sendingFile = sendingFiles[key];
+  async function onSend(fileId: string, peerId: string) {
+    const sendingFileSelection = sendingFileSelections[fileId];
+    const file = sendingFileSelection.file;
+    const peer = peers[peerId];
+
+    // initial aes key
+    let aesKey;
+    let aesEncrypted = new Uint8Array();
+    if (sendingFileSelection.isEncrypt) {
+      aesKey = await generateAesKey();
+      if (!peer.metadata.rsaPub) {
+        addToastMessage("rsa public key is not available");
+        return;
+      }
+      aesEncrypted = await encryptAesKeyWithRsaPublicKey(
+        peer.metadata.rsaPub,
+        aesKey
+      );
+    }
+
+    // initial file meta data
+    const fileMetaData: MetaData = {
+      name: file.name,
+      size: file.size,
+      type: file.type,
+      isEncrypt: sendingFileSelection.isEncrypt,
+      key: aesEncrypted,
+    };
+    const validateErr = validateFileMetadata(fileMetaData);
+    if (validateErr) {
+      addToastMessage(`${file.name} ${validateErr.message}`, "error");
+    }
+
+    const sendingFile: SendingFile = {
+      metaData: fileMetaData,
+      progress: 0,
+      bitrate: 0,
+      error: validateErr,
+      startTime: 0,
+      status: FileStatus.Pending,
+      aesKey: aesKey,
+      event: new EventEmitter(),
+    };
+    sendingFileSelection.sendingFiles[peerId] = sendingFile;
+
+    // send file offset
     let offset = 0;
 
     // reset value
-    sendingFiles[key].error = undefined;
-    sendingFiles[key].stop = false;
+    sendingFileSelection.stop = false;
 
-    sendingFiles[key].event = new EventEmitter();
-
-    sendingFiles[key].event?.on(
+    sendingFile.event.on(
       receiveEventToJSON(ReceiveEvent.EVENT_RECEIVER_ACCEPT),
       async () => {
-        sendingFiles[key].status = FileStatus.Processing;
-        sendingFiles[key].startTime = Date.now();
+        sendingFileSelections[fileId].sendingFiles[peerId].status =
+          FileStatus.Processing;
+        sendingFileSelections[fileId].sendingFiles[peerId].startTime =
+          Date.now();
         await sendNextChunk();
       }
     );
-    sendingFiles[key].event?.on(
+
+    sendingFile.event.on(
       receiveEventToJSON(ReceiveEvent.EVENT_RECEIVED_CHUNK),
       async () => {
-        if (sendingFiles[key].stop) {
+        if (sendingFileSelection.stop) {
           return;
         }
-        if (
-          sendingFiles[key].error ||
-          sendingFiles[key].status != FileStatus.Processing
-        ) {
-          sendingFiles[key].progress = 0;
-          sendingFiles[key].status = FileStatus.Pending;
-          sendingFiles[key].stop = false;
+        if (sendingFile.error || sendingFile.status != FileStatus.Processing) {
+          sendingFileSelections[fileId].sendingFiles[peerId].progress = 0;
+          sendingFileSelections[fileId].sendingFiles[peerId].status =
+            FileStatus.Pending;
+          sendingFileSelections[fileId].stop = false;
           return;
         }
 
@@ -70,7 +136,8 @@
           return;
         }
 
-        sendingFiles[key].status = FileStatus.Success;
+        sendingFileSelections[fileId].sendingFiles[peerId].status =
+          FileStatus.Success;
         addToastMessage(
           `File ${sendingFile.metaData.name} sent successfully`,
           "success"
@@ -78,30 +145,36 @@
       }
     );
 
-    sendingFiles[key].event?.on(
+    sendingFile.event.on(
       receiveEventToJSON(ReceiveEvent.EVENT_VALIDATE_ERROR),
       () => {
         addToastMessage("Receiver validate error", "error");
-        sendingFiles[key].error = new Error("Receiver validate error");
-        sendingFiles[key].status = FileStatus.Pending;
+        sendingFileSelections[fileId].sendingFiles[peerId].error = new Error(
+          "Receiver validate error"
+        );
+        sendingFileSelections[fileId].sendingFiles[peerId].status =
+          FileStatus.Pending;
       }
     );
 
-    sendingFiles[key].event?.on(
+    sendingFile.event.on(
       receiveEventToJSON(ReceiveEvent.EVENT_RECEIVER_REJECT),
       () => {
         addToastMessage("Receiver reject the file", "error");
-        sendingFiles[key].error = new Error("Receiver reject the file");
-        sendingFiles[key].status = FileStatus.Pending;
+        sendingFileSelections[fileId].sendingFiles[peerId].error = new Error(
+          "Receiver reject the file"
+        );
+        sendingFileSelections[fileId].sendingFiles[peerId].status =
+          FileStatus.Pending;
       }
     );
 
     async function sendBuffer(buffer: ArrayBuffer) {
-      if (isEncrypt) {
-        const aesKey = sendingFiles[key].aesKey;
+      if (sendingFileSelection.isEncrypt) {
+        const aesKey = sendingFile.aesKey;
         if (aesKey) {
           const encrypted = await encryptAesGcm(aesKey, buffer);
-          dataChannel.send(
+          peers[peerId].dataChannel.send(
             Message.encode({
               id: sendingFile.metaData.name,
               chunk: encrypted,
@@ -111,7 +184,7 @@
         }
       }
 
-      dataChannel.send(
+      peers[peerId].dataChannel.send(
         Message.encode({
           id: sendingFile.metaData.name,
           chunk: new Uint8Array(buffer),
@@ -120,7 +193,10 @@
     }
 
     async function sendNextChunk() {
-      const slice = sendingFile.file.slice(offset, offset + chunkSize);
+      const slice = sendingFileSelection.file.slice(
+        offset,
+        offset + sendingFileSelection.chunkSize
+      );
       const buffer = await slice.arrayBuffer();
 
       await sendBuffer(buffer);
@@ -128,106 +204,96 @@
       offset += buffer.byteLength;
 
       // calculate progress
-      sendingFiles[key].progress = Math.round(
+      sendingFileSelections[fileId].sendingFiles[peerId].progress = Math.round(
         (offset / sendingFile.metaData.size) * 100
       );
 
       // calculate bitrate
-      sendingFiles[key].bitrate = Math.round(
-        offset / ((Date.now() - sendingFiles[key].startTime) / 1000)
+      sendingFileSelections[fileId].sendingFiles[peerId].bitrate = Math.round(
+        offset / ((Date.now() - sendingFile.startTime) / 1000)
       );
     }
 
     // send meta data
-    dataChannel.send(
+    peers[peerId].dataChannel.send(
       Message.encode({
         id: sendingFile.metaData.name,
         metaData: sendingFile.metaData,
       }).finish()
     );
 
-    sendingFiles[key].status = FileStatus.WaitingAccept;
-    // TODO: wait finish to send 1 by 1 file (success, error)
+    sendingFile.status = FileStatus.WaitingAccept;
   }
 
-  async function sendAllFiles() {
-    for (const key of Object.keys(sendingFiles)) {
-      if (
-        sendingFiles[key].status != FileStatus.Pending ||
-        sendingFiles[key].error
-      ) {
-        continue;
-      }
-      await onSend(key);
+  async function sendAllFiles(peerId: string) {
+    for (const fileId of Object.keys(sendingFileSelections)) {
+      await onSend(fileId, peerId);
     }
   }
 
-  async function onStop(key: string) {
-    sendingFiles[key].stop = true;
+  async function onStop(fileId: string) {
+    sendingFileSelections[fileId].stop = true;
   }
 
-  async function onContinue(key: string) {
-    sendingFiles[key].stop = false;
-    sendingFiles[key].event?.emit(
-      receiveEventToJSON(ReceiveEvent.EVENT_RECEIVED_CHUNK)
-    );
-  }
-
-  function onRemove(key: string) {
-    if (sendingFiles[key].status === FileStatus.Processing) {
-      sendingFiles[key].stop = true;
+  async function onContinue(fileId: string) {
+    sendingFileSelections[fileId].stop = false;
+    for (const sendingFile of Object.values(
+      sendingFileSelections[fileId].sendingFiles
+    )) {
+      sendingFile.event?.emit(
+        receiveEventToJSON(ReceiveEvent.EVENT_RECEIVED_CHUNK)
+      );
     }
-    delete sendingFiles[key];
-    sendingFiles = sendingFiles; // do this to trigger update the map
+  }
+
+  function onRemove(fileId: string) {
+    sendingFileSelections[fileId].stop = true;
+    delete sendingFileSelections[fileId];
   }
 
   function onFilesPick(files: FileList) {
     Array.from(files).forEach(async (file) => {
-      let aesKey;
-      let aesEncrypted = new Uint8Array();
-      if (isEncrypt) {
-        aesKey = await generateAesKey();
-        if (!rsaPub) {
-          addToastMessage("rsa public key is not available");
-          return;
-        }
-        aesEncrypted = await encryptAesKeyWithRsaPublicKey(rsaPub, aesKey);
-      }
-
-      const fileMetaData: MetaData = {
-        name: file.name,
-        size: file.size,
-        type: file.type,
-        key: aesEncrypted,
-      };
-      const validateErr = validateFileMetadata(fileMetaData);
-      if (validateErr) {
-        addToastMessage(`${file.name} ${validateErr.message}`, "error");
-      }
-
-      sendingFiles[file.name] = {
+      sendingFileSelections[file.name] = {
         file: file,
-        metaData: fileMetaData,
-        progress: 0,
-        bitrate: 0,
         stop: false,
-        error: validateErr,
-        startTime: 0,
-        status: FileStatus.Pending,
-        aesKey: aesKey,
+        chunkSize: 16 * 1024, // 16MB
+        isEncrypt: false,
+        sendingFiles: {},
       };
     });
   }
 </script>
 
-<div class="grid gap-4">
+<div class="flex flex-col gap-4">
   <DragAndDrop {onFilesPick} />
-  {#if Object.keys(sendingFiles).length > 0}
-    <SendingFileList {sendingFiles} {onRemove} {onSend} {onStop} {onContinue} />
-    <button class="btn btn-primary mt-2" on:click={sendAllFiles}
-      >Send all files</button
-    >
-  {:else}
-    <p class="mt-4">No files selected</p>
+  {#if Object.keys(sendingFileSelections).length > 0}
+    <SendingFileList
+      {peers}
+      {sendingFileSelections}
+      {onRemove}
+      {onSend}
+      {onStop}
+      {onContinue}
+    />
+    {#if Object.keys(sendingFileSelections).length > 1}
+      <div class="dropdown dropdown-top dropdown-end self-end">
+        <button tabindex="0" class="btn btn-primary">Send all files</button>
+        <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
+        <ul
+          tabindex="0"
+          class="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow"
+        >
+          {#each Object.entries(peers) as [peerId, peer]}
+            {#if peer.isOnline}
+              <li>
+                <button onclick={() => sendAllFiles(peerId)}
+                  >{peer.metadata.name}</button
+                >
+              </li>
+            {/if}
+          {/each}
+        </ul>
+      </div>
+    {/if}
   {/if}
 </div>

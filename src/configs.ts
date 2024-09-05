@@ -1,4 +1,8 @@
-import type { ReceiveOptions, Options } from "./type.ts";
+import type { ReceiveOptions } from "./type.ts";
+
+export const isProduction = import.meta.env.PROD;
+
+export const zeroHubHosts: string[] = [import.meta.env.PUBLIC_ZEROHUB_HOST];
 
 export const stunServers: string[] = [
   "stun:stun.l.google.com:19302",
@@ -19,14 +23,8 @@ export const pageDescription = "Secure P2P file sharing using WebRTC";
 
 export const githubLink = "https://github.com/hotcode-dev/zerohub-share";
 
-export const defaultOptions: Options = {
-  chunkSize: 16 * 1024, // 16MB
-  isEncrypt: false,
-  iceServer: stunServers[0],
-};
-
 export const defaultReceiveOptions: ReceiveOptions = {
-  autoAccept: true,
+  autoAccept: false,
   maxSize: 1024 * 1024 * 1024, // 1GB
 };
 

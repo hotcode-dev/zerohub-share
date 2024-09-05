@@ -1,11 +1,21 @@
 <script lang="ts">
-  export let options: string[] = [];
-  export let customTextEnabled: boolean = false;
-  export let value = '';
+  type Props = {
+    options: string[];
+    customTextEnabled: boolean;
+    defaultValue: string;
+    value: string;
+  };
 
-  let selectedValue: string = value;
-  let customText: string = '';
-  let editingCustomText = false;
+  let {
+    options,
+    customTextEnabled,
+    defaultValue = "",
+    value,
+  }: Props = $props();
+
+  let selectedValue: string = $state(defaultValue);
+  let customText: string = $state("");
+  let editingCustomText = $state(false);
 
   function toggleCustomText() {
     editingCustomText = !editingCustomText;
@@ -16,7 +26,9 @@
     }
   }
 
-  $: value = editingCustomText ? customText : selectedValue;
+  $effect(() => {
+    value = editingCustomText ? customText : selectedValue;
+  });
 </script>
 
 <div class="flex w-full">
@@ -39,8 +51,8 @@
 
   {#if customTextEnabled}
     <div>
-      <button class="btn btn-secondary" on:click={toggleCustomText}>
-        {editingCustomText ? 'Select' : 'Custom'}
+      <button class="btn btn-secondary" onclick={toggleCustomText}>
+        {editingCustomText ? "Select" : "Custom"}
       </button>
     </div>
   {/if}

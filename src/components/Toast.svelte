@@ -1,12 +1,12 @@
 <script lang="ts">
-  import { fade } from 'svelte/transition';
-  import { toastAtom, type ToastMessage } from '../stores/toastStore';
+  import { fade } from "svelte/transition";
+  import { toastAtom, type ToastMessage } from "../stores/toast";
 
   interface Toast extends ToastMessage {
     visible: boolean;
   }
 
-  let toasts: Toast[] = [];
+  let toasts: Toast[] = $state([]);
 
   toastAtom.subscribe((toastMessage) => {
     if (toastMessage) {
@@ -15,7 +15,7 @@
 
       setTimeout(() => {
         toast.visible = false;
-        toasts = toasts.filter((t) => t !== toast);
+        toasts = toasts.filter((t) => t.visible === false);
       }, toastMessage.duration);
     }
   });
@@ -27,7 +27,7 @@
       class="alert alert-{toast.status}"
       in:fade|global={{ duration: 300 }}
       out:fade|global={{ duration: 300 }}
-      style={toast.visible ? '' : 'display: none;'}
+      style={toast.visible ? "" : "display: none;"}
     >
       <div>
         <span>{toast.message}</span>

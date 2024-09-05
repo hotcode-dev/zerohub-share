@@ -1,6 +1,6 @@
 <script lang="ts">
   import { defaultReceiveOptions } from "../../configs";
-  import { addToastMessage } from "../../stores/toastStore";
+  import { addToastMessage } from "../../stores/toast";
   import { validateFileMetadata } from "../../utils/validator";
   import { Message, MetaData, ReceiveEvent } from "../../proto/message";
   import ReceivingFileList from "./ReceivingFileList.svelte";
@@ -16,16 +16,19 @@
     decryptAesKeyWithRsaPrivateKey,
   } from "../../utils/crypto";
 
-  export let dataChannel: RTCDataChannel;
-  export let isEncrypt: boolean;
-  export let rsa: CryptoKeyPair | undefined;
+  type Props = {
+    dataChannel: RTCDataChannel;
+    rsa: CryptoKeyPair | undefined;
+  };
 
-  let receiveOptions: ReceiveOptions = defaultReceiveOptions;
-  let receivingFiles: { [key: string]: ReceivingFile } = {};
+  let { dataChannel, rsa }: Props = $props();
+
+  let receiveOptions: ReceiveOptions = $state(defaultReceiveOptions);
+  let receivingFiles: { [key: string]: ReceivingFile } = $state({});
 
   export async function onMetaData(id: string, metaData: MetaData) {
     let aesKey: CryptoKey | undefined;
-    if (isEncrypt) {
+    if (metaData.isEncrypt) {
       if (!rsa) {
         addToastMessage("RSA private key is not available");
         return;
@@ -45,6 +48,7 @@
       startTime: 0,
       status: FileStatus.WaitingAccept,
       aesKey: aesKey,
+      isEncrypt: metaData.isEncrypt,
     };
 
     const validateErr = validateFileMetadata(metaData, receiveOptions.maxSize);
@@ -88,7 +92,7 @@
 
     const receivingFile = receivingFiles[id];
 
-    if (isEncrypt && receivingFile.aesKey) {
+    if (receivingFile.isEncrypt && receivingFile.aesKey) {
       arrayBuffer = await decryptAesGcm(receivingFile.aesKey, arrayBuffer);
     }
     const receivingSize = arrayBuffer.byteLength;
@@ -214,7 +218,7 @@
   }
 </script>
 
-<div class="grid gap-4">
+<div class="flex flex-col gap-4">
   <ReceiverOptions onUpdate={onOptionsUpdate} />
   {#if Object.keys(receivingFiles).length > 0}
     <ReceivingFileList
@@ -224,9 +228,11 @@
       {onAccept}
       {onDeny}
     />
-    <button class="btn btn-primary mt-2" on:click={downloadAllFiles}
-      >Download all files (zip)</button
-    >
+    {#if Object.keys(receivingFiles).length > 1}
+      <button class="btn btn-primary mt-2" onclick={downloadAllFiles}
+        >Download all files (zip)</button
+      >
+    {/if}
   {:else}
     <p class="mt-4">Connected, Waiting for files...</p>
   {/if}

@@ -1,18 +1,29 @@
 <script lang="ts">
-  export let title: string;
-  export let isOpen: boolean = false;
+  type Props = {
+    children: () => any;
+    title: string;
+    isOpen: boolean;
+  };
+
+  let { children, title, isOpen = false }: Props = $props();
 </script>
 
 <div
   tabindex="-1"
-  class="collapse border border-base-200 {isOpen ? 'collapse-open bg-base-100' : 'collapse-close'}"
+  class="collapse border border-base-200 {isOpen
+    ? 'collapse-open bg-base-100'
+    : 'collapse-close'}"
 >
-  <div class="collapse-title text-xl {isOpen ? 'font-bold' : 'font-light bg-base-300'}">
+  <div
+    class="collapse-title text-xl {isOpen
+      ? 'font-bold'
+      : 'font-light bg-base-300'}"
+  >
     {title}
   </div>
   <div class="collapse-content">
     {#if isOpen}
-      <slot />
+      {@render children?.()}
     {/if}
   </div>
 </div>

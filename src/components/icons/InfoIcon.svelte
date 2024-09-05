@@ -1,5 +1,9 @@
-<script>
-  export let tooltipText = '';
+<script lang="ts">
+  type Props = {
+    tooltipText: string;
+  };
+
+  let { tooltipText }: Props = $props();
 </script>
 
 <div class="tooltip tooltip-top" data-tip={tooltipText}>

@@ -6,9 +6,7 @@ export interface PeerMetaData {
   rsaPub: CryptoKey | undefined;
 }
 
-export interface HubMetaData {
-  options: Options;
-}
+export interface HubMetaData {}
 
 export enum FileStatus {
   Pending = "Pending",
@@ -28,23 +26,31 @@ export interface FileDetail {
 }
 
 export interface SendingFile extends FileDetail {
+  event: EventEmitter;
+}
+
+export interface SendingFileSelection {
   stop: boolean;
   file: File;
-  event?: EventEmitter;
+  isEncrypt: boolean;
+  chunkSize: number;
+  sendingFiles: {
+    [peerId: string]: SendingFile;
+  };
 }
 
 export interface ReceivingFile extends FileDetail {
   receivedSize: number;
-  receivedChunks: Uint8Array[];
-}
-
-export interface Options {
   isEncrypt: boolean;
-  chunkSize: number;
-  iceServer: string;
+  receivedChunks: Uint8Array[];
 }
 
 export interface ReceiveOptions {
   autoAccept: boolean;
   maxSize: number;
+}
+
+export interface Setting {
+  name: string;
+  iceServer: string;
 }

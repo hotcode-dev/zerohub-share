@@ -1,8 +1,8 @@
 <script lang="ts">
   import { QRByte, Encoder, ErrorCorrectionLevel } from "@nuintun/qrcode";
 
-  let isModalOpen: boolean = false;
-  let qrDataURL: string;
+  let isModalOpen: boolean = $state(false);
+  let qrDataURL: string = $state("");
 
   export function open(
     newQRData: string,
@@ -42,7 +42,7 @@
     <form method="dialog">
       <button
         class="btn btn-sm btn-circle absolute right-2 top-2"
-        on:click={close}
+        onclick={close}
       >
         ✕
       </button>
@@ -54,7 +54,7 @@
   </div>
   <!-- This use for close when click outside the modal -->
   <form method="dialog" class="modal-backdrop">
-    <button on:click={close}>close</button>
+    <button onclick={close}>close</button>
   </form>
 </div>
 

@@ -1,0 +1,158 @@
+---
+import Cog from "../icons/Cog.astro";
+---
+
+<button class="btn btn-ghost" onclick="settingmodal.showModal()"><Cog /></button>
+<dialog id="settingmodal" class="modal modal-bottom sm:modal-middle">
+  <div class="modal-box">
+    <div class="flex flex-row justify-between">
+      <h3 class="text-lg font-bold">Setting</h3>
+      <label class="flex cursor-pointer gap-2">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <circle cx="12" cy="12" r="5"></circle>
+          <path
+            d="M12 1v2M12 21v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M1 12h2M21 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"
+          ></path>
+        </svg>
+        <input
+          type="checkbox"
+          class="toggle theme-controller"
+          id="darkmode-toggle"
+        />
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+        </svg>
+      </label>
+    </div>
+    <div class="py-4 flex flex-col gap-4">
+      <label class="form-control w-full">
+        <div class="label">
+          <span class="label-text">Name</span>
+        </div>
+        <input
+          type="text"
+          placeholder="Enter your name here"
+          class="input input-bordered w-full"
+          id="name-input"
+        />
+      </label>
+      <label class="form-control w-full">
+        <div class="label">
+          <span class="label-text">ICE Server (STUN/TURN)</span>
+        </div>
+        <input
+          type="text"
+          placeholder="Enter ice server here"
+          class="input input-bordered w-full"
+          id="ice-input"
+        />
+      </label>
+    </div>
+    <div class="modal-action">
+      <form method="dialog">
+        <button class="btn btn-error" id="reset-button">Reset</button>
+      </form>
+      <form method="dialog">
+        <button class="btn btn-primary" id="save-button">Save</button>
+      </form>
+    </div>
+  </div>
+  <!-- Modal backdrop, close when click outside -->
+  <form method="dialog" class="modal-backdrop">
+    <button>close</button>
+  </form>
+</dialog>
+
+<script>
+  // dark mode toggle
+  const localDarkKey = "darkMode";
+  let localDarkMode = localStorage.getItem(localDarkKey);
+  let darkMode = false;
+  // initial dark mode from local storage or media
+  switch (localDarkMode) {
+    case "true":
+      darkMode = true;
+      break;
+    case "false":
+      darkMode = false;
+      break;
+    case null:
+      darkMode =
+        window?.matchMedia?.("(prefers-color-scheme:dark)")?.matches || false;
+  }
+
+  const button = document.getElementById("darkmode-toggle") as HTMLInputElement;
+  const setToggleClass = (darkMode: boolean) => {
+    if (darkMode) {
+      button.checked = true;
+    } else {
+      button.checked = false;
+    }
+  };
+
+  function setTheme(darkMode: boolean) {
+    setToggleClass(darkMode);
+
+    localStorage.setItem(localDarkKey, darkMode ? "true" : "false");
+    document
+      ?.querySelector("html")
+      ?.setAttribute("data-theme", darkMode ? "dark" : "light");
+  }
+
+  button.onclick = () => {
+    darkMode = !darkMode;
+    setTheme(darkMode);
+  };
+
+  setTheme(darkMode);
+
+  import { defaultSetting, settingAtom } from "../../stores/setting";
+
+  const nameInput = document.getElementById("name-input") as HTMLInputElement;
+  const iceInput = document.getElementById("ice-input") as HTMLInputElement;
+  const saveButton = document.getElementById(
+    "save-button"
+  ) as HTMLButtonElement;
+  const resetButton = document.getElementById(
+    "reset-button"
+  ) as HTMLButtonElement;
+
+  settingAtom.subscribe((s) => {
+    nameInput.value = s.name;
+    iceInput.value = s.iceServer;
+  });
+
+  saveButton.onclick = (e) => {
+    e.preventDefault();
+    settingAtom.set({
+      name: nameInput.value,
+      iceServer: iceInput.value,
+    });
+    window.location.reload();
+  };
+  resetButton.onclick = (e) => {
+    e.preventDefault();
+    nameInput.value = defaultSetting.name;
+    iceInput.value = defaultSetting.iceServer;
+  };
+</script>

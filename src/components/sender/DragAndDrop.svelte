@@ -1,14 +1,18 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
-  import { addToastMessage } from '../../stores/toastStore';
+  import { onMount } from "svelte";
+  import { addToastMessage } from "../../stores/toast";
+
+  type Props = {
+    onFilesPick: (files: FileList) => void;
+  };
+
+  let { onFilesPick }: Props = $props();
 
   let dropArea: HTMLElement;
   let fileInput: HTMLInputElement;
 
-  export let onFilesPick: (files: FileList) => void;
-
   function setupDropAreaListeners() {
-    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach((eventName) => {
+    ["dragenter", "dragover", "dragleave", "drop"].forEach((eventName) => {
       dropArea.addEventListener(
         eventName,
         (e: Event) => {
@@ -19,23 +23,23 @@
       );
     });
 
-    ['dragenter', 'dragover'].forEach((eventName) => {
+    ["dragenter", "dragover"].forEach((eventName) => {
       dropArea.addEventListener(eventName, highlight, false);
     });
 
-    ['dragleave', 'drop'].forEach((eventName) => {
+    ["dragleave", "drop"].forEach((eventName) => {
       dropArea.addEventListener(eventName, unhighlight, false);
     });
 
-    dropArea.addEventListener('drop', handleDrop, false);
+    dropArea.addEventListener("drop", handleDrop, false);
   }
 
   function highlight() {
-    dropArea.classList.add('bg-blue-200');
+    dropArea.classList.add("bg-blue-200");
   }
 
   function unhighlight() {
-    dropArea.classList.remove('bg-blue-200');
+    dropArea.classList.remove("bg-blue-200");
   }
 
   function handleDrop(e: DragEvent) {
@@ -49,13 +53,15 @@
   function handleFileInputChange() {
     if (fileInput.files) {
       onFilesPick(fileInput.files);
-      fileInput.value = '';
+      fileInput.value = "";
     }
   }
 
   function handleTextClipboard(text: string) {
-    const textBlob = new Blob([text], { type: 'text/plain' });
-    const textFile = new File([textBlob], 'clipboard.txt', { type: 'text/plain' });
+    const textBlob = new Blob([text], { type: "text/plain" });
+    const textFile = new File([textBlob], "clipboard.txt", {
+      type: "text/plain",
+    });
 
     const dataTransfer = new DataTransfer();
     dataTransfer.items.add(textFile);
@@ -81,14 +87,18 @@
       const items = await clipboardData.read();
       for (const item of items) {
         for (const type of item.types) {
-          if (!type.startsWith('image/')) continue;
+          if (!type.startsWith("image/")) continue;
           const blob = await item.getType(type);
-          const imageFile = new File([blob], `image.${type.replace('image/', '')}`, { type });
+          const imageFile = new File(
+            [blob],
+            `image.${type.replace("image/", "")}`,
+            { type }
+          );
           handleFileClipboard(imageFile);
         }
       }
     } catch (e) {
-      addToastMessage('No data on clipboard');
+      addToastMessage("No data on clipboard");
     }
   }
 
@@ -97,7 +107,7 @@
     if (!clipboardData) return;
 
     // Handle text data
-    const text = clipboardData.getData('Text');
+    const text = clipboardData.getData("Text");
     if (text) {
       handleTextClipboard(text);
     }
@@ -114,12 +124,12 @@
 
   onMount(() => {
     setupDropAreaListeners();
-    document.addEventListener('paste', handlePasteEvent);
+    document.addEventListener("paste", handlePasteEvent);
   });
 </script>
 
 <label
-  class="relative flex flex-col border border-base-300 border-dashed cursor-pointer"
+  class="relative flex flex-col border border-dashed cursor-pointer"
   bind:this={dropArea}
 >
   <input
@@ -129,7 +139,7 @@
     class="absolute inset-0 z-50 w-full h-full p-0 m-0 outline-none opacity-0 cursor-pointer"
     title=""
     bind:this={fileInput}
-    on:change={handleFileInputChange}
+    onchange={handleFileInputChange}
   />
 
   <div class="flex flex-col items-center justify-center py-10 text-center">
@@ -149,11 +159,12 @@
     </svg>
 
     <p class="m-0 hidden xl:block">
-      Drop your files, paste from clipboard (ctrl+v), or click to this area
+      Drop your files or paste from clipboard (ctrl+v)
     </p>
-    <p class="m-0 xl:hidden">Click to this area</p>
+    <p class="m-0 xl:hidden">Choose files</p>
   </div>
 </label>
-<button class="btn btn-secondary xl:hidden" on:click={handlePastFromClipboardButton}
-  >Paste from clipboard</button
+<button
+  class="btn btn-secondary xl:hidden"
+  onclick={handlePastFromClipboardButton}>Paste from clipboard</button
 >
