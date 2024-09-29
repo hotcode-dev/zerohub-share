@@ -22,13 +22,13 @@
     checked={false}
     bind:this={collapseCheckbox}
   />
-  <div class="collapse-title text-xl font-medium flex flex-row justify-between items-center">
+  <div class="collapse-title text-xl font-medium flex flex-row justify-between items-center p-0">
     <div class="flex flex-row gap-4 items-center">
       <img src={svgAvatar} class="w-8 h-8" alt="avatar" />
       <span>{peerMetaData.name}</span>
     </div>
   </div>
-  <div class="collapse-content">
+  <div class="collapse-content p-1">
     {@render children?.()}
   </div>
 </div>

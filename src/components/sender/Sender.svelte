@@ -21,6 +21,8 @@
     receiveEventToJSON,
   } from "../../proto/message";
   import { addToastMessage } from "../../stores/toast";
+  import SendDropdown from "./SendDropdown.svelte";
+  import UpTray from "../icons/UpTray.svelte";
 
   type Props = {
     peers: {
@@ -276,23 +278,10 @@
       {onContinue}
     />
     {#if Object.keys(sendingFileSelections).length > 1}
-      <div class="dropdown dropdown-top dropdown-end self-end">
-        <button tabindex="0" class="btn btn-primary">Send all files</button>
-        <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
-        <ul
-          tabindex="0"
-          class="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow"
-        >
-          {#each Object.entries(peers) as [peerId, peer]}
-            {#if peer.isOnline}
-              <li>
-                <button onclick={() => sendAllFiles(peerId)}
-                  >{peer.metadata.name}</button
-                >
-              </li>
-            {/if}
-          {/each}
-        </ul>
+      <div class="self-end">
+        <SendDropdown {peers} onSend={sendAllFiles}>
+          <UpTray /> Send all files
+        </SendDropdown>
       </div>
     {/if}
   {/if}

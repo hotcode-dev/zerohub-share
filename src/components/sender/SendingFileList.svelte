@@ -40,15 +40,13 @@
   {#each Object.entries(sendingFileSelections) as [key, sendingFileSelection], index (key)}
     <SenderFileCard {sendingFileSelection} {peers}>
       <div class="col-span-4 flex justify-between items-center">
-        <button onclick={() => onRemove(key)} class="btn btn-ghost btn-sm">
+        <button onclick={() => onRemove(key)} class="btn btn-ghost btn-sm pl-0">
           <Trash /><span class="hidden lg:block">Remove</span>
         </button>
         <div class="flex flex-row gap-2 items-center">
           <div class="tooltip" data-tip={sendingFileSelection.isEncrypt ? "Encrypt" : "Not Encrypt"}>
             <Lock
-              onChange={(show: boolean) => {
-                sendingFileSelection.isEncrypt = show;
-              }}
+              bind:show={sendingFileSelection.isEncrypt}
             />
           </div>
           {#if sendingFileSelections.stop}

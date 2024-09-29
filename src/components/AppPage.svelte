@@ -164,8 +164,8 @@
       case PeerStatus.ZeroHubDisconnected:
         // close data channel
         peers[peer.id.toString()]?.dataChannel?.close();
-        // remove peer
-        delete peers[peer.id.toString()];
+        // set peer to offline
+        peers[peer.id.toString()].isOnline = false;
         break;
     }
   };
@@ -198,8 +198,10 @@
 {#if hubId}
   <div class="flex flex-col gap-4 w-full">
     <div class="flex flex-col gap-2">
-      <div class="collapse bg-base-200">
-        <div class="collapse-title text-xl font-medium">
+      <div class="collapse bg-base-200 collapse-close">
+        <div
+          class="collapse-title text-xl font-medium flex flex-row justify-between items-center p-0"
+        >
           <div class="flex flex-row justify-between items-center">
             <div class="flex flex-row gap-4 items-center">
               <img src={svgAvatar} class="w-8 h-8" alt="avatar" />

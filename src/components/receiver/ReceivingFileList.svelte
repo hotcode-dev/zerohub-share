@@ -1,6 +1,7 @@
 <script lang="ts">
   import { FileStatus, type ReceivingFile } from "../../type";
   import Trash from "../icons/Trash.svelte";
+  import DownTray from "../icons/DownTray.svelte";
   import ReceiverFileCard from "./ReceiverFileCard.svelte";
 
   type Props = {
@@ -29,12 +30,15 @@
             >
           </div>
         {:else}
-          <button onclick={() => onRemove(key)} class="btn btn-ghost btn-sm">
+          <button
+            onclick={() => onRemove(key)}
+            class="btn btn-ghost btn-sm pl-0"
+          >
             <Trash /><span class="hidden lg:block">Remove</span>
           </button>
           {#if receivedFile.status === FileStatus.Success}
             <button onclick={() => onDownload(key)} class="btn btn-primary">
-              Download
+              <DownTray /> Download
             </button>
           {/if}
         {/if}

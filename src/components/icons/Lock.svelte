@@ -1,11 +1,9 @@
 <script lang="ts">
   type Props = {
-    onChange: (show: boolean) => void;
+    show: boolean;
   };
 
-  let { onChange }: Props = $props();
-
-  let show = $state(false);
+  let { show = $bindable() }: Props = $props();
 
   const id = "lock-input";
 </script>
@@ -30,9 +28,6 @@
     {id}
     type="checkbox"
     bind:checked={show}
-    onchange={() => {
-      onChange(show);
-    }}
     class="toggle theme-controller"
   />
   <svg

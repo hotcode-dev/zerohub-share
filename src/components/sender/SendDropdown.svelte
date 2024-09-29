@@ -18,7 +18,7 @@
 </script>
 
 <div class="dropdown dropdown-top dropdown-end">
-  <button tabindex="0" class="btn btn-primary">
+  <button tabindex="0" class="btn btn-primary" disabled={Object.values(peers).filter(p=> p.isOnline).length == 0}>
     {@render children?.()}
   </button>
   <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
