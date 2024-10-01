@@ -1,5 +1,3 @@
-import type { ReceiveOptions } from "./type.ts";
-
 export const isProduction = import.meta.env.PROD;
 
 export const zeroHubHosts: string[] = [import.meta.env.PUBLIC_ZEROHUB_HOST];
@@ -22,10 +20,5 @@ export const pageTitle = "ZeroHub Share";
 export const pageDescription = "Secure P2P file sharing using WebRTC";
 
 export const githubLink = "https://github.com/hotcode-dev/zerohub-share";
-
-export const defaultReceiveOptions: ReceiveOptions = {
-  autoAccept: false,
-  maxSize: 1024 * 1024 * 1024, // 1GB
-};
 
 export const waitIceCandidatesTimeout = 1000; // 1 seconds

@@ -17,7 +17,6 @@
   import QrModal from "./qr/QrModal.svelte";
   import type { HubMetaData, PeerMetaData } from "../type";
   import { generateRsaKeyPair } from "../utils/crypto";
-  import PeerCollapse from "./PeerCollapse.svelte";
   import { Message } from "../proto/message";
   import Sender from "./sender/Sender.svelte";
   import { getPublicIP } from "../utils/getPublicIP";
@@ -63,7 +62,6 @@
     [peerId: string]: {
       isOnline: boolean;
       dataChannel: RTCDataChannel;
-      collapse: PeerCollapse | undefined;
       receiver: Receiver | undefined;
       metadata: PeerMetaData;
       svgAvatar: string;
@@ -91,7 +89,6 @@
     dataChannel: RTCDataChannel,
     isOnline: boolean
   ) {
-    let collapse: PeerCollapse | undefined;
     let receiver: Receiver | undefined;
 
     dataChannel.onopen = () => {};
@@ -105,7 +102,6 @@
           message.id,
           message.metaData
         );
-        peers[peer.id.toString()].collapse?.setCollapse(true);
       } else if (message.chunk !== undefined) {
         peers[peer.id.toString()].receiver?.onChunkData(
           message.id,
@@ -123,7 +119,6 @@
     peers[peer.id.toString()] = {
       isOnline,
       dataChannel: dataChannel,
-      collapse: collapse,
       receiver: receiver,
       metadata: peer.metadata,
       svgAvatar: createAvatar(avatarStyle, {
@@ -212,17 +207,13 @@
       </div>
       {#each Object.values(peers) as peer}
         {#if peer.isOnline && peer.dataChannel}
-          <PeerCollapse
-            bind:this={peer.collapse}
+          <Receiver
+            bind:this={peer.receiver}
+            dataChannel={peer.dataChannel}
             peerMetaData={peer.metadata}
             svgAvatar={peer.svgAvatar}
-          >
-            <Receiver
-              bind:this={peer.receiver}
-              dataChannel={peer.dataChannel}
-              {rsa}
-            />
-          </PeerCollapse>
+            {rsa}
+          />
         {/if}
       {/each}
     </div>

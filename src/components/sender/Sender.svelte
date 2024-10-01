@@ -13,7 +13,6 @@
     encryptAesKeyWithRsaPublicKey,
     generateAesKey,
   } from "../../utils/crypto";
-  import { validateFileMetadata } from "../../utils/validator";
   import {
     Message,
     MetaData,
@@ -85,16 +84,11 @@
       isEncrypt: sendingFileSelection.isEncrypt,
       key: aesEncrypted,
     };
-    const validateErr = validateFileMetadata(fileMetaData);
-    if (validateErr) {
-      addToastMessage(`${file.name} ${validateErr.message}`, "error");
-    }
 
     const sendingFile: SendingFile = {
       metaData: fileMetaData,
       progress: 0,
       bitrate: 0,
-      error: validateErr,
       startTime: 0,
       status: FileStatus.Pending,
       aesKey: aesKey,

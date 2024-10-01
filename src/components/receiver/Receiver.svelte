@@ -1,14 +1,11 @@
 <script lang="ts">
-  import { defaultReceiveOptions } from "../../configs";
   import { addToastMessage } from "../../stores/toast";
-  import { validateFileMetadata } from "../../utils/validator";
   import { Message, MetaData, ReceiveEvent } from "../../proto/message";
   import ReceivingFileList from "./ReceivingFileList.svelte";
   import * as zip from "@zip.js/zip.js";
-  import ReceiverOptions from "./ReceiverOptions.svelte";
   import {
     FileStatus,
-    type ReceiveOptions,
+    type PeerMetaData,
     type ReceivingFile,
   } from "../../type";
   import {
@@ -17,14 +14,16 @@
   } from "../../utils/crypto";
 
   type Props = {
+    peerMetaData: PeerMetaData;
     dataChannel: RTCDataChannel;
+    svgAvatar: string;
     rsa: CryptoKeyPair | undefined;
   };
 
-  let { dataChannel, rsa }: Props = $props();
+  let { peerMetaData, dataChannel, svgAvatar, rsa }: Props = $props();
 
-  let receiveOptions: ReceiveOptions = $state(defaultReceiveOptions);
   let receivingFiles: { [key: string]: ReceivingFile } = $state({});
+  let collapseCheckbox: HTMLInputElement;
 
   export async function onMetaData(id: string, metaData: MetaData) {
     let aesKey: CryptoKey | undefined;
@@ -51,33 +50,7 @@
       isEncrypt: metaData.isEncrypt,
     };
 
-    const validateErr = validateFileMetadata(metaData, receiveOptions.maxSize);
-    if (validateErr) {
-      addToastMessage(`${metaData.name} ${validateErr.message}`, "error");
-
-      dataChannel.send(
-        Message.encode({
-          id: id,
-          receiveEvent: ReceiveEvent.EVENT_VALIDATE_ERROR,
-        }).finish()
-      );
-
-      receivingFiles[id].error = validateErr;
-
-      return;
-    }
-
-    if (receiveOptions.autoAccept) {
-      dataChannel.send(
-        Message.encode({
-          id: id,
-          receiveEvent: ReceiveEvent.EVENT_RECEIVER_ACCEPT,
-        }).finish()
-      );
-
-      receivingFiles[id].status = FileStatus.Processing;
-      receivingFiles[id].startTime = Date.now();
-    }
+    collapseCheckbox.checked = true;
   }
 
   export async function onChunkData(id: string, chunk: Uint8Array) {
@@ -212,28 +185,36 @@
 
     addToastMessage("Not found files to download", "error");
   }
-
-  function onOptionsUpdate(options: ReceiveOptions) {
-    receiveOptions = options;
-  }
 </script>
 
-<div class="flex flex-col gap-4">
-  <ReceiverOptions onUpdate={onOptionsUpdate} />
-  {#if Object.keys(receivingFiles).length > 0}
-    <ReceivingFileList
-      {receivingFiles}
-      {onRemove}
-      {onDownload}
-      {onAccept}
-      {onDeny}
-    />
-    {#if Object.keys(receivingFiles).length > 1}
-      <button class="btn btn-primary mt-2" onclick={downloadAllFiles}
-        >Download all files (zip)</button
-      >
-    {/if}
-  {:else}
-    <p class="mt-4">Connected, Waiting for files...</p>
-  {/if}
+<div class="collapse collapse-arrow bg-base-200">
+  <input type="checkbox" checked={false} bind:this={collapseCheckbox} />
+  <div
+    class="collapse-title text-xl font-medium flex flex-row justify-between items-center p-0"
+  >
+    <div class="flex flex-row gap-4 items-center">
+      <img src={svgAvatar} class="w-8 h-8" alt="avatar" />
+      <span>{peerMetaData.name}</span>
+    </div>
+  </div>
+  <div class="collapse-content p-1">
+    <div class="flex flex-col gap-4">
+      {#if Object.keys(receivingFiles).length > 0}
+        <ReceivingFileList
+          {receivingFiles}
+          {onRemove}
+          {onDownload}
+          {onAccept}
+          {onDeny}
+        />
+        {#if Object.keys(receivingFiles).length > 1}
+          <button class="btn btn-primary mt-2" onclick={downloadAllFiles}
+            >Download all files (zip)</button
+          >
+        {/if}
+      {:else}
+        <p class="mt-4">Connected, Waiting for files...</p>
+      {/if}
+    </div>
+  </div>
 </div>

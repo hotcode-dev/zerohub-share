@@ -45,11 +45,6 @@ export interface ReceivingFile extends FileDetail {
   receivedChunks: Uint8Array[];
 }
 
-export interface ReceiveOptions {
-  autoAccept: boolean;
-  maxSize: number;
-}
-
 export interface Setting {
   name: string;
   iceServer: string;
