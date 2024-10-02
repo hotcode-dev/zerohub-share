@@ -21,7 +21,7 @@
     "@nanostores/persistent": "^0.10.2",
     "@nuintun/qrcode": "^3.4.0",
     "@tailwindcss/typography": "^0.5.13",
-    "@zero-hub/client": "0.0.6",
+    "@zero-hub/client": "0.0.7",
     "@zip.js/zip.js": "^2.7.45",
     "astro": "^4.11.3",
     "astrojs-service-worker": "^2.0.0",

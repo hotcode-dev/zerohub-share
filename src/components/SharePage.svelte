@@ -19,7 +19,6 @@
   import { generateRsaKeyPair } from "../utils/crypto";
   import { Message } from "../proto/message";
   import Sender from "./sender/Sender.svelte";
-  import { getPublicIP } from "../utils/getPublicIP";
   import Receiver from "./receiver/Receiver.svelte";
   import { settingAtom } from "../stores/setting";
   import ClipboardIcon from "./icons/Clipboard.svelte";
@@ -166,20 +165,22 @@
   };
 
   async function joinOrCreateHub(id: string | null, name: string) {
-    if (!id) {
-      // use public ip as id if id is not provided
-      const ip = await getPublicIP();
-      id = btoa(`zerohub-share-${ip}`);
-    }
     rsa = await generateRsaKeyPair();
-    zeroHub.joinOrCreateHub(
-      id,
-      {
-        name: name,
-        rsaPub: rsa.publicKey,
-      },
-      {}
-    );
+    if (!id) {
+      // if id is not provided, create or join a hub with the client ip
+      zeroHub.joinOrCreateIPHub(
+        {
+          name: name,
+          rsaPub: rsa.publicKey,
+        },
+        {}
+      );
+      return;
+    }
+    zeroHub.joinIPHub(id, {
+      name: name,
+      rsaPub: rsa.publicKey,
+    });
   }
 
   // Join or create Hub if the id is provided
