@@ -22,7 +22,7 @@
   // Square QR box with edge size = 70% of the smaller edge of the viewfinder.
   let qrboxFunction = function (
     viewfinderWidth: number,
-    viewfinderHeight: number
+    viewfinderHeight: number,
   ) {
     let minEdgePercentage = 0.7; // 70%
     let minEdgeSize = Math.min(viewfinderWidth, viewfinderHeight);
@@ -41,7 +41,7 @@
         qrbox: qrboxFunction,
       },
       onScanSuccessCallback,
-      onScanFailure
+      onScanFailure,
     );
   }
 
@@ -51,7 +51,7 @@
 
   const onScanSuccessCallback: QrcodeSuccessCallback = (
     decodedText,
-    result
+    result,
   ) => {
     isModalOpen = false;
     onScanSuccess(decodedText);
@@ -77,10 +77,10 @@
 />
 <label for="scan-qr-modal" class="modal cursor-pointer">
   <label
-    class="modal-box relative flex flex-col justify-center items-center p-2 w-fit max-w-none"
+    class="modal-box relative flex w-fit max-w-none flex-col items-center justify-center p-2"
     for=""
   >
     <h3 class="text-lg font-bold">Scan QR Code</h3>
-    <reader class="w-96 max-w-full h-auto" id="reader"> </reader>
+    <reader class="h-auto w-96 max-w-full" id="reader"> </reader>
   </label>
 </label>

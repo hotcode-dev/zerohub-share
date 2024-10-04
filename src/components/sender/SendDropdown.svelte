@@ -17,23 +17,27 @@
   const { children, peers, onSend }: Props = $props();
 </script>
 
-<div class="dropdown dropdown-top dropdown-end">
-  <button tabindex="0" class="btn btn-primary" disabled={Object.values(peers).filter(p=> p.isOnline).length == 0}>
+<div class="dropdown dropdown-end dropdown-top">
+  <button
+    tabindex="0"
+    class="btn btn-primary"
+    disabled={Object.values(peers).filter((p) => p.isOnline).length == 0}
+  >
     {@render children?.()}
   </button>
   <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
   <ul
     tabindex="0"
-    class="dropdown-content menu bg-base-200 rounded-box z-[1] w-52 p-2 shadow"
+    class="menu dropdown-content z-[1] w-52 rounded-box bg-base-200 p-2 shadow"
   >
     {#each Object.entries(peers) as [peerId, peer]}
       {#if peer.isOnline}
         <li>
           <button
             onclick={() => onSend(peerId)}
-            class="flex flex-row gap-4 items-center"
+            class="flex flex-row items-center gap-4"
           >
-            <img src={peer.svgAvatar} class="w-8 h-8" alt="avatar" />
+            <img src={peer.svgAvatar} class="h-8 w-8" alt="avatar" />
             <span>{peer.metadata.name}</span>
           </button>
         </li>

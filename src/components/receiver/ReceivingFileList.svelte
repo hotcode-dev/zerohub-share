@@ -19,7 +19,7 @@
 <div class="grid gap-2">
   {#each Object.entries(receivingFiles) as [key, receivedFile], index (key)}
     <ReceiverFileCard fileDetail={receivedFile}>
-      <div class="flex flex-row justify-between items-center w-full">
+      <div class="flex w-full flex-row items-center justify-between">
         {#if receivedFile.status === FileStatus.WaitingAccept && !receivedFile.error}
           <div class="ml-auto">
             <button onclick={() => onDeny(key)} class="btn btn-ghost"

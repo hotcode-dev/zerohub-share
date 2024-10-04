@@ -6,7 +6,7 @@
 
   export function open(
     newQRData: string,
-    correctionLevel: ErrorCorrectionLevel = ErrorCorrectionLevel.L
+    correctionLevel: ErrorCorrectionLevel = ErrorCorrectionLevel.L,
   ) {
     const qrcode: Encoder = new Encoder({
       encodingHint: true,
@@ -24,7 +24,7 @@
             bytes: bytes,
             encoding: 27, // 27 is US-ASCII
           };
-        })
+        }),
       )
       .make();
     qrDataURL = qrcode.toDataURL();
@@ -41,14 +41,14 @@
   <div class="modal-box rounded-none">
     <form method="dialog">
       <button
-        class="btn btn-sm btn-circle absolute right-2 top-2"
+        class="btn btn-circle btn-sm absolute right-2 top-2"
         onclick={close}
       >
         ✕
       </button>
     </form>
     <div class="flex flex-col gap-4">
-      <div class="font-bold text-xl lg:text-4xl">Scan QR Code</div>
+      <div class="text-xl font-bold lg:text-4xl">Scan QR Code</div>
       <img class="w-screen" src={qrDataURL} alt="qr" />
     </div>
   </div>

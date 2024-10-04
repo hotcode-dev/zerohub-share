@@ -54,7 +54,7 @@
           urls: $settingAtom.iceServer,
         },
       ],
-    }
+    },
   );
 
   let hubId = $state("");
@@ -87,7 +87,7 @@
   function handleDataChannel(
     peer: Peer<PeerMetaData>,
     dataChannel: RTCDataChannel,
-    isOnline: boolean
+    isOnline: boolean,
   ) {
     let receiver: Receiver | undefined;
 
@@ -102,18 +102,18 @@
       if (message.metaData !== undefined) {
         peers[peer.id.toString()].receiver?.onMetaData(
           message.id,
-          message.metaData
+          message.metaData,
         );
       } else if (message.chunk !== undefined) {
         peers[peer.id.toString()].receiver?.onChunkData(
           message.id,
-          message.chunk
+          message.chunk,
         );
       } else if (message.receiveEvent !== undefined) {
         sender?.onReceiveEvent(
           message.id,
           peer.id.toString(),
-          message.receiveEvent
+          message.receiveEvent,
         );
       }
     };
@@ -178,7 +178,7 @@
           rsaPub: rsa.publicKey,
           isHost: isHost,
         },
-        {}
+        {},
       );
       return;
     }
@@ -197,15 +197,15 @@
 </script>
 
 {#if hubId}
-  <div class="flex flex-col gap-4 w-full">
+  <div class="flex w-full flex-col gap-4">
     <div class="flex flex-col gap-2">
-      <div class="collapse bg-base-200 collapse-close">
+      <div class="collapse-close collapse bg-base-200">
         <div
-          class="collapse-title text-xl font-medium flex flex-row justify-between items-center p-0"
+          class="collapse-title flex flex-row items-center justify-between p-0 text-xl font-medium"
         >
-          <div class="flex flex-row justify-between items-center">
-            <div class="flex flex-row gap-4 items-center">
-              <img src={svgAvatar} class="w-8 h-8" alt="avatar" />
+          <div class="flex flex-row items-center justify-between">
+            <div class="flex flex-row items-center gap-4">
+              <img src={svgAvatar} class="h-8 w-8" alt="avatar" />
               <span>{$settingAtom.name} (You)</span>
             </div>
           </div>
@@ -226,11 +226,11 @@
       {/if}
     </div>
     {#if isHost}
-      <div class="flex flex-col gap-2 w-full max-w-screen-md mx-auto">
-        <div class="text-sm text-center">Invite people with this link</div>
+      <div class="mx-auto flex w-full max-w-screen-md flex-col gap-2">
+        <div class="text-center text-sm">Invite people with this link</div>
         <div class="flex flex-col lg:flex-row">
           <input
-            class="input input-bordered w-full text-sm input-sm"
+            class="input input-sm input-bordered w-full text-sm"
             value={inviteLink}
             readonly
           />
@@ -238,7 +238,7 @@
             ><ClipboardIcon />Copy Link</button
           >
           <button
-            class="btn bg-base-300 gap-2 btn-sm"
+            class="btn btn-sm gap-2 bg-base-300"
             onclick={() => {
               qrModal.open(inviteLink);
             }}
@@ -249,14 +249,14 @@
         </div>
       </div>
       <div class="divider m-0"></div>
-      <div class="text-sm text-center w-full text-error">
+      <div class="w-full text-center text-sm text-error">
         It will automatically send pick files to all peers.
       </div>
       <Sender bind:this={sender} {peers} isDrop={true} />
     {/if}
   </div>
 {:else}
-  <div class="flex flex-col h-full w-full items-center justify-center gap-2">
+  <div class="flex h-full w-full flex-col items-center justify-center gap-2">
     <span class="loading loading-spinner loading-lg"></span>
     <div>Loading</div>
   </div>

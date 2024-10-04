@@ -2,7 +2,8 @@
 import Cog from "../icons/Cog.astro";
 ---
 
-<button class="btn btn-ghost" onclick="settingmodal.showModal()"><Cog /></button>
+<button class="btn btn-ghost" onclick="settingmodal.showModal()"><Cog /></button
+>
 <dialog id="settingmodal" class="modal modal-bottom sm:modal-middle">
   <div class="modal-box">
     <div class="flex flex-row justify-between">
@@ -26,7 +27,7 @@ import Cog from "../icons/Cog.astro";
         </svg>
         <input
           type="checkbox"
-          class="toggle theme-controller"
+          class="theme-controller toggle"
           id="darkmode-toggle"
         />
         <svg
@@ -44,7 +45,7 @@ import Cog from "../icons/Cog.astro";
         </svg>
       </label>
     </div>
-    <div class="py-4 flex flex-col gap-4">
+    <div class="flex flex-col gap-4 py-4">
       <label class="form-control w-full">
         <div class="label">
           <span class="label-text">Name</span>
@@ -131,10 +132,10 @@ import Cog from "../icons/Cog.astro";
   const nameInput = document.getElementById("name-input") as HTMLInputElement;
   const iceInput = document.getElementById("ice-input") as HTMLInputElement;
   const saveButton = document.getElementById(
-    "save-button"
+    "save-button",
   ) as HTMLButtonElement;
   const resetButton = document.getElementById(
-    "reset-button"
+    "reset-button",
   ) as HTMLButtonElement;
 
   settingAtom.subscribe((s) => {

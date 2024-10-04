@@ -19,7 +19,7 @@
           e.preventDefault();
           e.stopPropagation();
         },
-        false
+        false,
       );
     });
 
@@ -92,7 +92,7 @@
           const imageFile = new File(
             [blob],
             `image.${type.replace("image/", "")}`,
-            { type }
+            { type },
           );
           handleFileClipboard(imageFile);
         }
@@ -129,14 +129,14 @@
 </script>
 
 <label
-  class="relative flex flex-col border border-dashed cursor-pointer"
+  class="relative flex cursor-pointer flex-col border border-dashed"
   bind:this={dropArea}
 >
   <input
     accept="*"
     type="file"
     multiple
-    class="absolute inset-0 z-50 w-full h-full p-0 m-0 outline-none opacity-0 cursor-pointer"
+    class="absolute inset-0 z-50 m-0 h-full w-full cursor-pointer p-0 opacity-0 outline-none"
     title=""
     bind:this={fileInput}
     onchange={handleFileInputChange}
@@ -149,7 +149,7 @@
       viewBox="0 0 24 24"
       stroke-width="1.5"
       stroke="currentColor"
-      class="w-6 h-6"
+      class="h-6 w-6"
     >
       <path
         stroke-linecap="round"

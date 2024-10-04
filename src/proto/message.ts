@@ -71,23 +71,28 @@ export interface Message {
   /** file id */
   id: string;
   /** use for sender to send file metadata */
-  metaData?:
-    | MetaData
-    | undefined;
+  metaData?: MetaData | undefined;
   /** use for sender to send file chunk */
-  chunk?:
-    | Uint8Array
-    | undefined;
+  chunk?: Uint8Array | undefined;
   /** respone event to tell the sender status */
   receiveEvent?: ReceiveEvent | undefined;
 }
 
 function createBaseMetaData(): MetaData {
-  return { name: "", size: 0, type: "", isEncrypt: false, key: new Uint8Array(0) };
+  return {
+    name: "",
+    size: 0,
+    type: "",
+    isEncrypt: false,
+    key: new Uint8Array(0),
+  };
 }
 
 export const MetaData: MessageFns<MetaData> = {
-  encode(message: MetaData, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: MetaData,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.name !== "") {
       writer.uint32(10).string(message.name);
     }
@@ -107,7 +112,8 @@ export const MetaData: MessageFns<MetaData> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): MetaData {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseMetaData();
     while (reader.pos < end) {
@@ -162,7 +168,9 @@ export const MetaData: MessageFns<MetaData> = {
       name: isSet(object.name) ? globalThis.String(object.name) : "",
       size: isSet(object.size) ? globalThis.Number(object.size) : 0,
       type: isSet(object.type) ? globalThis.String(object.type) : "",
-      isEncrypt: isSet(object.isEncrypt) ? globalThis.Boolean(object.isEncrypt) : false,
+      isEncrypt: isSet(object.isEncrypt)
+        ? globalThis.Boolean(object.isEncrypt)
+        : false,
       key: isSet(object.key) ? bytesFromBase64(object.key) : new Uint8Array(0),
     };
   },
@@ -202,11 +210,19 @@ export const MetaData: MessageFns<MetaData> = {
 };
 
 function createBaseMessage(): Message {
-  return { id: "", metaData: undefined, chunk: undefined, receiveEvent: undefined };
+  return {
+    id: "",
+    metaData: undefined,
+    chunk: undefined,
+    receiveEvent: undefined,
+  };
 }
 
 export const Message: MessageFns<Message> = {
-  encode(message: Message, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: Message,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.id !== "") {
       writer.uint32(10).string(message.id);
     }
@@ -223,7 +239,8 @@ export const Message: MessageFns<Message> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): Message {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseMessage();
     while (reader.pos < end) {
@@ -269,9 +286,13 @@ export const Message: MessageFns<Message> = {
   fromJSON(object: any): Message {
     return {
       id: isSet(object.id) ? globalThis.String(object.id) : "",
-      metaData: isSet(object.metaData) ? MetaData.fromJSON(object.metaData) : undefined,
+      metaData: isSet(object.metaData)
+        ? MetaData.fromJSON(object.metaData)
+        : undefined,
       chunk: isSet(object.chunk) ? bytesFromBase64(object.chunk) : undefined,
-      receiveEvent: isSet(object.receiveEvent) ? receiveEventFromJSON(object.receiveEvent) : undefined,
+      receiveEvent: isSet(object.receiveEvent)
+        ? receiveEventFromJSON(object.receiveEvent)
+        : undefined,
     };
   },
 
@@ -298,9 +319,10 @@ export const Message: MessageFns<Message> = {
   fromPartial<I extends Exact<DeepPartial<Message>, I>>(object: I): Message {
     const message = createBaseMessage();
     message.id = object.id ?? "";
-    message.metaData = (object.metaData !== undefined && object.metaData !== null)
-      ? MetaData.fromPartial(object.metaData)
-      : undefined;
+    message.metaData =
+      object.metaData !== undefined && object.metaData !== null
+        ? MetaData.fromPartial(object.metaData)
+        : undefined;
     message.chunk = object.chunk ?? undefined;
     message.receiveEvent = object.receiveEvent ?? undefined;
     return message;
@@ -332,17 +354,31 @@ function base64FromBytes(arr: Uint8Array): string {
   }
 }
 
-type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
+type Builtin =
+  | Date
+  | Function
+  | Uint8Array
+  | string
+  | number
+  | boolean
+  | undefined;
 
-export type DeepPartial<T> = T extends Builtin ? T
-  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
-  : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
-  : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
-  : Partial<T>;
+export type DeepPartial<T> = T extends Builtin
+  ? T
+  : T extends globalThis.Array<infer U>
+    ? globalThis.Array<DeepPartial<U>>
+    : T extends ReadonlyArray<infer U>
+      ? ReadonlyArray<DeepPartial<U>>
+      : T extends {}
+        ? { [K in keyof T]?: DeepPartial<T[K]> }
+        : Partial<T>;
 
 type KeysOfUnion<T> = T extends T ? keyof T : never;
-export type Exact<P, I extends P> = P extends Builtin ? P
-  : P & { [K in keyof P]: Exact<P[K], I[K]> } & { [K in Exclude<keyof I, KeysOfUnion<P>>]: never };
+export type Exact<P, I extends P> = P extends Builtin
+  ? P
+  : P & { [K in keyof P]: Exact<P[K], I[K]> } & {
+      [K in Exclude<keyof I, KeysOfUnion<P>>]: never;
+    };
 
 function isSet(value: any): boolean {
   return value !== null && value !== undefined;

@@ -34,7 +34,7 @@
       }
       aesKey = await decryptAesKeyWithRsaPrivateKey(
         rsa.privateKey,
-        metaData.key
+        metaData.key,
       );
     }
 
@@ -60,7 +60,7 @@
       Message.encode({
         id: id,
         receiveEvent: ReceiveEvent.EVENT_RECEIVED_CHUNK,
-      }).finish()
+      }).finish(),
     );
 
     const receivingFile = receivingFiles[id];
@@ -75,20 +75,20 @@
 
     // calculate progress
     receivingFiles[id].progress = Math.round(
-      (receivingFiles[id].receivedSize / receivingFile.metaData.size) * 100
+      (receivingFiles[id].receivedSize / receivingFile.metaData.size) * 100,
     );
 
     // calculate bitrate
     receivingFiles[id].bitrate = Math.round(
       receivingFiles[id].receivedSize /
-        ((Date.now() - receivingFiles[id].startTime) / 1000)
+        ((Date.now() - receivingFiles[id].startTime) / 1000),
     );
 
     if (receivingFiles[id].receivedSize >= receivingFile.metaData.size) {
       receivingFiles[id].status = FileStatus.Success;
       addToastMessage(
         `Received ${receivingFiles[id].metaData.name}`,
-        "success"
+        "success",
       );
     }
   }
@@ -99,7 +99,7 @@
         Message.encode({
           id: key,
           receiveEvent: ReceiveEvent.EVENT_RECEIVER_REJECT,
-        }).finish()
+        }).finish(),
       );
     }
     delete receivingFiles[key];
@@ -124,7 +124,7 @@
       Message.encode({
         id: key,
         receiveEvent: ReceiveEvent.EVENT_RECEIVER_ACCEPT,
-      }).finish()
+      }).finish(),
     );
 
     receivingFiles[key].status = FileStatus.Processing;
@@ -136,7 +136,7 @@
       Message.encode({
         id: key,
         receiveEvent: ReceiveEvent.EVENT_RECEIVER_REJECT,
-      }).finish()
+      }).finish(),
     );
     delete receivingFiles[key];
     receivingFiles = receivingFiles; // do this to trigger update the map
@@ -195,10 +195,10 @@
     disabled={peerMetaData.isHost}
   />
   <div
-    class="collapse-title text-xl font-medium flex flex-row justify-between items-center p-0"
+    class="collapse-title flex flex-row items-center justify-between p-0 text-xl font-medium"
   >
-    <div class="flex flex-row gap-4 items-center">
-      <img src={svgAvatar} class="w-8 h-8" alt="avatar" />
+    <div class="flex flex-row items-center gap-4">
+      <img src={svgAvatar} class="h-8 w-8" alt="avatar" />
       <span
         >{peerMetaData.name}{#if peerMetaData.isHost}{" (Sender)"}{/if}</span
       >

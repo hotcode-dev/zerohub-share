@@ -17,7 +17,7 @@
   <div
     class="collapse-title text-xl {isOpen
       ? 'font-bold'
-      : 'font-light bg-base-300'}"
+      : 'bg-base-300 font-light'}"
   >
     {title}
   </div>

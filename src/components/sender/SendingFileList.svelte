@@ -39,15 +39,18 @@
 <div class="grid gap-4">
   {#each Object.entries(sendingFileSelections) as [key, sendingFileSelection], index (key)}
     <SenderFileCard {sendingFileSelection} {peers}>
-      <div class="col-span-4 flex justify-between items-center">
+      <div class="col-span-4 flex items-center justify-between">
         <button onclick={() => onRemove(key)} class="btn btn-ghost btn-sm pl-0">
           <Trash /><span class="hidden lg:block">Remove</span>
         </button>
-        <div class="flex flex-row gap-2 items-center">
-          <div class="tooltip" data-tip={sendingFileSelection.isEncrypt ? "Encrypt" : "Not Encrypt"}>
-            <Lock
-              bind:show={sendingFileSelection.isEncrypt}
-            />
+        <div class="flex flex-row items-center gap-2">
+          <div
+            class="tooltip"
+            data-tip={sendingFileSelection.isEncrypt
+              ? "Encrypt"
+              : "Not Encrypt"}
+          >
+            <Lock bind:show={sendingFileSelection.isEncrypt} />
           </div>
           {#if sendingFileSelections.stop}
             <button onclick={() => onContinue(key)} class="btn btn-secondary">
@@ -58,7 +61,12 @@
               Stop
             </button>
           {:else}
-            <SendDropdown {peers} onSend={(peerId: string) => {onSend(key, peerId)}}>
+            <SendDropdown
+              {peers}
+              onSend={(peerId: string) => {
+                onSend(key, peerId);
+              }}
+            >
               <UpTray /> Send
             </SendDropdown>
           {/if}

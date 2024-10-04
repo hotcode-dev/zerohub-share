@@ -38,13 +38,13 @@
   const { peers, isDrop }: Props = $props();
 
   let sendingFileSelections: { [key: string]: SendingFileSelection } = $state(
-    {}
+    {},
   );
 
   export function onReceiveEvent(
     fileId: string,
     peerId: string,
-    receiveEvent: ReceiveEvent
+    receiveEvent: ReceiveEvent,
   ) {
     const sendingFile = sendingFileSelections[fileId].sendingFiles[peerId];
     if (sendingFile && sendingFile.event) {
@@ -73,7 +73,7 @@
       }
       aesEncrypted = await encryptAesKeyWithRsaPublicKey(
         peer.metadata.rsaPub,
-        aesKey
+        aesKey,
       );
     }
 
@@ -111,7 +111,7 @@
         sendingFileSelections[fileId].sendingFiles[peerId].startTime =
           Date.now();
         await sendNextChunk();
-      }
+      },
     );
 
     sendingFile.event.on(
@@ -137,9 +137,9 @@
           FileStatus.Success;
         addToastMessage(
           `File ${sendingFile.metaData.name} sent successfully`,
-          "success"
+          "success",
         );
-      }
+      },
     );
 
     sendingFile.event.on(
@@ -147,11 +147,11 @@
       () => {
         addToastMessage("Receiver validate error", "error");
         sendingFileSelections[fileId].sendingFiles[peerId].error = new Error(
-          "Receiver validate error"
+          "Receiver validate error",
         );
         sendingFileSelections[fileId].sendingFiles[peerId].status =
           FileStatus.Pending;
-      }
+      },
     );
 
     sendingFile.event.on(
@@ -159,11 +159,11 @@
       () => {
         addToastMessage("Receiver reject the file", "error");
         sendingFileSelections[fileId].sendingFiles[peerId].error = new Error(
-          "Receiver reject the file"
+          "Receiver reject the file",
         );
         sendingFileSelections[fileId].sendingFiles[peerId].status =
           FileStatus.Pending;
-      }
+      },
     );
 
     async function sendBuffer(buffer: ArrayBuffer) {
@@ -175,7 +175,7 @@
             Message.encode({
               id: sendingFile.metaData.name,
               chunk: encrypted,
-            }).finish()
+            }).finish(),
           );
           return;
         }
@@ -185,14 +185,14 @@
         Message.encode({
           id: sendingFile.metaData.name,
           chunk: new Uint8Array(buffer),
-        }).finish()
+        }).finish(),
       );
     }
 
     async function sendNextChunk() {
       const slice = sendingFileSelection.file.slice(
         offset,
-        offset + sendingFileSelection.chunkSize
+        offset + sendingFileSelection.chunkSize,
       );
       const buffer = await slice.arrayBuffer();
 
@@ -202,12 +202,12 @@
 
       // calculate progress
       sendingFileSelections[fileId].sendingFiles[peerId].progress = Math.round(
-        (offset / sendingFile.metaData.size) * 100
+        (offset / sendingFile.metaData.size) * 100,
       );
 
       // calculate bitrate
       sendingFileSelections[fileId].sendingFiles[peerId].bitrate = Math.round(
-        offset / ((Date.now() - sendingFile.startTime) / 1000)
+        offset / ((Date.now() - sendingFile.startTime) / 1000),
       );
     }
 
@@ -216,7 +216,7 @@
       Message.encode({
         id: sendingFile.metaData.name,
         metaData: sendingFile.metaData,
-      }).finish()
+      }).finish(),
     );
 
     sendingFile.status = FileStatus.WaitingAccept;
@@ -235,10 +235,10 @@
   async function onContinue(fileId: string) {
     sendingFileSelections[fileId].stop = false;
     for (const sendingFile of Object.values(
-      sendingFileSelections[fileId].sendingFiles
+      sendingFileSelections[fileId].sendingFiles,
     )) {
       sendingFile.event?.emit(
-        receiveEventToJSON(ReceiveEvent.EVENT_RECEIVED_CHUNK)
+        receiveEventToJSON(ReceiveEvent.EVENT_RECEIVED_CHUNK),
       );
     }
   }

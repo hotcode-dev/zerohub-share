@@ -14,9 +14,11 @@
   <div class="card-body p-2 lg:p-4">
     <div class="flex flex-col gap-2">
       <div class="flex flex-row">
-        <div class="flex items-center justify-center h-24 w-24 min-w-24 bg-base-300 rounded">
+        <div
+          class="flex h-24 w-24 min-w-24 items-center justify-center rounded bg-base-300"
+        >
           <span class="text-lg font-bold">
-            {fileDetail.metaData.name.split('.').pop()?.toUpperCase()}
+            {fileDetail.metaData.name.split(".").pop()?.toUpperCase()}
           </span>
         </div>
         <div class="flex flex-col gap-2 px-4 py-2">
@@ -26,7 +28,10 @@
             {humanFileSize(fileDetail.metaData.size)}
           </p>
           {#if fileDetail.metaData.type}
-            <p class="text-xs"><strong>Type:</strong> {fileDetail.metaData.type}</p>
+            <p class="text-xs">
+              <strong>Type:</strong>
+              {fileDetail.metaData.type}
+            </p>
           {/if}
         </div>
       </div>

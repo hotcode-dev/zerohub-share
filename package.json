@@ -10,7 +10,8 @@
     "build": "astro check && astro build",
     "preview": "astro preview",
     "astro": "astro",
-    "protogen": "protoc --plugin=node_modules/ts-proto/protoc-gen-ts_proto --ts_proto_out=. ./src/proto/*.proto"
+    "protogen": "protoc --plugin=node_modules/ts-proto/protoc-gen-ts_proto --ts_proto_out=. ./src/proto/*.proto",
+    "pretty": "prettier --write \"./src/**/*.{ts,json,astro,html,svelte}\""
   },
   "devDependencies": {
     "@astrojs/check": "^0.7.0",
@@ -33,6 +34,8 @@
     "nanostores": "^0.10.3",
     "postcss": "^8.4.32",
     "prettier": "^3.3.3",
+    "prettier-plugin-astro": "^0.14.1",
+    "prettier-plugin-svelte": "^3.2.7",
     "prettier-plugin-tailwindcss": "^0.6.8",
     "protobufjs": "^7.3.1",
     "sdp-compact": "^0.0.6",
