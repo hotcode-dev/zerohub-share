@@ -14,7 +14,7 @@
     onSend: (peerId: string) => void;
   };
 
-  let { children, peers, onSend }: Props = $props();
+  const { children, peers, onSend }: Props = $props();
 </script>
 
 <div class="dropdown dropdown-top dropdown-end">

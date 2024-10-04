@@ -26,7 +26,7 @@
     onContinue: (key: string) => void;
   };
 
-  let {
+  const {
     peers,
     sendingFileSelections,
     onRemove,

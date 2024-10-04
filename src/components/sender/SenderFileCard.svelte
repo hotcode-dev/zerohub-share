@@ -15,7 +15,7 @@
     };
   };
 
-  let { children, sendingFileSelection, peers }: Props = $props();
+  const { children, sendingFileSelection, peers }: Props = $props();
 </script>
 
 <div class="card bg-base-100 shadow-lg shadow-base-300">

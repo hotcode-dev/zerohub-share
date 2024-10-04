@@ -26,6 +26,7 @@
 
   const searchParams = new URLSearchParams(window.location.search);
   const joinId = searchParams.get("id");
+  const isHost = joinId === null;
 
   const avatar = createAvatar(avatarStyle, {
     seed: $settingAtom.name,
@@ -90,7 +91,9 @@
   ) {
     let receiver: Receiver | undefined;
 
-    dataChannel.onopen = () => {};
+    dataChannel.onopen = () => {
+      sender?.sendAllFiles(peer.id.toString());
+    };
     dataChannel.onerror = () => {};
     dataChannel.onclose = () => {};
     dataChannel.onmessage = (event) => {
@@ -138,6 +141,7 @@
         if (zeroHub.myPeerId && peer.id > zeroHub.myPeerId) {
           peers[peer.id.toString()].isOnline = true;
         }
+
         break;
       case PeerStatus.Pending:
         if (zeroHub.myPeerId && peer.id > zeroHub.myPeerId) {
@@ -167,17 +171,18 @@
   async function joinOrCreateHub(id: string | null, name: string) {
     rsa = await generateRsaKeyPair();
     if (!id) {
-      // if id is not provided, create or join a hub with the client ip
-      zeroHub.joinOrCreateIPHub(
+      // if id is not provided, create a random hub
+      zeroHub.createRandomHub(
         {
           name: name,
           rsaPub: rsa.publicKey,
+          isHost: isHost,
         },
         {}
       );
       return;
     }
-    zeroHub.joinIPHub(id, {
+    zeroHub.joinRandomHub(id, {
       name: name,
       rsaPub: rsa.publicKey,
     });
@@ -206,45 +211,49 @@
           </div>
         </div>
       </div>
-      {#each Object.values(peers) as peer}
-        {#if peer.isOnline && peer.dataChannel}
-          <Receiver
-            bind:this={peer.receiver}
-            dataChannel={peer.dataChannel}
-            peerMetaData={peer.metadata}
-            svgAvatar={peer.svgAvatar}
-            {rsa}
+      {#if !isHost}
+        {#each Object.values(peers) as peer}
+          {#if peer.isOnline && peer.dataChannel && peer.metadata.isHost}
+            <Receiver
+              bind:this={peer.receiver}
+              dataChannel={peer.dataChannel}
+              peerMetaData={peer.metadata}
+              svgAvatar={peer.svgAvatar}
+              {rsa}
+            />
+          {/if}
+        {/each}
+      {/if}
+    </div>
+    {#if isHost}
+      <div class="flex flex-col gap-2 w-full max-w-screen-md mx-auto">
+        <div class="text-sm text-center">Invite people with this link</div>
+        <div class="flex flex-col lg:flex-row">
+          <input
+            class="input input-bordered w-full text-sm input-sm"
+            value={inviteLink}
+            readonly
           />
-        {/if}
-      {/each}
-    </div>
-    <div class="flex flex-col gap-2 w-full max-w-screen-md mx-auto">
-      <div class="text-sm text-center text-error">
-        It will see other peers with the same public IP
+          <button class="btn btn-primary btn-sm" onclick={copyLink}
+            ><ClipboardIcon />Copy Link</button
+          >
+          <button
+            class="btn bg-base-300 gap-2 btn-sm"
+            onclick={() => {
+              qrModal.open(inviteLink);
+            }}
+          >
+            <QrIcon />
+            QR Code
+          </button>
+        </div>
       </div>
-      <div class="text-sm text-center">Invite more people with this link</div>
-      <div class="flex flex-col lg:flex-row">
-        <input
-          class="input input-bordered w-full text-sm input-sm"
-          value={inviteLink}
-          readonly
-        />
-        <button class="btn btn-primary btn-sm" onclick={copyLink}
-          ><ClipboardIcon />Copy Link</button
-        >
-        <button
-          class="btn bg-base-300 gap-2 btn-sm"
-          onclick={() => {
-            qrModal.open(inviteLink);
-          }}
-        >
-          <QrIcon />
-          QR Code
-        </button>
+      <div class="divider m-0"></div>
+      <div class="text-sm text-center w-full text-error">
+        It will automatically send pick files to all peers.
       </div>
-    </div>
-    <div class="divider m-0"></div>
-    <Sender bind:this={sender} {peers} />
+      <Sender bind:this={sender} {peers} isDrop={true} />
+    {/if}
   </div>
 {:else}
   <div class="flex flex-col h-full w-full items-center justify-center gap-2">

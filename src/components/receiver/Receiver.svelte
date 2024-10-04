@@ -188,13 +188,20 @@
 </script>
 
 <div class="collapse collapse-arrow bg-base-200">
-  <input type="checkbox" checked={false} bind:this={collapseCheckbox} />
+  <input
+    type="checkbox"
+    checked={peerMetaData.isHost}
+    bind:this={collapseCheckbox}
+    disabled={peerMetaData.isHost}
+  />
   <div
     class="collapse-title text-xl font-medium flex flex-row justify-between items-center p-0"
   >
     <div class="flex flex-row gap-4 items-center">
       <img src={svgAvatar} class="w-8 h-8" alt="avatar" />
-      <span>{peerMetaData.name}</span>
+      <span
+        >{peerMetaData.name}{#if peerMetaData.isHost}{" (Sender)"}{/if}</span
+      >
     </div>
   </div>
   <div class="collapse-content p-1">

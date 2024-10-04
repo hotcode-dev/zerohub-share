@@ -32,9 +32,10 @@
         svgAvatar: string;
       };
     };
+    isDrop?: boolean;
   };
 
-  let { peers }: Props = $props();
+  const { peers, isDrop }: Props = $props();
 
   let sendingFileSelections: { [key: string]: SendingFileSelection } = $state(
     {}
@@ -221,7 +222,7 @@
     sendingFile.status = FileStatus.WaitingAccept;
   }
 
-  async function sendAllFiles(peerId: string) {
+  export async function sendAllFiles(peerId: string) {
     for (const fileId of Object.keys(sendingFileSelections)) {
       await onSend(fileId, peerId);
     }
@@ -256,6 +257,13 @@
         isEncrypt: false,
         sendingFiles: {},
       };
+
+      // if it's drop mode send file to all peers after pick
+      if (isDrop && peers) {
+        for (const peerId of Object.keys(peers)) {
+          await onSend(file.name, peerId);
+        }
+      }
     });
   }
 </script>
@@ -271,12 +279,10 @@
       {onStop}
       {onContinue}
     />
-    {#if Object.keys(sendingFileSelections).length > 1}
-      <div class="self-end">
-        <SendDropdown {peers} onSend={sendAllFiles}>
-          <UpTray /> Send all files
-        </SendDropdown>
-      </div>
-    {/if}
+    <div class="self-end">
+      <SendDropdown {peers} onSend={sendAllFiles}>
+        <UpTray /> Send all files
+      </SendDropdown>
+    </div>
   {/if}
 </div>

@@ -4,6 +4,7 @@ import type { EventEmitter } from "eventemitter3";
 export interface PeerMetaData {
   name: string;
   rsaPub: CryptoKey | undefined;
+  isHost?: boolean;
 }
 
 export interface HubMetaData {}

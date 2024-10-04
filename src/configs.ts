@@ -17,6 +17,8 @@ export const stunServers: string[] = [
 
 export const pageTitle = "ZeroHub Share";
 
+export const pageTitleDrop = "ZeroHub Drop";
+
 export const pageDescription = "Secure P2P file sharing using WebRTC";
 
 export const githubLink = "https://github.com/hotcode-dev/zerohub-share";

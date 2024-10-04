@@ -6,7 +6,7 @@
     onFilesPick: (files: FileList) => void;
   };
 
-  let { onFilesPick }: Props = $props();
+  const { onFilesPick }: Props = $props();
 
   let dropArea: HTMLElement;
   let fileInput: HTMLInputElement;
