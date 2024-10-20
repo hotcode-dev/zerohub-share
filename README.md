@@ -23,3 +23,12 @@ please remove if you don't use them
 ## PageSpeed Insights Score
 
 The PageSpeed Insights score will be full for all cetegories. [Test Results](https://pagespeed.web.dev/analysis/https-ntsd-github-io-astro-svelte-tailwind/5ta4jh3z09?form_factor=mobile)
+
+## TODO
+
+- Add How to use
+- Add FAQ modal
+- Show version
+- Remove encrypt by RSA
+- Add encrypt AES by password
+- Not use svelte state for every chunk send or reveive

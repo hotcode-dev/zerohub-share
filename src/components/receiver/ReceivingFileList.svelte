@@ -26,7 +26,7 @@
               >Deny</button
             >
             <button onclick={() => onAccept(key)} class="btn btn-primary"
-              >Accept</button
+              >{receivedFile.isEncrypt ? "Unlock" : "Accept"}</button
             >
           </div>
         {:else}

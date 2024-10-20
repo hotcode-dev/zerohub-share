@@ -5,7 +5,5 @@ import DropPage from "../components/DropPage.svelte";
 ---
 
 <MainLayout isDrop={true}>
-  <div class="flex flex-col items-center justify-center">
-    <DropPage client:load client:only="svelte" />
-  </div>
+  <DropPage client:load client:only="svelte" />
 </MainLayout>

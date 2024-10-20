@@ -3,7 +3,6 @@ import type { EventEmitter } from "eventemitter3";
 
 export interface PeerMetaData {
   name: string;
-  rsaPub: CryptoKey | undefined;
   isHost?: boolean;
 }
 
@@ -34,6 +33,7 @@ export interface SendingFileSelection {
   stop: boolean;
   file: File;
   isEncrypt: boolean;
+  password: string;
   chunkSize: number;
   sendingFiles: {
     [peerId: string]: SendingFile;
@@ -43,6 +43,7 @@ export interface SendingFileSelection {
 export interface ReceivingFile extends FileDetail {
   receivedSize: number;
   isEncrypt: boolean;
+  encryptedAesKey?: Uint8Array;
   receivedChunks: Uint8Array[];
 }
 

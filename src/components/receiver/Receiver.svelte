@@ -2,42 +2,27 @@
   import { addToastMessage } from "../../stores/toast";
   import { Message, MetaData, ReceiveEvent } from "../../proto/message";
   import ReceivingFileList from "./ReceivingFileList.svelte";
-  import * as zip from "@zip.js/zip.js";
   import {
     FileStatus,
     type PeerMetaData,
     type ReceivingFile,
   } from "../../type";
-  import {
-    decryptAesGcm,
-    decryptAesKeyWithRsaPrivateKey,
-  } from "../../utils/crypto";
+  import { decryptAesGcm, decryptAesWithPassword } from "../../utils/crypto";
+  import DecryptModal from "./DecryptModal.svelte";
 
   type Props = {
     peerMetaData: PeerMetaData;
     dataChannel: RTCDataChannel;
     svgAvatar: string;
-    rsa: CryptoKeyPair | undefined;
   };
 
-  let { peerMetaData, dataChannel, svgAvatar, rsa }: Props = $props();
+  let { peerMetaData, dataChannel, svgAvatar }: Props = $props();
 
   let receivingFiles: { [key: string]: ReceivingFile } = $state({});
   let collapseCheckbox: HTMLInputElement;
+  let decryptModal: DecryptModal;
 
   export async function onMetaData(id: string, metaData: MetaData) {
-    let aesKey: CryptoKey | undefined;
-    if (metaData.isEncrypt) {
-      if (!rsa) {
-        addToastMessage("RSA private key is not available");
-        return;
-      }
-      aesKey = await decryptAesKeyWithRsaPrivateKey(
-        rsa.privateKey,
-        metaData.key,
-      );
-    }
-
     receivingFiles[id] = {
       metaData: metaData,
       progress: 0,
@@ -46,8 +31,8 @@
       receivedChunks: [],
       startTime: 0,
       status: FileStatus.WaitingAccept,
-      aesKey: aesKey,
       isEncrypt: metaData.isEncrypt,
+      encryptedAesKey: metaData.key,
     };
 
     collapseCheckbox.checked = true;
@@ -119,16 +104,58 @@
     URL.revokeObjectURL(url);
   }
 
-  function onAccept(key: string) {
-    dataChannel.send(
-      Message.encode({
-        id: key,
-        receiveEvent: ReceiveEvent.EVENT_RECEIVER_ACCEPT,
-      }).finish(),
-    );
+  async function onAccept(key: string) {
+    const receivedFile = receivingFiles[key];
 
-    receivingFiles[key].status = FileStatus.Processing;
-    receivingFiles[key].startTime = Date.now();
+    if (!receivedFile) {
+      console.error(`file key ${key} not found`);
+      return;
+    }
+
+    // if not encrypted, accept directly
+    if (!receivedFile.isEncrypt) {
+      receivingFiles[key].status = FileStatus.Processing;
+      receivingFiles[key].startTime = Date.now();
+
+      dataChannel.send(
+        Message.encode({
+          id: key,
+          receiveEvent: ReceiveEvent.EVENT_RECEIVER_ACCEPT,
+        }).finish(),
+      );
+      return;
+    }
+
+    if (!receivedFile.encryptedAesKey) {
+      console.error(`file key ${key} missing encryptedAesKey`);
+      return;
+    }
+
+    const password = await decryptModal.openUnlock();
+    if (!password) {
+      return;
+    }
+
+    try {
+      const aesKey = await decryptAesWithPassword(
+        receivedFile.encryptedAesKey,
+        password,
+      );
+
+      receivingFiles[key].aesKey = aesKey;
+      receivingFiles[key].status = FileStatus.Processing;
+      receivingFiles[key].startTime = Date.now();
+
+      dataChannel.send(
+        Message.encode({
+          id: key,
+          receiveEvent: ReceiveEvent.EVENT_RECEIVER_ACCEPT,
+        }).finish(),
+      );
+    } catch (error) {
+      console.error("decrypt aes key error", error);
+      addToastMessage("Unlock error: wrong password", "error");
+    }
   }
 
   function onDeny(key: string) {
@@ -143,11 +170,6 @@
   }
 
   async function downloadAllFiles() {
-    const zipFileWriter = new zip.BlobWriter();
-    const zipWriter = new zip.ZipWriter(zipFileWriter);
-
-    let found = false;
-
     for (const key of Object.keys(receivingFiles)) {
       if (
         receivingFiles[key].status != FileStatus.Success ||
@@ -155,35 +177,8 @@
       ) {
         continue;
       }
-
-      const receivedFile = receivingFiles[key];
-      const blobFile = new Blob(receivedFile.receivedChunks, {
-        type: receivedFile.metaData.type,
-      });
-      const name = receivedFile.metaData.name;
-
-      const blobReader = new zip.BlobReader(blobFile);
-
-      await zipWriter.add(name, blobReader);
-
-      found = true;
+      onDownload(key);
     }
-
-    await zipWriter.close();
-
-    if (found) {
-      const zipFileBlob = await zipFileWriter.getData();
-
-      const url = URL.createObjectURL(zipFileBlob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = "zero-share.zip";
-      link.click();
-      URL.revokeObjectURL(url);
-      return;
-    }
-
-    addToastMessage("Not found files to download", "error");
   }
 </script>
 
@@ -225,3 +220,5 @@
     </div>
   </div>
 </div>
+
+<DecryptModal bind:this={decryptModal} />

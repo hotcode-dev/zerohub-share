@@ -16,13 +16,13 @@
   import QrIcon from "./icons/QrIcon.svelte";
   import QrModal from "./qr/QrModal.svelte";
   import type { HubMetaData, PeerMetaData } from "../type";
-  import { generateRsaKeyPair } from "../utils/crypto";
   import { Message } from "../proto/message";
   import Sender from "./sender/Sender.svelte";
   import Receiver from "./receiver/Receiver.svelte";
   import { settingAtom } from "../stores/setting";
   import ClipboardIcon from "./icons/Clipboard.svelte";
   import { addToastMessage } from "../stores/toast";
+  import Toast from "./Toast.svelte";
 
   const searchParams = new URLSearchParams(window.location.search);
   const joinId = searchParams.get("id");
@@ -69,7 +69,6 @@
   } = $state({});
   let inviteLink = $state("");
   let qrModal: QrModal;
-  let rsa: CryptoKeyPair | undefined = $state(); // private key
 
   let sender: Sender | undefined = $state(undefined);
 
@@ -169,13 +168,11 @@
   };
 
   async function joinOrCreateHub(id: string | null, name: string) {
-    rsa = await generateRsaKeyPair();
     if (!id) {
       // if id is not provided, create a random hub
       zeroHub.createRandomHub(
         {
           name: name,
-          rsaPub: rsa.publicKey,
           isHost: isHost,
         },
         {},
@@ -184,7 +181,6 @@
     }
     zeroHub.joinRandomHub(id, {
       name: name,
-      rsaPub: rsa.publicKey,
     });
   }
 
@@ -219,7 +215,6 @@
               dataChannel={peer.dataChannel}
               peerMetaData={peer.metadata}
               svgAvatar={peer.svgAvatar}
-              {rsa}
             />
           {/if}
         {/each}
@@ -262,3 +257,4 @@
   </div>
 {/if}
 <QrModal bind:this={qrModal} />
+<Toast />

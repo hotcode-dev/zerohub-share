@@ -5,10 +5,10 @@
     type SendingFileSelection,
   } from "../../type";
   import SenderFileCard from "./SenderFileCard.svelte";
-  import Lock from "../icons/Lock.svelte";
   import Trash from "../icons/Trash.svelte";
   import UpTray from "../icons/UpTray.svelte";
   import SendDropdown from "./SendDropdown.svelte";
+  import EncryptModal from "./EncryptModal.svelte";
 
   type Props = {
     peers: {
@@ -28,12 +28,18 @@
 
   const {
     peers,
-    sendingFileSelections,
+    sendingFileSelections = $bindable(),
     onRemove,
     onSend,
     onStop,
     onContinue,
   }: Props = $props();
+
+  $inspect(sendingFileSelections).with((type, sendingFileSelections) => {
+    if (type === "update") {
+      console.log("sendingFileSelections", sendingFileSelections);
+    }
+  });
 </script>
 
 <div class="grid gap-4">
@@ -44,14 +50,9 @@
           <Trash /><span class="hidden lg:block">Remove</span>
         </button>
         <div class="flex flex-row items-center gap-2">
-          <div
-            class="tooltip"
-            data-tip={sendingFileSelection.isEncrypt
-              ? "Encrypt"
-              : "Not Encrypt"}
-          >
-            <Lock bind:show={sendingFileSelection.isEncrypt} />
-          </div>
+          <EncryptModal
+            bind:sendingFileSelection={sendingFileSelections[key]}
+          />
           {#if sendingFileSelections.stop}
             <button onclick={() => onContinue(key)} class="btn btn-secondary">
               Continue

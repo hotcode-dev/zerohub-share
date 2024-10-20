@@ -10,7 +10,7 @@
   import SendingFileList from "./SendingFileList.svelte";
   import {
     encryptAesGcm,
-    encryptAesKeyWithRsaPublicKey,
+    encryptAesWithPassword,
     generateAesKey,
   } from "../../utils/crypto";
   import {
@@ -67,13 +67,9 @@
     let aesEncrypted = new Uint8Array();
     if (sendingFileSelection.isEncrypt) {
       aesKey = await generateAesKey();
-      if (!peer.metadata.rsaPub) {
-        addToastMessage("rsa public key is not available");
-        return;
-      }
-      aesEncrypted = await encryptAesKeyWithRsaPublicKey(
-        peer.metadata.rsaPub,
+      aesEncrypted = await encryptAesWithPassword(
         aesKey,
+        sendingFileSelection.password,
       );
     }
 
@@ -255,6 +251,7 @@
         stop: false,
         chunkSize: 16 * 1024, // 16MB
         isEncrypt: false,
+        password: "",
         sendingFiles: {},
       };
 
@@ -273,11 +270,11 @@
   {#if Object.keys(sendingFileSelections).length > 0}
     <SendingFileList
       {peers}
-      {sendingFileSelections}
       {onRemove}
       {onSend}
       {onStop}
       {onContinue}
+      bind:sendingFileSelections
     />
     <div class="self-end">
       <SendDropdown {peers} onSend={sendAllFiles}>

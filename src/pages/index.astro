@@ -5,7 +5,5 @@ import SharePage from "../components/SharePage.svelte";
 ---
 
 <MainLayout isDrop={false}>
-  <div class="flex flex-col items-center justify-center">
-    <SharePage client:load client:only="svelte" />
-  </div>
+  <SharePage client:load client:only="svelte" />
 </MainLayout>

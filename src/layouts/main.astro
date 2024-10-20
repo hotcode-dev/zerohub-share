@@ -3,8 +3,6 @@ import Footer from "../components/layout/Footer.astro";
 import Navbar from "../components/layout/Navbar.astro";
 import { pageTitle, pageTitleDrop, pageDescription } from "../configs";
 
-import Toast from "../components/Toast.svelte";
-
 interface Props {
   isDrop: boolean;
 }
@@ -25,7 +23,7 @@ if (isDrop) {
   <head>
     <meta charset="utf-8" />
     <title>{title}</title>
-    <link rel="icon" href="/favicon.ico" />
+    <link rel="icon" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width" />
     <link rel="manifest" href="/manifest.webmanifest" />
     <meta name="description" content={description} />
@@ -47,6 +45,5 @@ if (isDrop) {
       </div>
       <Footer />
     </div>
-    <Toast client:visible client:only="svelte" />
   </body>
 </html>

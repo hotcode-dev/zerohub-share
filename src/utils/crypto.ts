@@ -10,21 +10,17 @@ const aesGenParams: AesKeyGenParams = {
   length: 128,
 };
 
+const keyUsage: ReadonlyArray<KeyUsage> = ["encrypt", "decrypt"];
+
 // generateRsaKeyPair to generate an RSA key pair
 export async function generateRsaKeyPair(): Promise<CryptoKeyPair> {
-  const keyPair = await crypto.subtle.generateKey(rsaGenParams, true, [
-    "encrypt",
-    "decrypt",
-  ]);
+  const keyPair = await crypto.subtle.generateKey(rsaGenParams, true, keyUsage);
   return keyPair;
 }
 
 // generateAesKey to generate an AES-256 key
 export async function generateAesKey(): Promise<CryptoKey> {
-  const key = await crypto.subtle.generateKey(aesGenParams, true, [
-    "encrypt",
-    "decrypt",
-  ]);
+  const key = await crypto.subtle.generateKey(aesGenParams, true, keyUsage);
   return key;
 }
 
@@ -79,7 +75,7 @@ export async function decryptAesKeyWithRsaPrivateKey(
     decryptedAesKey,
     { name: aesGenParams.name },
     true,
-    ["encrypt", "decrypt"],
+    keyUsage,
   );
   return aesKey;
 }
@@ -144,4 +140,88 @@ export async function importRsaPublicKeyFromBase64(
     ["encrypt"],
   );
   return publicKey;
+}
+
+// deriveKeyFromPassword to derive an AES key from a password using PBKDF2
+export async function deriveKeyFromPassword(
+  password: string,
+  salt: Uint8Array,
+): Promise<CryptoKey> {
+  const enc = new TextEncoder();
+  const keyMaterial = await crypto.subtle.importKey(
+    "raw",
+    enc.encode(password),
+    { name: "PBKDF2" },
+    false,
+    ["deriveKey"],
+  );
+
+  const key = await crypto.subtle.deriveKey(
+    {
+      name: "PBKDF2",
+      salt: salt,
+      iterations: 100000,
+      hash: "SHA-256",
+    },
+    keyMaterial,
+    aesGenParams,
+    true,
+    keyUsage,
+  );
+
+  return key;
+}
+
+// encryptAesWithPassword to encrypt an AES key with a password
+export async function encryptAesWithPassword(
+  aesKey: CryptoKey,
+  password: string,
+): Promise<Uint8Array> {
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  const derivedKey = await deriveKeyFromPassword(password, salt);
+  const exportedAesKey = await crypto.subtle.exportKey("raw", aesKey);
+
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const encryptedAesKey = await crypto.subtle.encrypt(
+    { ...aesGenParams, iv },
+    derivedKey,
+    exportedAesKey,
+  );
+
+  const result = new Uint8Array(
+    salt.length + iv.length + encryptedAesKey.byteLength,
+  );
+  result.set(salt);
+  result.set(iv, salt.length);
+  result.set(new Uint8Array(encryptedAesKey), salt.length + iv.length);
+
+  return result;
+}
+
+// decryptAesWithPassword to decrypt an AES key with a password
+export async function decryptAesWithPassword(
+  encryptedAesKey: Uint8Array,
+  password: string,
+): Promise<CryptoKey> {
+  const salt = encryptedAesKey.slice(0, 16);
+  const iv = encryptedAesKey.slice(16, 28);
+  const encryptedKey = encryptedAesKey.slice(28);
+
+  const derivedKey = await deriveKeyFromPassword(password, salt);
+
+  const decryptedAesKey = await crypto.subtle.decrypt(
+    { ...aesGenParams, iv },
+    derivedKey,
+    encryptedKey,
+  );
+
+  const aesKey = await crypto.subtle.importKey(
+    "raw",
+    decryptedAesKey,
+    aesGenParams,
+    true,
+    keyUsage,
+  );
+
+  return aesKey;
 }
