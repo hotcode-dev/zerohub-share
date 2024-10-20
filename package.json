@@ -17,18 +17,18 @@
   },
   "devDependencies": {
     "@astrojs/check": "^0.7.0",
-    "@astrojs/svelte": "^5.6.0",
-    "@astrojs/tailwind": "^5.1.0",
+    "@astrojs/svelte": "^5.7.2",
+    "@astrojs/tailwind": "^5.1.2",
     "@dicebear/collection": "^9.0.0",
     "@dicebear/core": "^9.0.0",
     "@nanostores/persistent": "^0.10.2",
     "@nuintun/qrcode": "^3.4.0",
     "@tailwindcss/typography": "^0.5.13",
     "@zero-hub/client": "0.0.8",
-    "astro": "^4.11.3",
+    "astro": "^4.16.6",
     "astrojs-service-worker": "^2.0.0",
     "autoprefixer": "^10.4.16",
-    "daisyui": "^4.12.2",
+    "daisyui": "^4.12.13",
     "daisyui-ntsd": "^1.0.10",
     "eventemitter3": "^5.0.1",
     "nanostores": "^0.10.3",
@@ -40,11 +40,14 @@
     "protobufjs": "^7.3.1",
     "sdp-compact": "^0.0.6",
     "svelte": "5.0.0-next.190",
-    "tailwindcss": "^3.4.4",
+    "tailwindcss": "^3.4.14",
     "ts-proto": "^2.2.0",
     "typescript": "^5.4.5",
     "unique-names-generator": "^4.7.1",
     "vite": "^5.3.2",
     "vitest": "^2.1.2"
+  },
+  "overrides": {
+    "@sveltejs/vite-plugin-svelte": "^4.0.0-next.6"
   }
 }
