@@ -132,7 +132,7 @@
     }
 
     const password = await decryptModal.openUnlock();
-    if (!password) {
+    if (password === null) {
       return;
     }
 

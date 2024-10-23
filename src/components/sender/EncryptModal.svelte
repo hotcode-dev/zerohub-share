@@ -26,11 +26,9 @@
     isModalOpen = false;
   }
 
-  $inspect(sendingFileSelection.isEncrypt).with((type, isEncrypt) => {
-    if (type === "update") {
-      if (isEncrypt) {
-        open();
-      }
+  $effect(() => {
+    if (sendingFileSelection.isEncrypt) {
+      open();
     }
   });
 </script>
