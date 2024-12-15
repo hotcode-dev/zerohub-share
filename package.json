@@ -24,7 +24,7 @@
     "@nanostores/persistent": "^0.10.2",
     "@nuintun/qrcode": "^3.4.0",
     "@tailwindcss/typography": "^0.5.13",
-    "@zero-hub/client": "0.0.8",
+    "@zero-hub/client": "^0.0.8",
     "astro": "^4.16.6",
     "astrojs-service-worker": "^2.0.0",
     "autoprefixer": "^10.4.16",
