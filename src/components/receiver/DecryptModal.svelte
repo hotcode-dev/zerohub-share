@@ -11,7 +11,7 @@
     close: (submitPassword: string | null) => void;
   }>();
 
-  export async function openUnlock() {
+  export async function openUnlock(): Promise<string | null> {
     password = "";
     isModalOpen = true;
     return new Promise((resolve) => {
@@ -60,3 +60,11 @@
     <button onclick={unsaveClose}>close</button>
   </form>
 </dialog>
+
+<svelte:window
+  on:keydown={(e) => {
+    if (e.key === "Escape") {
+      isModalOpen = false;
+    }
+  }}
+/>

@@ -33,9 +33,10 @@
       };
     };
     isDrop?: boolean;
+    hideSendButton?: boolean;
   };
 
-  const { peers, isDrop }: Props = $props();
+  const { peers, isDrop, hideSendButton }: Props = $props();
 
   let sendingFileSelections: { [key: string]: SendingFileSelection } = $state(
     {},
@@ -60,11 +61,10 @@
   async function onSend(fileId: string, peerId: string) {
     const sendingFileSelection = sendingFileSelections[fileId];
     const file = sendingFileSelection.file;
-    const peer = peers[peerId];
 
     // initial aes key
     let aesKey;
-    let aesEncrypted = new Uint8Array();
+    let aesEncrypted: Uint8Array | undefined;
     if (sendingFileSelection.isEncrypt) {
       aesKey = await generateAesKey();
       aesEncrypted = await encryptAesWithPassword(
@@ -96,35 +96,31 @@
     // send file offset
     let offset = 0;
 
-    // reset value
-    sendingFileSelection.stop = false;
-
     sendingFile.event.on(
       receiveEventToJSON(ReceiveEvent.EVENT_RECEIVER_ACCEPT),
-      async () => {
+      () => {
         sendingFileSelections[fileId].sendingFiles[peerId].status =
           FileStatus.Processing;
         sendingFileSelections[fileId].sendingFiles[peerId].startTime =
           Date.now();
-        await sendNextChunk();
+        sendNextChunk();
       },
     );
 
     sendingFile.event.on(
       receiveEventToJSON(ReceiveEvent.EVENT_RECEIVED_CHUNK),
       async () => {
-        if (sendingFileSelection.stop) {
-          return;
-        }
-        if (sendingFile.error || sendingFile.status != FileStatus.Processing) {
+        // if there is error, stop sending
+        if (sendingFile.error) {
+          console.log("error", sendingFile.error);
           sendingFileSelections[fileId].sendingFiles[peerId].progress = 0;
           sendingFileSelections[fileId].sendingFiles[peerId].status =
             FileStatus.Pending;
-          sendingFileSelections[fileId].stop = false;
           return;
         }
 
         if (offset < sendingFile.metaData.size) {
+          sendingFile.status = FileStatus.Processing;
           await sendNextChunk();
           return;
         }
@@ -203,7 +199,10 @@
 
       // calculate bitrate
       sendingFileSelections[fileId].sendingFiles[peerId].bitrate = Math.round(
-        offset / ((Date.now() - sendingFile.startTime) / 1000),
+        offset /
+          ((Date.now() -
+            sendingFileSelections[fileId].sendingFiles[peerId].startTime) /
+            1000),
       );
     }
 
@@ -215,7 +214,8 @@
       }).finish(),
     );
 
-    sendingFile.status = FileStatus.WaitingAccept;
+    sendingFileSelections[fileId].sendingFiles[peerId].status =
+      FileStatus.WaitingAccept;
   }
 
   export async function sendAllFiles(peerId: string) {
@@ -224,23 +224,7 @@
     }
   }
 
-  async function onStop(fileId: string) {
-    sendingFileSelections[fileId].stop = true;
-  }
-
-  async function onContinue(fileId: string) {
-    sendingFileSelections[fileId].stop = false;
-    for (const sendingFile of Object.values(
-      sendingFileSelections[fileId].sendingFiles,
-    )) {
-      sendingFile.event?.emit(
-        receiveEventToJSON(ReceiveEvent.EVENT_RECEIVED_CHUNK),
-      );
-    }
-  }
-
   function onRemove(fileId: string) {
-    sendingFileSelections[fileId].stop = true;
     delete sendingFileSelections[fileId];
   }
 
@@ -248,7 +232,6 @@
     Array.from(files).forEach(async (file) => {
       sendingFileSelections[file.name] = {
         file: file,
-        stop: false,
         chunkSize: 16 * 1024, // 16MB
         isEncrypt: false,
         password: "",
@@ -272,14 +255,15 @@
       {peers}
       {onRemove}
       {onSend}
-      {onStop}
-      {onContinue}
+      {hideSendButton}
       bind:sendingFileSelections
     />
-    <div class="self-end">
-      <SendDropdown {peers} onSend={sendAllFiles}>
-        <UpTray /> Send all files
-      </SendDropdown>
-    </div>
+    {#if !hideSendButton}
+      <div class="self-end">
+        <SendDropdown {peers} onSend={sendAllFiles}>
+          <UpTray /> Send all files
+        </SendDropdown>
+      </div>
+    {/if}
   {/if}
 </div>

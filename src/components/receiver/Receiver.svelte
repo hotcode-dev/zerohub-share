@@ -195,7 +195,7 @@
     <div class="flex flex-row items-center gap-4">
       <img src={svgAvatar} class="h-8 w-8" alt="avatar" />
       <span
-        >{peerMetaData.name}{#if peerMetaData.isHost}{" (Sender)"}{/if}</span
+        >{peerMetaData.name}{#if peerMetaData.isHost}{" (Uploader)"}{/if}</span
       >
     </div>
   </div>

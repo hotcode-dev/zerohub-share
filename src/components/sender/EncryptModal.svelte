@@ -68,3 +68,11 @@
     <button onclick={unsaveClose}>close</button>
   </form>
 </dialog>
+
+<svelte:window
+  on:keydown={(e) => {
+    if (e.key === "Escape") {
+      isModalOpen = false;
+    }
+  }}
+/>

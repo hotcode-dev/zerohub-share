@@ -207,8 +207,9 @@
           </div>
         </div>
       </div>
-      {#if !isHost}
-        {#each Object.values(peers) as peer}
+
+      {#each Object.values(peers) as peer}
+        {#if !isHost}
           {#if peer.isOnline && peer.dataChannel && peer.metadata.isHost}
             <Receiver
               bind:this={peer.receiver}
@@ -217,12 +218,27 @@
               svgAvatar={peer.svgAvatar}
             />
           {/if}
-        {/each}
-      {/if}
+        {:else if peer.isOnline && peer.dataChannel}
+          <div class="collapse-close collapse bg-base-200">
+            <div
+              class="collapse-title flex flex-row items-center justify-between p-0 text-xl font-medium"
+            >
+              <div class="flex flex-row items-center justify-between">
+                <div class="flex flex-row items-center gap-4">
+                  <img src={svgAvatar} class="h-8 w-8" alt="avatar" />
+                  <span>{peer.metadata.name}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        {/if}
+      {/each}
     </div>
     {#if isHost}
       <div class="mx-auto flex w-full max-w-screen-md flex-col gap-2">
-        <div class="text-center text-sm">Invite people with this link</div>
+        <div class="text-center text-sm">
+          Share this link to send the picking file.
+        </div>
         <div class="flex flex-col lg:flex-row">
           <input
             class="input input-sm input-bordered w-full text-sm"
@@ -244,10 +260,10 @@
         </div>
       </div>
       <div class="divider m-0"></div>
+      <Sender bind:this={sender} {peers} isDrop={true} hideSendButton={true} />
       <div class="w-full text-center text-sm text-error">
-        It will automatically send pick files to all peers.
+        Please don't close this tab when sending files.
       </div>
-      <Sender bind:this={sender} {peers} isDrop={true} />
     {/if}
   </div>
 {:else}

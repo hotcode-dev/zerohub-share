@@ -8,6 +8,7 @@ export const defaultSetting: Setting = {
   name: uniqueNamesGenerator({
     dictionaries: [starWars],
   }),
+  autoDownload: true,
 };
 
 export const settingAtom = persistentAtom<Setting>("setting", defaultSetting, {

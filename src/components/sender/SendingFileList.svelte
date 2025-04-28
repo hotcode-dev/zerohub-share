@@ -1,9 +1,5 @@
 <script lang="ts">
-  import {
-    FileStatus,
-    type PeerMetaData,
-    type SendingFileSelection,
-  } from "../../type";
+  import { type PeerMetaData, type SendingFileSelection } from "../../type";
   import SenderFileCard from "./SenderFileCard.svelte";
   import Trash from "../icons/Trash.svelte";
   import UpTray from "../icons/UpTray.svelte";
@@ -22,8 +18,7 @@
     sendingFileSelections: { [key: string]: SendingFileSelection };
     onRemove: (key: string) => void;
     onSend: (key: string, peerId: string) => void;
-    onStop: (key: string) => void;
-    onContinue: (key: string) => void;
+    hideSendButton?: boolean;
   };
 
   const {
@@ -31,8 +26,7 @@
     sendingFileSelections = $bindable(),
     onRemove,
     onSend,
-    onStop,
-    onContinue,
+    hideSendButton,
   }: Props = $props();
 
   $inspect(sendingFileSelections).with((type, sendingFileSelections) => {
@@ -53,15 +47,7 @@
           <EncryptModal
             bind:sendingFileSelection={sendingFileSelections[key]}
           />
-          {#if sendingFileSelections.stop}
-            <button onclick={() => onContinue(key)} class="btn btn-secondary">
-              Continue
-            </button>
-          {:else if Object.values(sendingFileSelections.sendingFiles || []).some((s) => s.status === FileStatus.Processing)}
-            <button onclick={() => onStop(key)} class="btn btn-secondary">
-              Stop
-            </button>
-          {:else}
+          {#if !hideSendButton}
             <SendDropdown
               {peers}
               onSend={(peerId: string) => {

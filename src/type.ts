@@ -30,7 +30,6 @@ export interface SendingFile extends FileDetail {
 }
 
 export interface SendingFileSelection {
-  stop: boolean;
   file: File;
   isEncrypt: boolean;
   password: string;
@@ -50,4 +49,5 @@ export interface ReceivingFile extends FileDetail {
 export interface Setting {
   name: string;
   iceServer: string;
+  autoDownload: boolean;
 }

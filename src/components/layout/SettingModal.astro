@@ -68,6 +68,18 @@ import Cog from "../icons/Cog.astro";
           id="ice-input"
         />
       </label>
+      <label
+        class="form-control flex w-full flex-row items-center justify-between"
+      >
+        <div class="label">
+          <span class="label-text">Auto Download</span>
+        </div>
+        <input
+          type="checkbox"
+          class="toggle toggle-primary"
+          id="auto-download-input"
+        />
+      </label>
     </div>
     <div class="modal-action">
       <form method="dialog">
@@ -131,16 +143,21 @@ import Cog from "../icons/Cog.astro";
 
   const nameInput = document.getElementById("name-input") as HTMLInputElement;
   const iceInput = document.getElementById("ice-input") as HTMLInputElement;
+  const autoDownloadInput = document.getElementById(
+    "auto-download-input"
+  ) as HTMLInputElement;
+
   const saveButton = document.getElementById(
-    "save-button",
+    "save-button"
   ) as HTMLButtonElement;
   const resetButton = document.getElementById(
-    "reset-button",
-  ) as HTMLButtonElement;
+    "reset-button"
+  ) as HTMLInputElement;
 
   settingAtom.subscribe((s) => {
     nameInput.value = s.name;
     iceInput.value = s.iceServer;
+    autoDownloadInput.checked = s.autoDownload;
   });
 
   saveButton.onclick = (e) => {
@@ -148,6 +165,7 @@ import Cog from "../icons/Cog.astro";
     settingAtom.set({
       name: nameInput.value,
       iceServer: iceInput.value,
+      autoDownload: autoDownloadInput.checked,
     });
     window.location.reload();
   };
@@ -155,5 +173,6 @@ import Cog from "../icons/Cog.astro";
     e.preventDefault();
     nameInput.value = defaultSetting.name;
     iceInput.value = defaultSetting.iceServer;
+    autoDownloadInput.checked = defaultSetting.autoDownload;
   };
 </script>

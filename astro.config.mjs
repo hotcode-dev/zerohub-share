@@ -10,5 +10,8 @@ export default defineConfig({
   integrations: [tailwind(), svelte(), serviceWorker()],
   vite: {
     plugins: [],
+    resolve: {
+      conditions: ["browser"],
+    },
   },
 });
