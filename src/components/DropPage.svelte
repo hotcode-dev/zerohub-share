@@ -38,23 +38,30 @@
         tls: true,
         logLevel: LogLevel.Error,
         waitIceCandidatesTimeout: waitIceCandidatesTimeout,
+        rtcConfig: {
+          iceServers: [
+            {
+              urls: $settingAtom.iceServer,
+            },
+          ],
+        },
       }
     : {
         tls: false,
         logLevel: LogLevel.Debug,
         waitIceCandidatesTimeout: waitIceCandidatesTimeout,
+        rtcConfig: {
+          iceServers: [
+            {
+              urls: $settingAtom.iceServer,
+            },
+          ],
+        },
       };
 
   const zeroHub = new ZeroHubClient<PeerMetaData, HubMetaData>(
     zeroHubHosts,
     zerohubConfig,
-    {
-      iceServers: [
-        {
-          urls: $settingAtom.iceServer,
-        },
-      ],
-    },
   );
 
   let hubId = $state("");
@@ -195,7 +202,7 @@
 {#if hubId}
   <div class="flex w-full flex-col gap-4">
     <div class="flex flex-col gap-2">
-      <div class="collapse-close collapse bg-base-200">
+      <div class="collapse-close bg-base-200 collapse">
         <div
           class="collapse-title flex flex-row items-center justify-between p-0 text-xl font-medium"
         >
@@ -219,7 +226,7 @@
             />
           {/if}
         {:else if peer.isOnline && peer.dataChannel}
-          <div class="collapse-close collapse bg-base-200">
+          <div class="collapse-close bg-base-200 collapse">
             <div
               class="collapse-title flex flex-row items-center justify-between p-0 text-xl font-medium"
             >
@@ -249,7 +256,7 @@
             ><ClipboardIcon />Copy Link</button
           >
           <button
-            class="btn btn-sm gap-2 bg-base-300"
+            class="btn btn-sm bg-base-300 gap-2"
             onclick={() => {
               qrModal.open(inviteLink);
             }}
@@ -261,8 +268,8 @@
       </div>
       <div class="divider m-0"></div>
       <Sender bind:this={sender} {peers} isDrop={true} hideSendButton={true} />
-      <div class="w-full text-center text-sm text-error">
-        Please don't close this tab when sending files.
+      <div class="text-error w-full text-center text-sm">
+        Please don't close this tab while sending files.
       </div>
     {/if}
   </div>
