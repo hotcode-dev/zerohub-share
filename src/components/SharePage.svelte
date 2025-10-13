@@ -32,37 +32,6 @@
   });
   const svgAvatar = avatar.toDataUri();
 
-  const zerohubConfig: Partial<ZeroHubConfig> = isProduction
-    ? {
-        tls: true,
-        logLevel: LogLevel.Error,
-        waitIceCandidatesTimeout: waitIceCandidatesTimeout,
-        rtcConfig: {
-          iceServers: [
-            {
-              urls: $settingAtom.iceServer,
-            },
-          ],
-        },
-      }
-    : {
-        tls: false,
-        logLevel: LogLevel.Debug,
-        waitIceCandidatesTimeout: waitIceCandidatesTimeout,
-        rtcConfig: {
-          iceServers: [
-            {
-              urls: $settingAtom.iceServer,
-            },
-          ],
-        },
-      };
-
-  const zeroHub = new ZeroHubClient<PeerMetaData, HubMetaData>(
-    zeroHubHosts,
-    zerohubConfig,
-  );
-
   let hubId = $state("");
   let peers: {
     [peerId: string]: {
@@ -75,30 +44,14 @@
   } = $state({});
   let inviteLink = $state("");
   let qrModal: QrModal;
-
   let sender: Sender | undefined = $state(undefined);
-
-  function createInviteLink(hubId: string) {
-    var url = new URL(window.location.href);
-    url.searchParams.set("id", hubId);
-    inviteLink = url.toString();
-  }
-
-  zeroHub.onHubInfo = (hubInfo) => {
-    hubId = hubInfo.id;
-    createInviteLink(hubInfo.id);
-  };
 
   function handleDataChannel(
     peer: Peer<PeerMetaData>,
     dataChannel: RTCDataChannel,
-    isOnline: boolean,
   ) {
     let receiver: Receiver | undefined;
 
-    dataChannel.onopen = () => {};
-    dataChannel.onerror = () => {};
-    dataChannel.onclose = () => {};
     dataChannel.onmessage = (event) => {
       const message = Message.decode(new Uint8Array(event.data));
 
@@ -122,7 +75,7 @@
     };
 
     peers[peer.id.toString()] = {
-      isOnline,
+      isOnline: true,
       dataChannel: dataChannel,
       receiver: receiver,
       metadata: peer.metadata,
@@ -131,6 +84,41 @@
       }).toDataUri(),
     };
   }
+
+  const zerohubConfig: Partial<ZeroHubConfig<PeerMetaData>> = {
+    tls: isProduction,
+    logLevel: isProduction ? LogLevel.Error : LogLevel.Debug,
+    waitIceCandidatesTimeout: waitIceCandidatesTimeout,
+    rtcConfig: {
+      iceServers: [
+        {
+          urls: $settingAtom.iceServer,
+        },
+      ],
+    },
+    dataChannelConfig: {
+      rtcDataChannelInit: {
+        ordered: true,
+      },
+      onDataChannel: handleDataChannel,
+    },
+  };
+
+  const zeroHub = new ZeroHubClient<PeerMetaData, HubMetaData>(
+    zeroHubHosts,
+    zerohubConfig,
+  );
+
+  function createInviteLink(hubId: string) {
+    var url = new URL(window.location.href);
+    url.searchParams.set("id", hubId);
+    inviteLink = url.toString();
+  }
+
+  zeroHub.onHubInfo = (hubInfo) => {
+    hubId = hubInfo.id;
+    createInviteLink(hubInfo.id);
+  };
 
   zeroHub.onZeroHubError = (error) => {
     console.error("ZeroHub error:", error);
@@ -143,22 +131,6 @@
         // update status to online if peer is offerer
         if (zeroHub.myPeerId && peer.id > zeroHub.myPeerId) {
           peers[peer.id.toString()].isOnline = true;
-        }
-        break;
-      case PeerStatus.Pending:
-        if (zeroHub.myPeerId && peer.id > zeroHub.myPeerId) {
-          // create offer if peer id is greater than local peer id
-          const dataChannel = peer.rtcConn.createDataChannel("data", {
-            ordered: false,
-          });
-          handleDataChannel(peer, dataChannel, false);
-
-          // offer should send after create data channel
-          zeroHub.sendOffer(peer.id);
-        } else {
-          peer.rtcConn.ondatachannel = (event) => {
-            handleDataChannel(peer, event.channel, true);
-          };
         }
         break;
       case PeerStatus.ZeroHubDisconnected:
