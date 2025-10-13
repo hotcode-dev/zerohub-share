@@ -33,31 +33,66 @@
   });
   const svgAvatar = avatar.toDataUri();
 
-  const zerohubConfig: Partial<ZeroHubConfig> = isProduction
-    ? {
-        tls: true,
-        logLevel: LogLevel.Error,
-        waitIceCandidatesTimeout: waitIceCandidatesTimeout,
-        rtcConfig: {
-          iceServers: [
-            {
-              urls: $settingAtom.iceServer,
-            },
-          ],
-        },
+  function handleDataChannel(
+    peer: Peer<PeerMetaData>,
+    dataChannel: RTCDataChannel,
+  ) {
+    let receiver: Receiver | undefined;
+
+    dataChannel.onopen = () => {
+      sender?.sendAllFiles(peer.id.toString());
+    };
+    dataChannel.onmessage = (event) => {
+      const message = Message.decode(new Uint8Array(event.data));
+
+      if (message.metaData !== undefined) {
+        peers[peer.id.toString()].receiver?.onMetaData(
+          message.id,
+          message.metaData,
+        );
+      } else if (message.chunk !== undefined) {
+        peers[peer.id.toString()].receiver?.onChunkData(
+          message.id,
+          message.chunk,
+        );
+      } else if (message.receiveEvent !== undefined) {
+        sender?.onReceiveEvent(
+          message.id,
+          peer.id.toString(),
+          message.receiveEvent,
+        );
       }
-    : {
-        tls: false,
-        logLevel: LogLevel.Debug,
-        waitIceCandidatesTimeout: waitIceCandidatesTimeout,
-        rtcConfig: {
-          iceServers: [
-            {
-              urls: $settingAtom.iceServer,
-            },
-          ],
+    };
+
+    peers[peer.id.toString()] = {
+      isOnline: true,
+      dataChannel: dataChannel,
+      receiver: receiver,
+      metadata: peer.metadata,
+      svgAvatar: createAvatar(avatarStyle, {
+        seed: peer.metadata.name,
+      }).toDataUri(),
+    };
+  }
+
+  const zerohubConfig: Partial<ZeroHubConfig<PeerMetaData>> = {
+    tls: isProduction,
+    logLevel: isProduction ? LogLevel.Error : LogLevel.Debug,
+    waitIceCandidatesTimeout: waitIceCandidatesTimeout,
+    rtcConfig: {
+      iceServers: [
+        {
+          urls: $settingAtom.iceServer,
         },
-      };
+      ],
+    },
+    dataChannelConfig: {
+      rtcDataChannelInit: {
+        ordered: false,
+      },
+      onDataChannel: handleDataChannel,
+    },
+  };
 
   const zeroHub = new ZeroHubClient<PeerMetaData, HubMetaData>(
     zeroHubHosts,
@@ -90,51 +125,6 @@
     createInviteLink(hubInfo.id);
   };
 
-  function handleDataChannel(
-    peer: Peer<PeerMetaData>,
-    dataChannel: RTCDataChannel,
-    isOnline: boolean,
-  ) {
-    let receiver: Receiver | undefined;
-
-    dataChannel.onopen = () => {
-      sender?.sendAllFiles(peer.id.toString());
-    };
-    dataChannel.onerror = () => {};
-    dataChannel.onclose = () => {};
-    dataChannel.onmessage = (event) => {
-      const message = Message.decode(new Uint8Array(event.data));
-
-      if (message.metaData !== undefined) {
-        peers[peer.id.toString()].receiver?.onMetaData(
-          message.id,
-          message.metaData,
-        );
-      } else if (message.chunk !== undefined) {
-        peers[peer.id.toString()].receiver?.onChunkData(
-          message.id,
-          message.chunk,
-        );
-      } else if (message.receiveEvent !== undefined) {
-        sender?.onReceiveEvent(
-          message.id,
-          peer.id.toString(),
-          message.receiveEvent,
-        );
-      }
-    };
-
-    peers[peer.id.toString()] = {
-      isOnline,
-      dataChannel: dataChannel,
-      receiver: receiver,
-      metadata: peer.metadata,
-      svgAvatar: createAvatar(avatarStyle, {
-        seed: peer.metadata.name,
-      }).toDataUri(),
-    };
-  }
-
   zeroHub.onZeroHubError = (error) => {
     console.error("ZeroHub error:", error);
     addToastMessage("ZeroHub Error: " + error.message, "error");
@@ -148,22 +138,6 @@
           peers[peer.id.toString()].isOnline = true;
         }
 
-        break;
-      case PeerStatus.Pending:
-        if (zeroHub.myPeerId && peer.id > zeroHub.myPeerId) {
-          // create offer if peer id is greater than local peer id
-          const dataChannel = peer.rtcConn.createDataChannel("data", {
-            ordered: false,
-          });
-          handleDataChannel(peer, dataChannel, false);
-
-          // offer should send after create data channel
-          zeroHub.sendOffer(peer.id);
-        } else {
-          peer.rtcConn.ondatachannel = (event) => {
-            handleDataChannel(peer, event.channel, true);
-          };
-        }
         break;
       case PeerStatus.ZeroHubDisconnected:
         // close data channel

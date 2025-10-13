@@ -50,7 +50,7 @@ export async function encryptAesGcm(
 export async function encryptAesKeyWithRsaPublicKey(
   publicKey: CryptoKey,
   aesKey: CryptoKey,
-): Promise<Uint8Array> {
+): Promise<BufferSource> {
   const exportedAesKey = await crypto.subtle.exportKey("raw", aesKey);
   const encryptedAesKey = await crypto.subtle.encrypt(
     { name: rsaGenParams.name },
@@ -63,7 +63,7 @@ export async function encryptAesKeyWithRsaPublicKey(
 // decryptAesKeyWithRsaPrivateKey to decrypt the AES-256 key using the RSA private key
 export async function decryptAesKeyWithRsaPrivateKey(
   privateKey: CryptoKey,
-  encryptedAesKey: Uint8Array,
+  encryptedAesKey: BufferSource,
 ): Promise<CryptoKey> {
   const decryptedAesKey = await crypto.subtle.decrypt(
     { name: "RSA-OAEP" },
@@ -145,7 +145,7 @@ export async function importRsaPublicKeyFromBase64(
 // deriveKeyFromPassword to derive an AES key from a password using PBKDF2
 export async function deriveKeyFromPassword(
   password: string,
-  salt: Uint8Array,
+  salt: BufferSource,
 ): Promise<CryptoKey> {
   const enc = new TextEncoder();
   const keyMaterial = await crypto.subtle.importKey(
