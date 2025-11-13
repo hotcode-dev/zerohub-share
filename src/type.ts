@@ -50,4 +50,5 @@ export interface Setting {
   name: string;
   iceServer: string;
   autoDownload: boolean;
+  bytesPerChunkChannel: number;
 }

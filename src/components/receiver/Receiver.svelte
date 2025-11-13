@@ -12,11 +12,11 @@
 
   type Props = {
     peerMetaData: PeerMetaData;
-    dataChannel: RTCDataChannel;
+    controlChannel: RTCDataChannel;
     svgAvatar: string;
   };
 
-  let { peerMetaData, dataChannel, svgAvatar }: Props = $props();
+  let { peerMetaData, controlChannel, svgAvatar }: Props = $props();
 
   let receivingFiles: { [key: string]: ReceivingFile } = $state({});
   let collapseCheckbox: HTMLInputElement;
@@ -41,12 +41,9 @@
   export async function onChunkData(id: string, chunk: Uint8Array) {
     let arrayBuffer = chunk;
 
-    dataChannel.send(
-      Message.encode({
-        id: id,
-        receiveEvent: ReceiveEvent.EVENT_RECEIVED_CHUNK,
-      }).finish(),
-    );
+    if (!sendReceiveEvent(id, ReceiveEvent.EVENT_RECEIVED_CHUNK)) {
+      return;
+    }
 
     const receivingFile = receivingFiles[id];
 
@@ -80,12 +77,7 @@
 
   function onRemove(key: string) {
     if (receivingFiles[key].status != FileStatus.Success) {
-      dataChannel.send(
-        Message.encode({
-          id: key,
-          receiveEvent: ReceiveEvent.EVENT_RECEIVER_REJECT,
-        }).finish(),
-      );
+      sendReceiveEvent(key, ReceiveEvent.EVENT_RECEIVER_REJECT);
     }
     delete receivingFiles[key];
     receivingFiles = receivingFiles; // do this to trigger update the map
@@ -93,7 +85,7 @@
 
   async function onDownload(key: string) {
     const receivedFile = receivingFiles[key];
-    const blobFile = new Blob(receivedFile.receivedChunks, {
+    const blobFile = new Blob(receivedFile.receivedChunks as BlobPart[], {
       type: receivedFile.metaData.type,
     });
     const url = URL.createObjectURL(blobFile);
@@ -117,12 +109,7 @@
       receivingFiles[key].status = FileStatus.Processing;
       receivingFiles[key].startTime = Date.now();
 
-      dataChannel.send(
-        Message.encode({
-          id: key,
-          receiveEvent: ReceiveEvent.EVENT_RECEIVER_ACCEPT,
-        }).finish(),
-      );
+      sendReceiveEvent(key, ReceiveEvent.EVENT_RECEIVER_ACCEPT);
       return;
     }
 
@@ -146,12 +133,7 @@
       receivingFiles[key].status = FileStatus.Processing;
       receivingFiles[key].startTime = Date.now();
 
-      dataChannel.send(
-        Message.encode({
-          id: key,
-          receiveEvent: ReceiveEvent.EVENT_RECEIVER_ACCEPT,
-        }).finish(),
-      );
+      sendReceiveEvent(key, ReceiveEvent.EVENT_RECEIVER_ACCEPT);
     } catch (error) {
       console.error("decrypt aes key error", error);
       addToastMessage("Unlock error: wrong password", "error");
@@ -159,12 +141,7 @@
   }
 
   function onDeny(key: string) {
-    dataChannel.send(
-      Message.encode({
-        id: key,
-        receiveEvent: ReceiveEvent.EVENT_RECEIVER_REJECT,
-      }).finish(),
-    );
+    sendReceiveEvent(key, ReceiveEvent.EVENT_RECEIVER_REJECT);
     delete receivingFiles[key];
     receivingFiles = receivingFiles; // do this to trigger update the map
   }
@@ -180,9 +157,25 @@
       onDownload(key);
     }
   }
+
+  function sendReceiveEvent(id: string, receiveEvent: ReceiveEvent) {
+    if (!controlChannel || controlChannel.readyState !== "open") {
+      console.error("Control channel is not ready");
+      return false;
+    }
+
+    controlChannel.send(
+      Message.encode({
+        id,
+        receiveEvent,
+      }).finish(),
+    );
+
+    return true;
+  }
 </script>
 
-<div class="collapse collapse-arrow bg-base-200">
+<div class="collapse-arrow bg-base-200 collapse">
   <input
     type="checkbox"
     checked={peerMetaData.isHost}

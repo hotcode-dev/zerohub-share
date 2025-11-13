@@ -22,12 +22,16 @@
   import { addToastMessage } from "../../stores/toast";
   import SendDropdown from "./SendDropdown.svelte";
   import UpTray from "../icons/UpTray.svelte";
+  import { BYTES_PER_CHUNK_CHANNEL, MAX_CHUNK_CHANNELS } from "../../constants";
+  import { settingAtom } from "../../stores/setting";
 
   type Props = {
     peers: {
       [peerId: string]: {
         isOnline: boolean;
-        dataChannel: RTCDataChannel;
+        dataChannels: Record<string, RTCDataChannel>;
+        controlChannel: RTCDataChannel | undefined;
+        chunkChannels: RTCDataChannel[];
         metadata: PeerMetaData;
         svgAvatar: string;
       };
@@ -61,6 +65,79 @@
   async function onSend(fileId: string, peerId: string) {
     const sendingFileSelection = sendingFileSelections[fileId];
     const file = sendingFileSelection.file;
+    const peer = peers[peerId];
+
+    if (!peer) {
+      addToastMessage("Peer not found", "error");
+      return;
+    }
+
+    const controlChannel = peer.controlChannel;
+
+    if (!controlChannel || controlChannel.readyState !== "open") {
+      addToastMessage("Control channel is not ready", "error");
+      return;
+    }
+
+    const chunkBytesPerChannel = Math.max(
+      1,
+      $settingAtom.bytesPerChunkChannel ?? BYTES_PER_CHUNK_CHANNEL,
+    );
+    const requestedChunkChannelCount = Math.min(
+      MAX_CHUNK_CHANNELS,
+      Math.max(1, Math.ceil(file.size / chunkBytesPerChannel)),
+    );
+    let chunkChannels = peer.chunkChannels.slice(
+      0,
+      Math.min(requestedChunkChannelCount, peer.chunkChannels.length),
+    );
+    let nextChunkChannelIndex = 0;
+
+    function sendViaChunkChannels(payload: Uint8Array<ArrayBuffer>) {
+      chunkChannels = peer.chunkChannels.slice(
+        0,
+        Math.min(requestedChunkChannelCount, peer.chunkChannels.length),
+      );
+
+      if (chunkChannels.length === 0) {
+        nextChunkChannelIndex = 0;
+        return false;
+      }
+
+      const channelsCount = chunkChannels.length;
+      let attempts = 0;
+
+      while (attempts < channelsCount) {
+        if (nextChunkChannelIndex >= chunkChannels.length) {
+          nextChunkChannelIndex = 0;
+        }
+
+        const channel = chunkChannels[nextChunkChannelIndex];
+        if (channel.readyState === "open") {
+          channel.send(payload);
+          nextChunkChannelIndex =
+            (nextChunkChannelIndex + 1) % chunkChannels.length;
+          return true;
+        }
+
+        attempts += 1;
+        nextChunkChannelIndex =
+          (nextChunkChannelIndex + 1) % chunkChannels.length;
+      }
+
+      return false;
+    }
+
+    function trySend(
+      channel: RTCDataChannel | undefined,
+      payload: Uint8Array<ArrayBuffer>,
+    ) {
+      if (channel && channel.readyState === "open") {
+        channel.send(payload);
+        return true;
+      }
+      return false;
+    }
 
     // initial aes key
     let aesKey;
@@ -80,6 +157,7 @@
       type: file.type,
       isEncrypt: sendingFileSelection.isEncrypt,
       key: aesEncrypted,
+      channels: requestedChunkChannelCount,
     };
 
     const sendingFile: SendingFile = {
@@ -163,22 +241,36 @@
         const aesKey = sendingFile.aesKey;
         if (aesKey) {
           const encrypted = await encryptAesGcm(aesKey, buffer);
-          peers[peerId].dataChannel.send(
-            Message.encode({
-              id: sendingFile.metaData.name,
-              chunk: encrypted,
-            }).finish(),
-          );
+          const payload = Message.encode({
+            id: sendingFile.metaData.name,
+            chunk: encrypted,
+          }).finish();
+
+          if (sendViaChunkChannels(payload)) {
+            return;
+          }
+
+          if (!trySend(controlChannel, payload)) {
+            throw new Error(
+              "No available data channel to send encrypted chunk",
+            );
+          }
           return;
         }
       }
 
-      peers[peerId].dataChannel.send(
-        Message.encode({
-          id: sendingFile.metaData.name,
-          chunk: new Uint8Array(buffer),
-        }).finish(),
-      );
+      const payload = Message.encode({
+        id: sendingFile.metaData.name,
+        chunk: new Uint8Array(buffer),
+      }).finish();
+
+      if (sendViaChunkChannels(payload)) {
+        return;
+      }
+
+      if (!trySend(controlChannel, payload)) {
+        throw new Error("No available data channel to send chunk");
+      }
     }
 
     async function sendNextChunk() {
@@ -188,7 +280,17 @@
       );
       const buffer = await slice.arrayBuffer();
 
-      await sendBuffer(buffer);
+      try {
+        await sendBuffer(buffer);
+      } catch (error) {
+        console.error("Failed to send chunk", error);
+        sendingFileSelections[fileId].sendingFiles[peerId].error =
+          error instanceof Error ? error : new Error("Failed to send chunk");
+        sendingFileSelections[fileId].sendingFiles[peerId].status =
+          FileStatus.Pending;
+        addToastMessage("Failed to send chunk", "error");
+        return;
+      }
 
       offset += buffer.byteLength;
 
@@ -207,12 +309,22 @@
     }
 
     // send meta data
-    peers[peerId].dataChannel.send(
-      Message.encode({
-        id: sendingFile.metaData.name,
-        metaData: sendingFile.metaData,
-      }).finish(),
-    );
+    const metadataPayload = Message.encode({
+      id: sendingFile.metaData.name,
+      metaData: sendingFile.metaData,
+    }).finish();
+
+    if (!trySend(controlChannel, metadataPayload)) {
+      if (sendViaChunkChannels(metadataPayload)) {
+        sendingFileSelections[fileId].sendingFiles[peerId].status =
+          FileStatus.WaitingAccept;
+        return;
+      }
+      addToastMessage("Control channel closed", "error");
+      sendingFileSelections[fileId].sendingFiles[peerId].status =
+        FileStatus.Pending;
+      return;
+    }
 
     sendingFileSelections[fileId].sendingFiles[peerId].status =
       FileStatus.WaitingAccept;
@@ -241,6 +353,12 @@
       // if it's drop mode send file to all peers after pick
       if (isDrop && peers) {
         for (const peerId of Object.keys(peers)) {
+          if (
+            !peers[peerId].controlChannel ||
+            peers[peerId].controlChannel?.readyState !== "open"
+          ) {
+            continue;
+          }
           await onSend(file.name, peerId);
         }
       }

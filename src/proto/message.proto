@@ -5,8 +5,9 @@ message MetaData {
     int32  size = 2;
     string type = 3;
     bool isEncrypt = 4;
+    int32 channels = 5;
     // encrypted AES key
-    optional bytes key = 5;
+    optional bytes key = 6;
 }
 
 enum ReceiveEvent {

@@ -10,12 +10,12 @@
   let { children, fileDetail }: Props = $props();
 </script>
 
-<div class="card bg-base-100 shadow-lg shadow-base-300">
+<div class="card bg-base-100 shadow-base-300 shadow-lg">
   <div class="card-body p-2 lg:p-4">
     <div class="flex flex-col gap-2">
       <div class="flex flex-row">
         <div
-          class="flex h-24 w-24 min-w-24 items-center justify-center rounded bg-base-300"
+          class="bg-base-300 flex h-24 w-24 min-w-24 items-center justify-center rounded"
         >
           <span class="text-lg font-bold">
             {fileDetail.metaData.name.split(".").pop()?.toUpperCase()}
@@ -38,7 +38,8 @@
       <div class="flex flex-col gap-1">
         <div class="text-center text-xs xl:text-sm">
           {#if fileDetail.status === FileStatus.Processing}
-            Receiving: {humanFileSize(fileDetail.bitrate)}/sec
+            Receiving: {humanFileSize(fileDetail.bitrate)}/sec, Channels: {fileDetail
+              .metaData.channels}
           {:else if fileDetail.error}
             <div class="text-error">
               Error: {fileDetail.error.message}
@@ -46,7 +47,8 @@
           {:else if fileDetail.status === FileStatus.WaitingAccept}
             Waiting Accept
           {:else if fileDetail.status === FileStatus.Success}
-            Success
+            Success {humanFileSize(fileDetail.bitrate)}/sec, Channels: {fileDetail
+              .metaData.channels}
           {:else}
             Pending
           {/if}
