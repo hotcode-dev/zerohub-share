@@ -21,14 +21,17 @@ enum ReceiveEvent {
     EVENT_VALIDATE_ERROR = 3;
 }
 
-message Message {
+message ControlChannelMessage {
     string id = 1; // file id
     oneof data {
         // use for sender to send file metadata
         MetaData metaData = 2; 
-        // use for sender to send file chunk
-        bytes chunk = 3;
         // respone event to tell the sender status
         ReceiveEvent receiveEvent = 4;
     }
+}
+
+message ChunkChannelMessage {
+    string id = 1; // file id
+    bytes chunk = 2; // file chunk data
 }

@@ -194,7 +194,7 @@
           {#if peer.isOnline && peer.dataChannel && peer.metadata.isHost}
             <Receiver
               bind:this={peer.receiver}
-              dataChannel={peer.dataChannel}
+              controlChannel={peer.dataChannel}
               peerMetaData={peer.metadata}
               svgAvatar={peer.svgAvatar}
             />

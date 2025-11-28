@@ -1,6 +1,10 @@
 <script lang="ts">
   import { addToastMessage } from "../../stores/toast";
-  import { Message, MetaData, ReceiveEvent } from "../../proto/message";
+  import {
+    ControlChannelMessage,
+    MetaData,
+    ReceiveEvent,
+  } from "../../proto/message";
   import ReceivingFileList from "./ReceivingFileList.svelte";
   import {
     FileStatus,
@@ -165,7 +169,7 @@
     }
 
     controlChannel.send(
-      Message.encode({
+      ControlChannelMessage.encode({
         id,
         receiveEvent,
       }).finish(),

@@ -14,7 +14,8 @@
     generateAesKey,
   } from "../../utils/crypto";
   import {
-    Message,
+    ChunkChannelMessage,
+    ControlChannelMessage,
     MetaData,
     ReceiveEvent,
     receiveEventToJSON,
@@ -241,7 +242,7 @@
         const aesKey = sendingFile.aesKey;
         if (aesKey) {
           const encrypted = await encryptAesGcm(aesKey, buffer);
-          const payload = Message.encode({
+          const payload = ChunkChannelMessage.encode({
             id: sendingFile.metaData.name,
             chunk: encrypted,
           }).finish();
@@ -259,7 +260,7 @@
         }
       }
 
-      const payload = Message.encode({
+      const payload = ChunkChannelMessage.encode({
         id: sendingFile.metaData.name,
         chunk: new Uint8Array(buffer),
       }).finish();
@@ -309,7 +310,7 @@
     }
 
     // send meta data
-    const metadataPayload = Message.encode({
+    const metadataPayload = ControlChannelMessage.encode({
       id: sendingFile.metaData.name,
       metaData: sendingFile.metaData,
     }).finish();

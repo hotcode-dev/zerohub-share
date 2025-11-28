@@ -16,7 +16,7 @@
   import QrIcon from "./icons/QrIcon.svelte";
   import QrModal from "./qr/QrModal.svelte";
   import type { HubMetaData, PeerMetaData } from "../type";
-  import { Message } from "../proto/message";
+  import { ChunkChannelMessage, ControlChannelMessage } from "../proto/message";
   import Sender from "./sender/Sender.svelte";
   import Receiver from "./receiver/Receiver.svelte";
   import { settingAtom } from "../stores/setting";
@@ -84,56 +84,46 @@
     peerEntry.isOnline = true;
     peerEntry.dataChannels[dataChannel.label] = dataChannel;
 
-    if (dataChannel.label === "data-0") {
+    // check if control channel
+    if (dataChannel.label === "0" || !peerEntry.controlChannel) {
       peerEntry.controlChannel = dataChannel;
-    } else if (!peerEntry.controlChannel) {
-      peerEntry.controlChannel = dataChannel;
-    }
+      // handle control channel messages
+      dataChannel.onmessage = async (event: MessageEvent<Uint8Array>) => {
+        let payload: Uint8Array = new Uint8Array(event.data);
 
-    if (dataChannel.label.startsWith("data-")) {
-      const labelNumber = parseInt(dataChannel.label.split("-")[1] || "", 10);
+        const message = ControlChannelMessage.decode(payload);
+
+        if (message.metaData !== undefined) {
+          peers[peerId].receiver?.onMetaData(message.id, message.metaData);
+        } else if (message.receiveEvent !== undefined) {
+          sender?.onReceiveEvent(message.id, peerId, message.receiveEvent);
+        }
+      };
+    } else {
+      // chunk channel
+      const labelNumber = parseInt(dataChannel.label || "", 10);
       if (!Number.isNaN(labelNumber) && labelNumber > 0) {
         peerEntry.chunkChannels = peerEntry.chunkChannels
           .filter((channel) => channel.label !== dataChannel.label)
           .concat(dataChannel)
           .sort((a, b) => {
-            const aIndex = parseInt(a.label.split("-")[1] || "", 10);
-            const bIndex = parseInt(b.label.split("-")[1] || "", 10);
+            const aIndex = parseInt(a.label, 10);
+            const bIndex = parseInt(b.label, 10);
             return aIndex - bIndex;
           })
           .slice(0, MAX_CHUNK_CHANNELS);
       }
+
+      // handle chunk channel messages
+      dataChannel.onmessage = async (event: MessageEvent<Uint8Array>) => {
+        let payload: Uint8Array = new Uint8Array(event.data);
+
+        const message = ChunkChannelMessage.decode(payload);
+        if (message.chunk !== undefined) {
+          peers[peerId].receiver?.onChunkData(message.id, message.chunk);
+        }
+      };
     }
-
-    dataChannel.onmessage = async (event) => {
-      let payload: Uint8Array;
-
-      if (event.data instanceof ArrayBuffer) {
-        payload = new Uint8Array(event.data);
-      } else if (event.data instanceof Uint8Array) {
-        payload = event.data;
-      } else if (event.data instanceof Blob) {
-        payload = new Uint8Array(await event.data.arrayBuffer());
-      } else if (typeof event.data === "string") {
-        payload = new TextEncoder().encode(event.data);
-      } else {
-        return;
-      }
-
-      const message = Message.decode(payload);
-
-      if (message.metaData !== undefined) {
-        peers[peerId].receiver?.onMetaData(message.id, message.metaData);
-      } else if (message.chunk !== undefined) {
-        peers[peerId].receiver?.onChunkData(message.id, message.chunk);
-      } else if (message.receiveEvent !== undefined) {
-        sender?.onReceiveEvent(
-          message.id,
-          peerId,
-          message.receiveEvent,
-        );
-      }
-    };
 
     dataChannel.onopen = () => {
       peerEntry.isOnline = true;
@@ -142,28 +132,35 @@
 
     dataChannel.onclose = () => {
       delete peerEntry.dataChannels[dataChannel.label];
+
+      // if the closed channel is control channel, reassign it
       if (peerEntry.controlChannel === dataChannel) {
-        peerEntry.controlChannel = peerEntry.dataChannels["data-0"];
+        peerEntry.controlChannel = peerEntry.dataChannels["0"];
         if (!peerEntry.controlChannel) {
           const firstChannel = Object.values(peerEntry.dataChannels)[0];
           peerEntry.controlChannel = firstChannel;
         }
       }
+
+      // remove from chunk channels
       peerEntry.chunkChannels = peerEntry.chunkChannels.filter(
         (channel) => channel !== dataChannel,
       );
+
+      // if no chunk channels, try to assign from data channels
       if (peerEntry.chunkChannels.length === 0) {
         const fallbackChunkChannels = Object.values(peerEntry.dataChannels)
           .filter((channel) => channel !== peerEntry.controlChannel)
           .sort((a, b) => {
-            const aIndex = parseInt(a.label.split("-")[1] || "", 10);
-            const bIndex = parseInt(b.label.split("-")[1] || "", 10);
+            const aIndex = parseInt(a.label, 10);
+            const bIndex = parseInt(b.label, 10);
             return aIndex - bIndex;
           })
           .slice(0, MAX_CHUNK_CHANNELS);
         peerEntry.chunkChannels = fallbackChunkChannels;
       }
 
+      // if no data channels left, set peer to offline
       if (Object.keys(peerEntry.dataChannels).length === 0) {
         peerEntry.isOnline = false;
       }
@@ -186,6 +183,7 @@
       ],
     },
     dataChannelConfig: {
+      // TODO: configurable number of data channels for chunk transfer
       numberOfChannels: MAX_CHUNK_CHANNELS + 1,
       rtcDataChannelInit: {
         ordered: true,
