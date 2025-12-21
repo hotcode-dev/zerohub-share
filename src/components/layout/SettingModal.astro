@@ -68,6 +68,19 @@ import Cog from "../icons/Cog.astro";
           id="ice-input"
         />
       </label>
+      <label class="form-control w-full">
+        <div class="label">
+          <span class="label-text">Chunk bytes per channel (MB)</span>
+        </div>
+        <input
+          type="number"
+          min="1"
+          step="1"
+          placeholder="Enter size per channel"
+          class="input input-bordered w-full"
+          id="chunk-size-input"
+        />
+      </label>
       <label
         class="form-control flex w-full flex-row items-center justify-between"
       >
@@ -143,6 +156,9 @@ import Cog from "../icons/Cog.astro";
 
   const nameInput = document.getElementById("name-input") as HTMLInputElement;
   const iceInput = document.getElementById("ice-input") as HTMLInputElement;
+  const chunkSizeInput = document.getElementById(
+    "chunk-size-input"
+  ) as HTMLInputElement;
   const autoDownloadInput = document.getElementById(
     "auto-download-input"
   ) as HTMLInputElement;
@@ -157,14 +173,24 @@ import Cog from "../icons/Cog.astro";
   settingAtom.subscribe((s) => {
     nameInput.value = s.name;
     iceInput.value = s.iceServer;
+    chunkSizeInput.value = Math.max(
+      1,
+      Math.round(s.bytesPerDataChannel / (1024 * 1024))
+    ).toString();
     autoDownloadInput.checked = s.autoDownload;
   });
 
   saveButton.onclick = (e) => {
     e.preventDefault();
+    const parsedChunkSize = Number(chunkSizeInput.value);
+    const chunkBytes =
+      Number.isFinite(parsedChunkSize) && parsedChunkSize > 0
+        ? Math.round(parsedChunkSize * 1024 * 1024)
+        : defaultSetting.bytesPerDataChannel;
     settingAtom.set({
       name: nameInput.value,
       iceServer: iceInput.value,
+      bytesPerDataChannel: chunkBytes,
       autoDownload: autoDownloadInput.checked,
     });
     window.location.reload();
@@ -173,6 +199,9 @@ import Cog from "../icons/Cog.astro";
     e.preventDefault();
     nameInput.value = defaultSetting.name;
     iceInput.value = defaultSetting.iceServer;
+    chunkSizeInput.value = Math.round(
+      defaultSetting.bytesPerDataChannel / (1024 * 1024)
+    ).toString();
     autoDownloadInput.checked = defaultSetting.autoDownload;
   };
 </script>

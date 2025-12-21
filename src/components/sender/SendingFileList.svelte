@@ -10,7 +10,7 @@
     peers: {
       [peerId: string]: {
         isOnline: boolean;
-        dataChannel: RTCDataChannel;
+        dataChannels: Record<string, RTCDataChannel>;
         metadata: PeerMetaData;
         svgAvatar: string;
       };

@@ -12,7 +12,7 @@
     peers: {
       [peerId: string]: {
         isOnline: boolean;
-        dataChannel: RTCDataChannel;
+        dataChannels: Record<string, RTCDataChannel>;
         metadata: PeerMetaData;
         svgAvatar: string;
       };
@@ -22,12 +22,12 @@
   const { children, sendingFileSelection, peers }: Props = $props();
 </script>
 
-<div class="card bg-base-100 shadow-lg shadow-base-300">
+<div class="card bg-base-100 shadow-base-300 shadow-lg">
   <div class="card-body p-2 lg:p-4">
     <div class="flex flex-col gap-2">
       <div class="flex flex-row">
         <div
-          class="flex h-24 w-24 min-w-24 items-center justify-center rounded bg-base-300"
+          class="bg-base-300 flex h-24 w-24 min-w-24 items-center justify-center rounded"
         >
           <span class="text-lg font-bold">
             {sendingFileSelection.file.name.split(".").pop()?.toUpperCase()}
@@ -64,7 +64,8 @@
                   <div class="text-center">
                     {#if sendingFile.status === FileStatus.Processing}
                       Sending:
-                      {humanFileSize(sendingFile.bitrate)}/sec
+                      {humanFileSize(sendingFile.bitrate)}/sec, Channels: {sendingFile
+                        .fileMetadata.channels}
                     {:else if sendingFile.error}
                       <div class="text-error">
                         Error: {sendingFile.error.message}
@@ -72,7 +73,8 @@
                     {:else if sendingFile.status === FileStatus.WaitingAccept}
                       Waiting for Accept
                     {:else if sendingFile.status === FileStatus.Success}
-                      Success
+                      Success {humanFileSize(sendingFile.bitrate)}/sec,
+                      Channels: {sendingFile.fileMetadata.channels}
                     {:else}
                       Pending
                     {/if}

@@ -9,6 +9,7 @@ export const defaultSetting: Setting = {
     dictionaries: [starWars],
   }),
   autoDownload: true,
+  bytesPerDataChannel: 25 * 1024 * 1024,
 };
 
 export const settingAtom = persistentAtom<Setting>("setting", defaultSetting, {

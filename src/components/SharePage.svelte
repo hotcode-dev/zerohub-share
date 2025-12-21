@@ -23,6 +23,7 @@
   import ClipboardIcon from "./icons/Clipboard.svelte";
   import { addToastMessage } from "../stores/toast";
   import Toast from "./Toast.svelte";
+  import { MAX_DATA_CHANNELS } from "../constants";
 
   const searchParams = new URLSearchParams(window.location.search);
   const joinId = searchParams.get("id");
@@ -36,7 +37,7 @@
   let peers: {
     [peerId: string]: {
       isOnline: boolean;
-      dataChannel: RTCDataChannel;
+      dataChannels: Record<string, RTCDataChannel>;
       receiver: Receiver | undefined;
       metadata: PeerMetaData;
       svgAvatar: string;
@@ -46,43 +47,90 @@
   let qrModal: QrModal;
   let sender: Sender | undefined = $state(undefined);
 
+  function ensurePeerEntry(peer: Peer<PeerMetaData>) {
+    const peerId = peer.id.toString();
+    if (!peers[peerId]) {
+      peers[peerId] = {
+        isOnline: false,
+        dataChannels: {},
+        receiver: undefined,
+        metadata: peer.metadata,
+        svgAvatar: createAvatar(avatarStyle, {
+          seed: peer.metadata.name,
+        }).toDataUri(),
+      };
+    } else {
+      peers[peerId].metadata = peer.metadata;
+      peers[peerId].svgAvatar = createAvatar(avatarStyle, {
+        seed: peer.metadata.name,
+      }).toDataUri();
+    }
+
+    peers = peers;
+    return peers[peerId];
+  }
+
   function handleDataChannel(
     peer: Peer<PeerMetaData>,
     dataChannel: RTCDataChannel,
   ) {
-    let receiver: Receiver | undefined;
+    const peerId = peer.id.toString();
+    const peerEntry = ensurePeerEntry(peer);
 
-    dataChannel.onmessage = (event) => {
-      const message = Message.decode(new Uint8Array(event.data));
+    peerEntry.isOnline = true;
+    peerEntry.dataChannels[dataChannel.label] = dataChannel;
 
-      if (message.metaData !== undefined) {
-        peers[peer.id.toString()].receiver?.onMetaData(
+    dataChannel.onmessage = async (event: MessageEvent<Uint8Array>) => {
+      let payload: Uint8Array = new Uint8Array(event.data);
+
+      const message = Message.decode(payload);
+
+      if (message.chunk !== undefined) {
+        peers[peerId].receiver?.onChunkData(
           message.id,
-          message.metaData,
-        );
-      } else if (message.chunk !== undefined) {
-        peers[peer.id.toString()].receiver?.onChunkData(
-          message.id,
+          dataChannel.label,
           message.chunk,
         );
-      } else if (message.receiveEvent !== undefined) {
-        sender?.onReceiveEvent(
+      } else if (message.filePartMetaData !== undefined) {
+        peers[peerId].receiver?.onFilePartMetaData(
           message.id,
-          peer.id.toString(),
-          message.receiveEvent,
+          dataChannel.label,
+          message.filePartMetaData,
         );
+      } else if (message.filePartEvent !== undefined) {
+        sender?.onFilePartEvent(
+          message.id,
+          peerId,
+          dataChannel.label,
+          message.filePartEvent,
+        );
+      } else if (message.fileMetadata !== undefined) {
+        peers[peerId].receiver?.onFileMetaData(
+          message.id,
+          message.fileMetadata,
+        );
+      } else if (message.fileEvent !== undefined) {
+        sender?.onFileEvent(message.id, peerId, message.fileEvent);
       }
     };
 
-    peers[peer.id.toString()] = {
-      isOnline: true,
-      dataChannel: dataChannel,
-      receiver: receiver,
-      metadata: peer.metadata,
-      svgAvatar: createAvatar(avatarStyle, {
-        seed: peer.metadata.name,
-      }).toDataUri(),
+    dataChannel.onopen = () => {
+      peerEntry.isOnline = true;
+      peers = peers;
     };
+
+    dataChannel.onclose = () => {
+      delete peerEntry.dataChannels[dataChannel.label];
+
+      // if no data channels left, set peer to offline
+      if (Object.keys(peerEntry.dataChannels).length === 0) {
+        peerEntry.isOnline = false;
+      }
+
+      peers = peers;
+    };
+
+    peers = peers;
   }
 
   const zerohubConfig: Partial<ZeroHubConfig<PeerMetaData>> = {
@@ -97,6 +145,8 @@
       ],
     },
     dataChannelConfig: {
+      // TODO: configurable number of data channels for chunk transfer
+      numberOfChannels: MAX_DATA_CHANNELS,
       rtcDataChannelInit: {
         ordered: true,
       },
@@ -126,20 +176,31 @@
   };
 
   zeroHub.onPeerStatusChange = (peer) => {
+    const peerEntry = ensurePeerEntry(peer);
+
     switch (peer.status) {
       case PeerStatus.Connected:
         // update status to online if peer is offerer
         if (zeroHub.myPeerId && peer.id > zeroHub.myPeerId) {
-          peers[peer.id.toString()].isOnline = true;
+          peerEntry.isOnline = true;
         }
         break;
       case PeerStatus.ZeroHubDisconnected:
         // close data channel
-        peers[peer.id.toString()]?.dataChannel?.close();
+        Object.values(peerEntry.dataChannels).forEach((channel) => {
+          try {
+            channel.close();
+          } catch (error) {
+            console.error("Failed to close data channel", error);
+          }
+        });
+        peerEntry.dataChannels = {};
         // set peer to offline
-        peers[peer.id.toString()].isOnline = false;
+        peerEntry.isOnline = false;
         break;
     }
+
+    peers = peers;
   };
 
   async function joinOrCreateHub(id: string | null, name: string) {
@@ -182,12 +243,12 @@
         </div>
       </div>
       {#each Object.values(peers) as peer}
-        {#if peer.isOnline && peer.dataChannel}
+        {#if peer.isOnline && peer.dataChannels && Object.keys(peer.dataChannels).length > 0}
           <Receiver
             bind:this={peer.receiver}
-            dataChannel={peer.dataChannel}
             peerMetaData={peer.metadata}
             svgAvatar={peer.svgAvatar}
+            dataChannels={peer.dataChannels}
           />
         {/if}
       {/each}

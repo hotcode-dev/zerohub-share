@@ -1,4 +1,4 @@
-import type { MetaData } from "./proto/message";
+import type { FileMetadata, FilePartMetaData } from "./proto/message";
 import type { EventEmitter } from "eventemitter3";
 
 export interface PeerMetaData {
@@ -8,6 +8,14 @@ export interface PeerMetaData {
 
 export interface HubMetaData {}
 
+export interface FilePartDetail {
+  filePartMetaData: FilePartMetaData;
+}
+
+export interface SendingFilePart extends FilePartDetail {
+  event: EventEmitter;
+}
+
 export enum FileStatus {
   Pending = "Pending",
   WaitingAccept = "WaitingAccept",
@@ -15,18 +23,19 @@ export enum FileStatus {
   Success = "Success",
 }
 
-export interface FileDetail {
-  metaData: MetaData;
-  progress: number; // percentage
-  bitrate: number; // bytes per second
+export interface SendingFile {
+  fileMetadata: FileMetadata;
   error?: Error;
-  startTime: number;
   status: FileStatus;
   aesKey?: CryptoKey;
-}
-
-export interface SendingFile extends FileDetail {
   event: EventEmitter;
+  fileParts: {
+    [filePartChannelLabel: string]: SendingFilePart;
+  };
+  // for stats
+  progress: number; // percentage
+  bitrate: number; // bytes per second
+  startTime: number;
 }
 
 export interface SendingFileSelection {
@@ -39,15 +48,31 @@ export interface SendingFileSelection {
   };
 }
 
-export interface ReceivingFile extends FileDetail {
+export interface ReceivingFilePart extends FilePartDetail {
   receivedSize: number;
+  receivedChunks: Uint8Array[];
+}
+
+export interface ReceivingFile {
+  fileMetadata: FileMetadata;
+  status: FileStatus;
+  error?: Error;
   isEncrypt: boolean;
   encryptedAesKey?: Uint8Array;
-  receivedChunks: Uint8Array[];
+  aesKey?: CryptoKey;
+  receivedSize: number;
+  fileParts: {
+    [filePartChannelLabel: string]: ReceivingFilePart;
+  };
+  // for stats
+  progress: number; // percentage
+  bitrate: number; // bytes per second
+  startTime: number;
 }
 
 export interface Setting {
   name: string;
   iceServer: string;
   autoDownload: boolean;
+  bytesPerDataChannel: number;
 }
