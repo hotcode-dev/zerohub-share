@@ -175,7 +175,7 @@ import Cog from "../icons/Cog.astro";
     iceInput.value = s.iceServer;
     chunkSizeInput.value = Math.max(
       1,
-      Math.round(s.bytesPerChunkChannel / (1024 * 1024))
+      Math.round(s.bytesPerDataChannel / (1024 * 1024))
     ).toString();
     autoDownloadInput.checked = s.autoDownload;
   });
@@ -183,13 +183,14 @@ import Cog from "../icons/Cog.astro";
   saveButton.onclick = (e) => {
     e.preventDefault();
     const parsedChunkSize = Number(chunkSizeInput.value);
-    const chunkBytes = Number.isFinite(parsedChunkSize) && parsedChunkSize > 0
-      ? Math.round(parsedChunkSize * 1024 * 1024)
-      : defaultSetting.bytesPerChunkChannel;
+    const chunkBytes =
+      Number.isFinite(parsedChunkSize) && parsedChunkSize > 0
+        ? Math.round(parsedChunkSize * 1024 * 1024)
+        : defaultSetting.bytesPerDataChannel;
     settingAtom.set({
       name: nameInput.value,
       iceServer: iceInput.value,
-      bytesPerChunkChannel: chunkBytes,
+      bytesPerDataChannel: chunkBytes,
       autoDownload: autoDownloadInput.checked,
     });
     window.location.reload();
@@ -199,7 +200,7 @@ import Cog from "../icons/Cog.astro";
     nameInput.value = defaultSetting.name;
     iceInput.value = defaultSetting.iceServer;
     chunkSizeInput.value = Math.round(
-      defaultSetting.bytesPerChunkChannel / (1024 * 1024)
+      defaultSetting.bytesPerDataChannel / (1024 * 1024)
     ).toString();
     autoDownloadInput.checked = defaultSetting.autoDownload;
   };

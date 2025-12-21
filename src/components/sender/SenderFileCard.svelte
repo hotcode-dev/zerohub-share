@@ -13,8 +13,6 @@
       [peerId: string]: {
         isOnline: boolean;
         dataChannels: Record<string, RTCDataChannel>;
-        controlChannel: RTCDataChannel | undefined;
-        chunkChannels: RTCDataChannel[];
         metadata: PeerMetaData;
         svgAvatar: string;
       };
@@ -67,7 +65,7 @@
                     {#if sendingFile.status === FileStatus.Processing}
                       Sending:
                       {humanFileSize(sendingFile.bitrate)}/sec, Channels: {sendingFile
-                        .metaData.channels}
+                        .fileMetadata.channels}
                     {:else if sendingFile.error}
                       <div class="text-error">
                         Error: {sendingFile.error.message}
@@ -76,7 +74,7 @@
                       Waiting for Accept
                     {:else if sendingFile.status === FileStatus.Success}
                       Success {humanFileSize(sendingFile.bitrate)}/sec,
-                      Channels: {sendingFile.metaData.channels}
+                      Channels: {sendingFile.fileMetadata.channels}
                     {:else}
                       Pending
                     {/if}

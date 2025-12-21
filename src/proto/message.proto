@@ -1,37 +1,55 @@
 syntax = "proto3";
 
-message MetaData {
-    string name = 1;
-    int32  size = 2;
-    string type = 3;
-    bool isEncrypt = 4;
-    int32 channels = 5;
-    // encrypted AES key
-    optional bytes key = 6;
+message FilePartMetaData {
+  // file part number
+  int32 part_number = 6;
+  // size of this part in bytes
+  int32 part_size = 7;
 }
 
-enum ReceiveEvent {
-    // event when the reveiver got metadata and accept
-    EVENT_RECEIVER_ACCEPT = 0;
-    // event when the reveiver rejected the file
-    EVENT_RECEIVER_REJECT = 1;
-    // event when the reveiver got file chunk
-    EVENT_RECEIVED_CHUNK = 2;
-    // event when the reveiver got validate error
-    EVENT_VALIDATE_ERROR = 3;
+enum FileEvent {
+  // event when the reveiver got metadata and accepted the file
+  EVENT_RECEIVER_ACCEPT = 0;
+  // event when the reveiver rejected the file
+  EVENT_RECEIVER_REJECT = 1;
+  // event when the reveiver got validate error
+  EVENT_VALIDATE_ERROR = 2;
 }
 
-message ControlChannelMessage {
-    string id = 1; // file id
-    oneof data {
-        // use for sender to send file metadata
-        MetaData metaData = 2; 
-        // respone event to tell the sender status
-        ReceiveEvent receiveEvent = 4;
-    }
+enum FilePartEvent {
+  // event when the receiver got file part chunk
+  EVENT_RECEIVED_CHUNK = 0;
+  // event when the receiver get the file part metadata
+  EVENT_RECEIVED_FILE_PART_METADATA = 1;
 }
 
-message ChunkChannelMessage {
-    string id = 1; // file id
-    bytes chunk = 2; // file chunk data
+message FileMetadata {
+  // file name
+  string name = 1;
+  // total size of the file in bytes
+  int32 size = 2;
+  // mime type
+  string type = 3;
+  // is the file part encrypted
+  bool is_encrypt = 4;
+  // number of channels used to send this part
+  int32 channels = 5;
+  // encrypted AES key
+  optional bytes key = 8;
+}
+
+message Message {
+  // file id
+  string id = 1;
+  oneof data {
+    FileMetadata file_metadata = 2;
+    // use for sender to send file metadata
+    FilePartMetaData file_part_meta_data = 3;
+    // file part chunk data
+    bytes chunk = 4;
+    // response event for file, receiver will tell the sender file status
+    FileEvent file_event = 5;
+    // response event for file part, receiver will tell the sender file part status
+    FilePartEvent file_part_event = 6;
+  }
 }

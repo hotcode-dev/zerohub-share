@@ -11,8 +11,6 @@
       [peerId: string]: {
         isOnline: boolean;
         dataChannels: Record<string, RTCDataChannel>;
-        controlChannel: RTCDataChannel | undefined;
-        chunkChannels: RTCDataChannel[];
         metadata: PeerMetaData;
         svgAvatar: string;
       };

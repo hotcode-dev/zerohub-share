@@ -16,14 +16,14 @@
   import QrIcon from "./icons/QrIcon.svelte";
   import QrModal from "./qr/QrModal.svelte";
   import type { HubMetaData, PeerMetaData } from "../type";
-  import { ChunkChannelMessage, ControlChannelMessage } from "../proto/message";
+  import { Message } from "../proto/message";
   import Sender from "./sender/Sender.svelte";
   import Receiver from "./receiver/Receiver.svelte";
   import { settingAtom } from "../stores/setting";
   import ClipboardIcon from "./icons/Clipboard.svelte";
   import { addToastMessage } from "../stores/toast";
   import Toast from "./Toast.svelte";
-  import { MAX_CHUNK_CHANNELS } from "../constants";
+  import { MAX_DATA_CHANNELS } from "../constants";
 
   const searchParams = new URLSearchParams(window.location.search);
   const joinId = searchParams.get("id");
@@ -38,8 +38,6 @@
     [peerId: string]: {
       isOnline: boolean;
       dataChannels: Record<string, RTCDataChannel>;
-      controlChannel: RTCDataChannel | undefined;
-      chunkChannels: RTCDataChannel[];
       receiver: Receiver | undefined;
       metadata: PeerMetaData;
       svgAvatar: string;
@@ -55,8 +53,6 @@
       peers[peerId] = {
         isOnline: false,
         dataChannels: {},
-        controlChannel: undefined,
-        chunkChannels: [],
         receiver: undefined,
         metadata: peer.metadata,
         svgAvatar: createAvatar(avatarStyle, {
@@ -84,46 +80,39 @@
     peerEntry.isOnline = true;
     peerEntry.dataChannels[dataChannel.label] = dataChannel;
 
-    // check if control channel
-    if (dataChannel.label === "0" || !peerEntry.controlChannel) {
-      peerEntry.controlChannel = dataChannel;
-      // handle control channel messages
-      dataChannel.onmessage = async (event: MessageEvent<Uint8Array>) => {
-        let payload: Uint8Array = new Uint8Array(event.data);
+    dataChannel.onmessage = async (event: MessageEvent<Uint8Array>) => {
+      let payload: Uint8Array = new Uint8Array(event.data);
 
-        const message = ControlChannelMessage.decode(payload);
+      const message = Message.decode(payload);
 
-        if (message.metaData !== undefined) {
-          peers[peerId].receiver?.onMetaData(message.id, message.metaData);
-        } else if (message.receiveEvent !== undefined) {
-          sender?.onReceiveEvent(message.id, peerId, message.receiveEvent);
-        }
-      };
-    } else {
-      // chunk channel
-      const labelNumber = parseInt(dataChannel.label || "", 10);
-      if (!Number.isNaN(labelNumber) && labelNumber > 0) {
-        peerEntry.chunkChannels = peerEntry.chunkChannels
-          .filter((channel) => channel.label !== dataChannel.label)
-          .concat(dataChannel)
-          .sort((a, b) => {
-            const aIndex = parseInt(a.label, 10);
-            const bIndex = parseInt(b.label, 10);
-            return aIndex - bIndex;
-          })
-          .slice(0, MAX_CHUNK_CHANNELS);
+      if (message.chunk !== undefined) {
+        peers[peerId].receiver?.onChunkData(
+          message.id,
+          dataChannel.label,
+          message.chunk,
+        );
+      } else if (message.filePartMetaData !== undefined) {
+        peers[peerId].receiver?.onFilePartMetaData(
+          message.id,
+          dataChannel.label,
+          message.filePartMetaData,
+        );
+      } else if (message.filePartEvent !== undefined) {
+        sender?.onFilePartEvent(
+          message.id,
+          peerId,
+          dataChannel.label,
+          message.filePartEvent,
+        );
+      } else if (message.fileMetadata !== undefined) {
+        peers[peerId].receiver?.onFileMetaData(
+          message.id,
+          message.fileMetadata,
+        );
+      } else if (message.fileEvent !== undefined) {
+        sender?.onFileEvent(message.id, peerId, message.fileEvent);
       }
-
-      // handle chunk channel messages
-      dataChannel.onmessage = async (event: MessageEvent<Uint8Array>) => {
-        let payload: Uint8Array = new Uint8Array(event.data);
-
-        const message = ChunkChannelMessage.decode(payload);
-        if (message.chunk !== undefined) {
-          peers[peerId].receiver?.onChunkData(message.id, message.chunk);
-        }
-      };
-    }
+    };
 
     dataChannel.onopen = () => {
       peerEntry.isOnline = true;
@@ -132,33 +121,6 @@
 
     dataChannel.onclose = () => {
       delete peerEntry.dataChannels[dataChannel.label];
-
-      // if the closed channel is control channel, reassign it
-      if (peerEntry.controlChannel === dataChannel) {
-        peerEntry.controlChannel = peerEntry.dataChannels["0"];
-        if (!peerEntry.controlChannel) {
-          const firstChannel = Object.values(peerEntry.dataChannels)[0];
-          peerEntry.controlChannel = firstChannel;
-        }
-      }
-
-      // remove from chunk channels
-      peerEntry.chunkChannels = peerEntry.chunkChannels.filter(
-        (channel) => channel !== dataChannel,
-      );
-
-      // if no chunk channels, try to assign from data channels
-      if (peerEntry.chunkChannels.length === 0) {
-        const fallbackChunkChannels = Object.values(peerEntry.dataChannels)
-          .filter((channel) => channel !== peerEntry.controlChannel)
-          .sort((a, b) => {
-            const aIndex = parseInt(a.label, 10);
-            const bIndex = parseInt(b.label, 10);
-            return aIndex - bIndex;
-          })
-          .slice(0, MAX_CHUNK_CHANNELS);
-        peerEntry.chunkChannels = fallbackChunkChannels;
-      }
 
       // if no data channels left, set peer to offline
       if (Object.keys(peerEntry.dataChannels).length === 0) {
@@ -184,7 +146,7 @@
     },
     dataChannelConfig: {
       // TODO: configurable number of data channels for chunk transfer
-      numberOfChannels: MAX_CHUNK_CHANNELS + 1,
+      numberOfChannels: MAX_DATA_CHANNELS,
       rtcDataChannelInit: {
         ordered: true,
       },
@@ -233,8 +195,6 @@
           }
         });
         peerEntry.dataChannels = {};
-        peerEntry.controlChannel = undefined;
-        peerEntry.chunkChannels = [];
         // set peer to offline
         peerEntry.isOnline = false;
         break;
@@ -283,12 +243,12 @@
         </div>
       </div>
       {#each Object.values(peers) as peer}
-        {#if peer.isOnline && peer.controlChannel}
+        {#if peer.isOnline && peer.dataChannels && Object.keys(peer.dataChannels).length > 0}
           <Receiver
             bind:this={peer.receiver}
-            controlChannel={peer.controlChannel}
             peerMetaData={peer.metadata}
             svgAvatar={peer.svgAvatar}
+            dataChannels={peer.dataChannels}
           />
         {/if}
       {/each}

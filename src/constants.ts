@@ -1,4 +1,4 @@
-export const MAX_CHUNK_CHANNELS = 15;
+export const MAX_DATA_CHANNELS = 16;
 
-// Each additional chunk channel is allocated per this many bytes. 25 MB.
-export const BYTES_PER_CHUNK_CHANNEL = 25 * 1024 * 1024;
+// Each additional data channel is allocated per this many bytes. 25 MB.
+export const DEFAULT_BYTES_PER_DATA_CHANNEL = 25 * 1024 * 1024;

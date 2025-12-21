@@ -5,6 +5,7 @@
     FileStatus,
     type PeerMetaData,
     type SendingFile,
+    type SendingFilePart,
     type SendingFileSelection,
   } from "../../type";
   import SendingFileList from "./SendingFileList.svelte";
@@ -14,16 +15,19 @@
     generateAesKey,
   } from "../../utils/crypto";
   import {
-    ChunkChannelMessage,
-    ControlChannelMessage,
-    MetaData,
-    ReceiveEvent,
-    receiveEventToJSON,
+    FileMetadata,
+    Message,
+    FilePartMetaData,
+    FileEvent,
+    FilePartEvent,
   } from "../../proto/message";
   import { addToastMessage } from "../../stores/toast";
   import SendDropdown from "./SendDropdown.svelte";
   import UpTray from "../icons/UpTray.svelte";
-  import { BYTES_PER_CHUNK_CHANNEL, MAX_CHUNK_CHANNELS } from "../../constants";
+  import {
+    DEFAULT_BYTES_PER_DATA_CHANNEL,
+    MAX_DATA_CHANNELS,
+  } from "../../constants";
   import { settingAtom } from "../../stores/setting";
 
   type Props = {
@@ -31,8 +35,6 @@
       [peerId: string]: {
         isOnline: boolean;
         dataChannels: Record<string, RTCDataChannel>;
-        controlChannel: RTCDataChannel | undefined;
-        chunkChannels: RTCDataChannel[];
         metadata: PeerMetaData;
         svgAvatar: string;
       };
@@ -43,24 +45,46 @@
 
   const { peers, isDrop, hideSendButton }: Props = $props();
 
-  let sendingFileSelections: { [key: string]: SendingFileSelection } = $state(
-    {},
-  );
+  let sendingFileSelections: { [fileId: string]: SendingFileSelection } =
+    $state({});
 
-  export function onReceiveEvent(
+  const FILE_EVENT: { [key in FileEvent]: string } = {
+    [FileEvent.EVENT_RECEIVER_ACCEPT]: "receiver_accept",
+    [FileEvent.EVENT_RECEIVER_REJECT]: "receiver_reject",
+    [FileEvent.EVENT_VALIDATE_ERROR]: "validate_error",
+    [FileEvent.UNRECOGNIZED]: "unrecognized",
+  };
+
+  const FILE_PART_EVENT: {
+    [key in FilePartEvent]: string;
+  } = {
+    [FilePartEvent.EVENT_RECEIVED_CHUNK]: "received_chunk",
+    [FilePartEvent.EVENT_RECEIVED_FILE_PART_METADATA]:
+      "received_file_part_metadata",
+    [FilePartEvent.UNRECOGNIZED]: "unrecognized",
+  };
+
+  export function onFileEvent(
     fileId: string,
     peerId: string,
-    receiveEvent: ReceiveEvent,
+    fileEvent: FileEvent,
   ) {
-    const sendingFile = sendingFileSelections[fileId].sendingFiles[peerId];
-    if (sendingFile && sendingFile.event) {
-      sendingFile.event.emit(receiveEventToJSON(receiveEvent));
+    sendingFileSelections[fileId].sendingFiles[peerId].event.emit(
+      FILE_EVENT[fileEvent],
+    );
+  }
 
-      // trigger update
-      sendingFileSelections[fileId].sendingFiles[peerId] = sendingFile;
-      sendingFileSelections[fileId] = sendingFileSelections[fileId];
-      sendingFileSelections = sendingFileSelections;
-    }
+  export function onFilePartEvent(
+    fileId: string,
+    peerId: string,
+    channelLabel: string,
+    filePartEvent: FilePartEvent,
+  ) {
+    const sendingFilePart =
+      sendingFileSelections[fileId].sendingFiles[peerId].fileParts[
+        channelLabel
+      ];
+    sendingFilePart.event.emit(FILE_PART_EVENT[filePartEvent]);
   }
 
   async function onSend(fileId: string, peerId: string) {
@@ -73,72 +97,28 @@
       return;
     }
 
-    const controlChannel = peer.controlChannel;
-
-    if (!controlChannel || controlChannel.readyState !== "open") {
-      addToastMessage("Control channel is not ready", "error");
+    const workingFilePartChannels = Object.values(peer.dataChannels).filter(
+      (channel) => channel && channel.readyState === "open",
+    );
+    if (workingFilePartChannels.length === 0) {
+      addToastMessage("No file part channels are ready", "error");
       return;
     }
 
-    const chunkBytesPerChannel = Math.max(
+    const bytesPerChannel = Math.max(
       1,
-      $settingAtom.bytesPerChunkChannel ?? BYTES_PER_CHUNK_CHANNEL,
+      $settingAtom.bytesPerDataChannel ?? DEFAULT_BYTES_PER_DATA_CHANNEL,
     );
-    const requestedChunkChannelCount = Math.min(
-      MAX_CHUNK_CHANNELS,
-      Math.max(1, Math.ceil(file.size / chunkBytesPerChannel)),
+    const requestedFilePartChannelCount = Math.min(
+      MAX_DATA_CHANNELS,
+      Math.max(1, Math.ceil(file.size / bytesPerChannel)),
     );
-    let chunkChannels = peer.chunkChannels.slice(
-      0,
-      Math.min(requestedChunkChannelCount, peer.chunkChannels.length),
+    const filePartChannelsCount = Math.min(
+      requestedFilePartChannelCount,
+      workingFilePartChannels.length,
     );
-    let nextChunkChannelIndex = 0;
-
-    function sendViaChunkChannels(payload: Uint8Array<ArrayBuffer>) {
-      chunkChannels = peer.chunkChannels.slice(
-        0,
-        Math.min(requestedChunkChannelCount, peer.chunkChannels.length),
-      );
-
-      if (chunkChannels.length === 0) {
-        nextChunkChannelIndex = 0;
-        return false;
-      }
-
-      const channelsCount = chunkChannels.length;
-      let attempts = 0;
-
-      while (attempts < channelsCount) {
-        if (nextChunkChannelIndex >= chunkChannels.length) {
-          nextChunkChannelIndex = 0;
-        }
-
-        const channel = chunkChannels[nextChunkChannelIndex];
-        if (channel.readyState === "open") {
-          channel.send(payload);
-          nextChunkChannelIndex =
-            (nextChunkChannelIndex + 1) % chunkChannels.length;
-          return true;
-        }
-
-        attempts += 1;
-        nextChunkChannelIndex =
-          (nextChunkChannelIndex + 1) % chunkChannels.length;
-      }
-
-      return false;
-    }
-
-    function trySend(
-      channel: RTCDataChannel | undefined,
-      payload: Uint8Array<ArrayBuffer>,
-    ) {
-      if (channel && channel.readyState === "open") {
-        channel.send(payload);
-        return true;
-      }
-      return false;
-    }
+    let dataChannels = workingFilePartChannels.slice(0, filePartChannelsCount);
+    const partSize = Math.ceil(file.size / dataChannels.length);
 
     // initial aes key
     let aesKey;
@@ -151,181 +131,203 @@
       );
     }
 
-    // initial file meta data
-    const fileMetaData: MetaData = {
+    // prepare file metadata
+    const fileMetadata: FileMetadata = {
       name: file.name,
       size: file.size,
       type: file.type,
       isEncrypt: sendingFileSelection.isEncrypt,
       key: aesEncrypted,
-      channels: requestedChunkChannelCount,
+      channels: requestedFilePartChannelCount,
     };
 
+    // initialize sending file entry
     const sendingFile: SendingFile = {
-      metaData: fileMetaData,
+      status: FileStatus.Pending,
+      aesKey: aesKey,
+      fileMetadata: fileMetadata,
+      fileParts: {},
       progress: 0,
       bitrate: 0,
       startTime: 0,
-      status: FileStatus.Pending,
-      aesKey: aesKey,
       event: new EventEmitter(),
     };
     sendingFileSelection.sendingFiles[peerId] = sendingFile;
 
-    // send file offset
-    let offset = 0;
+    const startSendFilePart = () => {
+      let fileOffset = 0;
+      let successFileParts = 0;
+      for (let i = 0; i < dataChannels.length; i++) {
+        const channel = dataChannels[i];
 
-    sendingFile.event.on(
-      receiveEventToJSON(ReceiveEvent.EVENT_RECEIVER_ACCEPT),
-      () => {
-        sendingFileSelections[fileId].sendingFiles[peerId].status =
-          FileStatus.Processing;
-        sendingFileSelections[fileId].sendingFiles[peerId].startTime =
-          Date.now();
-        sendNextChunk();
-      },
-    );
+        // separate file into parts
+        const start = i * partSize;
+        const end = Math.min(start + partSize, file.size);
+        const filePart = file.slice(start, end);
 
-    sendingFile.event.on(
-      receiveEventToJSON(ReceiveEvent.EVENT_RECEIVED_CHUNK),
-      async () => {
-        // if there is error, stop sending
-        if (sendingFile.error) {
-          console.log("error", sendingFile.error);
-          sendingFileSelections[fileId].sendingFiles[peerId].progress = 0;
-          sendingFileSelections[fileId].sendingFiles[peerId].status =
-            FileStatus.Pending;
-          return;
-        }
+        // send file part offset
+        let filePartoffset = 0;
 
-        if (offset < sendingFile.metaData.size) {
-          sendingFile.status = FileStatus.Processing;
-          await sendNextChunk();
-          return;
-        }
+        // initial file meta data
+        const filePartMetaData: FilePartMetaData = {
+          partNumber: i,
+          partSize: filePart.size,
+        };
 
-        sendingFileSelections[fileId].sendingFiles[peerId].status =
-          FileStatus.Success;
-        addToastMessage(
-          `File ${sendingFile.metaData.name} sent successfully`,
-          "success",
+        const sendingFilePart: SendingFilePart = {
+          filePartMetaData: filePartMetaData,
+          event: new EventEmitter(),
+        };
+
+        sendingFileSelection.sendingFiles[peerId].fileParts[channel.label] =
+          sendingFilePart;
+
+        sendingFilePart.event.on(
+          FILE_PART_EVENT[FilePartEvent.EVENT_RECEIVED_CHUNK],
+          async () => {
+            // if there is error, stop sending
+            if (sendingFile.error) {
+              console.log("error", sendingFile.error);
+              sendingFileSelections[fileId].sendingFiles[peerId].status =
+                FileStatus.Pending;
+              sendingFileSelections[fileId].sendingFiles[peerId].progress = 0;
+              return;
+            }
+
+            if (
+              filePartoffset <
+              sendingFileSelections[fileId].sendingFiles[peerId].fileParts[
+                channel.label
+              ].filePartMetaData.partSize
+            ) {
+              sendingFileSelections[fileId].sendingFiles[peerId].status =
+                FileStatus.Processing;
+              // send next chunk if not finished
+              sendNextChunk();
+              return;
+            }
+
+            // check if all file parts are sent
+            successFileParts += 1;
+            if (successFileParts === dataChannels.length) {
+              sendingFileSelections[fileId].sendingFiles[peerId].status =
+                FileStatus.Success;
+              addToastMessage(
+                `File ${sendingFile.fileMetadata.name} sent successfully`,
+                "success",
+              );
+            }
+          },
         );
-      },
-    );
 
-    sendingFile.event.on(
-      receiveEventToJSON(ReceiveEvent.EVENT_VALIDATE_ERROR),
-      () => {
-        addToastMessage("Receiver validate error", "error");
-        sendingFileSelections[fileId].sendingFiles[peerId].error = new Error(
-          "Receiver validate error",
-        );
-        sendingFileSelections[fileId].sendingFiles[peerId].status =
-          FileStatus.Pending;
-      },
-    );
+        async function sendBuffer(buffer: ArrayBuffer) {
+          if (sendingFileSelection.isEncrypt) {
+            const aesKey = sendingFile.aesKey;
+            if (aesKey) {
+              const encrypted = await encryptAesGcm(aesKey, buffer);
+              const payload = Message.encode({
+                id: sendingFile.fileMetadata.name,
+                chunk: encrypted,
+              }).finish();
 
-    sendingFile.event.on(
-      receiveEventToJSON(ReceiveEvent.EVENT_RECEIVER_REJECT),
-      () => {
-        addToastMessage("Receiver reject the file", "error");
-        sendingFileSelections[fileId].sendingFiles[peerId].error = new Error(
-          "Receiver reject the file",
-        );
-        sendingFileSelections[fileId].sendingFiles[peerId].status =
-          FileStatus.Pending;
-      },
-    );
+              channel.send(payload);
+              return;
+            }
+          }
 
-    async function sendBuffer(buffer: ArrayBuffer) {
-      if (sendingFileSelection.isEncrypt) {
-        const aesKey = sendingFile.aesKey;
-        if (aesKey) {
-          const encrypted = await encryptAesGcm(aesKey, buffer);
-          const payload = ChunkChannelMessage.encode({
-            id: sendingFile.metaData.name,
-            chunk: encrypted,
+          const payload = Message.encode({
+            id: sendingFile.fileMetadata.name,
+            chunk: new Uint8Array(buffer),
           }).finish();
 
-          if (sendViaChunkChannels(payload)) {
+          channel.send(payload);
+        }
+
+        const sendNextChunk = async () => {
+          const slice = filePart.slice(
+            filePartoffset,
+            filePartoffset + sendingFileSelection.chunkSize,
+          );
+          const buffer = await slice.arrayBuffer();
+
+          try {
+            await sendBuffer(buffer);
+          } catch (error) {
+            console.error("Failed to send chunk", error);
+            sendingFileSelections[fileId].sendingFiles[peerId].error =
+              error instanceof Error
+                ? error
+                : new Error("Failed to send chunk");
+            addToastMessage("Failed to send chunk", "error");
             return;
           }
 
-          if (!trySend(controlChannel, payload)) {
-            throw new Error(
-              "No available data channel to send encrypted chunk",
+          filePartoffset += buffer.byteLength;
+          fileOffset += buffer.byteLength;
+
+          // calculate progress
+          sendingFileSelections[fileId].sendingFiles[peerId].progress =
+            Math.round((fileOffset / sendingFile.fileMetadata.size) * 100);
+          // calculate bitrate
+          sendingFileSelections[fileId].sendingFiles[peerId].bitrate =
+            Math.round(
+              fileOffset /
+                ((Date.now() -
+                  sendingFileSelections[fileId].sendingFiles[peerId]
+                    .startTime) /
+                  1000),
             );
-          }
-          return;
-        }
+        };
+
+        sendingFilePart.event.on(
+          FILE_PART_EVENT[FilePartEvent.EVENT_RECEIVED_FILE_PART_METADATA],
+          () => {
+            // start sending first chunk after receiver got file part meta data
+            sendNextChunk();
+          },
+        );
+
+        // send meta data
+        const metadataPayload = Message.encode({
+          id: sendingFile.fileMetadata.name,
+          filePartMetaData: filePartMetaData,
+        }).finish();
+        channel.send(metadataPayload);
       }
+    };
 
-      const payload = ChunkChannelMessage.encode({
-        id: sendingFile.metaData.name,
-        chunk: new Uint8Array(buffer),
-      }).finish();
+    sendingFile.event.on(FILE_EVENT[FileEvent.EVENT_RECEIVER_ACCEPT], () => {
+      sendingFileSelections[fileId].sendingFiles[peerId].status =
+        FileStatus.Processing;
 
-      if (sendViaChunkChannels(payload)) {
-        return;
-      }
-
-      if (!trySend(controlChannel, payload)) {
-        throw new Error("No available data channel to send chunk");
-      }
-    }
-
-    async function sendNextChunk() {
-      const slice = sendingFileSelection.file.slice(
-        offset,
-        offset + sendingFileSelection.chunkSize,
+      sendingFileSelections[fileId].sendingFiles[peerId].startTime = Date.now();
+      startSendFilePart();
+    });
+    sendingFile.event.on(FILE_EVENT[FileEvent.EVENT_VALIDATE_ERROR], () => {
+      addToastMessage("Receiver validate error", "error");
+      sendingFileSelections[fileId].sendingFiles[peerId].error = new Error(
+        "Receiver validate error",
       );
-      const buffer = await slice.arrayBuffer();
-
-      try {
-        await sendBuffer(buffer);
-      } catch (error) {
-        console.error("Failed to send chunk", error);
-        sendingFileSelections[fileId].sendingFiles[peerId].error =
-          error instanceof Error ? error : new Error("Failed to send chunk");
-        sendingFileSelections[fileId].sendingFiles[peerId].status =
-          FileStatus.Pending;
-        addToastMessage("Failed to send chunk", "error");
-        return;
-      }
-
-      offset += buffer.byteLength;
-
-      // calculate progress
-      sendingFileSelections[fileId].sendingFiles[peerId].progress = Math.round(
-        (offset / sendingFile.metaData.size) * 100,
-      );
-
-      // calculate bitrate
-      sendingFileSelections[fileId].sendingFiles[peerId].bitrate = Math.round(
-        offset /
-          ((Date.now() -
-            sendingFileSelections[fileId].sendingFiles[peerId].startTime) /
-            1000),
-      );
-    }
-
-    // send meta data
-    const metadataPayload = ControlChannelMessage.encode({
-      id: sendingFile.metaData.name,
-      metaData: sendingFile.metaData,
-    }).finish();
-
-    if (!trySend(controlChannel, metadataPayload)) {
-      if (sendViaChunkChannels(metadataPayload)) {
-        sendingFileSelections[fileId].sendingFiles[peerId].status =
-          FileStatus.WaitingAccept;
-        return;
-      }
-      addToastMessage("Control channel closed", "error");
       sendingFileSelections[fileId].sendingFiles[peerId].status =
         FileStatus.Pending;
-      return;
-    }
+    });
+
+    sendingFile.event.on(FILE_EVENT[FileEvent.EVENT_RECEIVER_REJECT], () => {
+      addToastMessage("Receiver reject the file", "error");
+      sendingFileSelections[fileId].sendingFiles[peerId].error = new Error(
+        "Receiver reject the file",
+      );
+      sendingFileSelections[fileId].sendingFiles[peerId].status =
+        FileStatus.Pending;
+    });
+
+    // send file metadata over the first channel
+    dataChannels[0].send(
+      Message.encode({
+        id: file.name,
+        fileMetadata: fileMetadata,
+      }).finish(),
+    );
 
     sendingFileSelections[fileId].sendingFiles[peerId].status =
       FileStatus.WaitingAccept;
@@ -345,6 +347,7 @@
     Array.from(files).forEach(async (file) => {
       sendingFileSelections[file.name] = {
         file: file,
+        // TODO add chunk per data channel setting
         chunkSize: 16 * 1024, // 16MB
         isEncrypt: false,
         password: "",
@@ -354,12 +357,6 @@
       // if it's drop mode send file to all peers after pick
       if (isDrop && peers) {
         for (const peerId of Object.keys(peers)) {
-          if (
-            !peers[peerId].controlChannel ||
-            peers[peerId].controlChannel?.readyState !== "open"
-          ) {
-            continue;
-          }
           await onSend(file.name, peerId);
         }
       }

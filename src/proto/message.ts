@@ -9,89 +9,209 @@ import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 
 export const protobufPackage = "";
 
-export enum ReceiveEvent {
-  /** EVENT_RECEIVER_ACCEPT - event when the reveiver got metadata and accept */
+export enum FileEvent {
+  /** EVENT_RECEIVER_ACCEPT - event when the reveiver got metadata and accepted the file */
   EVENT_RECEIVER_ACCEPT = 0,
   /** EVENT_RECEIVER_REJECT - event when the reveiver rejected the file */
   EVENT_RECEIVER_REJECT = 1,
-  /** EVENT_RECEIVED_CHUNK - event when the reveiver got file chunk */
-  EVENT_RECEIVED_CHUNK = 2,
   /** EVENT_VALIDATE_ERROR - event when the reveiver got validate error */
-  EVENT_VALIDATE_ERROR = 3,
+  EVENT_VALIDATE_ERROR = 2,
   UNRECOGNIZED = -1,
 }
 
-export function receiveEventFromJSON(object: any): ReceiveEvent {
+export function fileEventFromJSON(object: any): FileEvent {
   switch (object) {
     case 0:
     case "EVENT_RECEIVER_ACCEPT":
-      return ReceiveEvent.EVENT_RECEIVER_ACCEPT;
+      return FileEvent.EVENT_RECEIVER_ACCEPT;
     case 1:
     case "EVENT_RECEIVER_REJECT":
-      return ReceiveEvent.EVENT_RECEIVER_REJECT;
+      return FileEvent.EVENT_RECEIVER_REJECT;
     case 2:
-    case "EVENT_RECEIVED_CHUNK":
-      return ReceiveEvent.EVENT_RECEIVED_CHUNK;
-    case 3:
     case "EVENT_VALIDATE_ERROR":
-      return ReceiveEvent.EVENT_VALIDATE_ERROR;
+      return FileEvent.EVENT_VALIDATE_ERROR;
     case -1:
     case "UNRECOGNIZED":
     default:
-      return ReceiveEvent.UNRECOGNIZED;
+      return FileEvent.UNRECOGNIZED;
   }
 }
 
-export function receiveEventToJSON(object: ReceiveEvent): string {
+export function fileEventToJSON(object: FileEvent): string {
   switch (object) {
-    case ReceiveEvent.EVENT_RECEIVER_ACCEPT:
+    case FileEvent.EVENT_RECEIVER_ACCEPT:
       return "EVENT_RECEIVER_ACCEPT";
-    case ReceiveEvent.EVENT_RECEIVER_REJECT:
+    case FileEvent.EVENT_RECEIVER_REJECT:
       return "EVENT_RECEIVER_REJECT";
-    case ReceiveEvent.EVENT_RECEIVED_CHUNK:
-      return "EVENT_RECEIVED_CHUNK";
-    case ReceiveEvent.EVENT_VALIDATE_ERROR:
+    case FileEvent.EVENT_VALIDATE_ERROR:
       return "EVENT_VALIDATE_ERROR";
-    case ReceiveEvent.UNRECOGNIZED:
+    case FileEvent.UNRECOGNIZED:
     default:
       return "UNRECOGNIZED";
   }
 }
 
-export interface MetaData {
+export enum FilePartEvent {
+  /** EVENT_RECEIVED_CHUNK - event when the receiver got file part chunk */
+  EVENT_RECEIVED_CHUNK = 0,
+  /** EVENT_RECEIVED_FILE_PART_METADATA - event when the receiver get the file part metadata */
+  EVENT_RECEIVED_FILE_PART_METADATA = 1,
+  UNRECOGNIZED = -1,
+}
+
+export function filePartEventFromJSON(object: any): FilePartEvent {
+  switch (object) {
+    case 0:
+    case "EVENT_RECEIVED_CHUNK":
+      return FilePartEvent.EVENT_RECEIVED_CHUNK;
+    case 1:
+    case "EVENT_RECEIVED_FILE_PART_METADATA":
+      return FilePartEvent.EVENT_RECEIVED_FILE_PART_METADATA;
+    case -1:
+    case "UNRECOGNIZED":
+    default:
+      return FilePartEvent.UNRECOGNIZED;
+  }
+}
+
+export function filePartEventToJSON(object: FilePartEvent): string {
+  switch (object) {
+    case FilePartEvent.EVENT_RECEIVED_CHUNK:
+      return "EVENT_RECEIVED_CHUNK";
+    case FilePartEvent.EVENT_RECEIVED_FILE_PART_METADATA:
+      return "EVENT_RECEIVED_FILE_PART_METADATA";
+    case FilePartEvent.UNRECOGNIZED:
+    default:
+      return "UNRECOGNIZED";
+  }
+}
+
+export interface FilePartMetaData {
+  /** file part number */
+  partNumber: number;
+  /** size of this part in bytes */
+  partSize: number;
+}
+
+export interface FileMetadata {
+  /** file name */
   name: string;
+  /** total size of the file in bytes */
   size: number;
+  /** mime type */
   type: string;
+  /** is the file part encrypted */
   isEncrypt: boolean;
+  /** number of channels used to send this part */
   channels: number;
   /** encrypted AES key */
   key?: Uint8Array | undefined;
 }
 
-export interface ControlChannelMessage {
+export interface Message {
   /** file id */
   id: string;
-  /** use for sender to send file metadata */
-  metaData?:
-    | MetaData
+  fileMetadata?:
+    | FileMetadata
     | undefined;
-  /** respone event to tell the sender status */
-  receiveEvent?: ReceiveEvent | undefined;
+  /** use for sender to send file metadata */
+  filePartMetaData?:
+    | FilePartMetaData
+    | undefined;
+  /** file part chunk data */
+  chunk?:
+    | Uint8Array
+    | undefined;
+  /** response event for file, receiver will tell the sender file status */
+  fileEvent?:
+    | FileEvent
+    | undefined;
+  /** response event for file part, receiver will tell the sender file part status */
+  filePartEvent?: FilePartEvent | undefined;
 }
 
-export interface ChunkChannelMessage {
-  /** file id */
-  id: string;
-  /** file chunk data */
-  chunk: Uint8Array;
+function createBaseFilePartMetaData(): FilePartMetaData {
+  return { partNumber: 0, partSize: 0 };
 }
 
-function createBaseMetaData(): MetaData {
+export const FilePartMetaData: MessageFns<FilePartMetaData> = {
+  encode(message: FilePartMetaData, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.partNumber !== 0) {
+      writer.uint32(48).int32(message.partNumber);
+    }
+    if (message.partSize !== 0) {
+      writer.uint32(56).int32(message.partSize);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): FilePartMetaData {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseFilePartMetaData();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 6: {
+          if (tag !== 48) {
+            break;
+          }
+
+          message.partNumber = reader.int32();
+          continue;
+        }
+        case 7: {
+          if (tag !== 56) {
+            break;
+          }
+
+          message.partSize = reader.int32();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): FilePartMetaData {
+    return {
+      partNumber: isSet(object.partNumber) ? globalThis.Number(object.partNumber) : 0,
+      partSize: isSet(object.partSize) ? globalThis.Number(object.partSize) : 0,
+    };
+  },
+
+  toJSON(message: FilePartMetaData): unknown {
+    const obj: any = {};
+    if (message.partNumber !== 0) {
+      obj.partNumber = Math.round(message.partNumber);
+    }
+    if (message.partSize !== 0) {
+      obj.partSize = Math.round(message.partSize);
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<FilePartMetaData>, I>>(base?: I): FilePartMetaData {
+    return FilePartMetaData.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<FilePartMetaData>, I>>(object: I): FilePartMetaData {
+    const message = createBaseFilePartMetaData();
+    message.partNumber = object.partNumber ?? 0;
+    message.partSize = object.partSize ?? 0;
+    return message;
+  },
+};
+
+function createBaseFileMetadata(): FileMetadata {
   return { name: "", size: 0, type: "", isEncrypt: false, channels: 0, key: undefined };
 }
 
-export const MetaData: MessageFns<MetaData> = {
-  encode(message: MetaData, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const FileMetadata: MessageFns<FileMetadata> = {
+  encode(message: FileMetadata, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.name !== "") {
       writer.uint32(10).string(message.name);
     }
@@ -108,15 +228,15 @@ export const MetaData: MessageFns<MetaData> = {
       writer.uint32(40).int32(message.channels);
     }
     if (message.key !== undefined) {
-      writer.uint32(50).bytes(message.key);
+      writer.uint32(66).bytes(message.key);
     }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): MetaData {
+  decode(input: BinaryReader | Uint8Array, length?: number): FileMetadata {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseMetaData();
+    const message = createBaseFileMetadata();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -160,8 +280,8 @@ export const MetaData: MessageFns<MetaData> = {
           message.channels = reader.int32();
           continue;
         }
-        case 6: {
-          if (tag !== 50) {
+        case 8: {
+          if (tag !== 66) {
             break;
           }
 
@@ -177,7 +297,7 @@ export const MetaData: MessageFns<MetaData> = {
     return message;
   },
 
-  fromJSON(object: any): MetaData {
+  fromJSON(object: any): FileMetadata {
     return {
       name: isSet(object.name) ? globalThis.String(object.name) : "",
       size: isSet(object.size) ? globalThis.Number(object.size) : 0,
@@ -188,7 +308,7 @@ export const MetaData: MessageFns<MetaData> = {
     };
   },
 
-  toJSON(message: MetaData): unknown {
+  toJSON(message: FileMetadata): unknown {
     const obj: any = {};
     if (message.name !== "") {
       obj.name = message.name;
@@ -211,11 +331,11 @@ export const MetaData: MessageFns<MetaData> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<MetaData>, I>>(base?: I): MetaData {
-    return MetaData.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<FileMetadata>, I>>(base?: I): FileMetadata {
+    return FileMetadata.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<MetaData>, I>>(object: I): MetaData {
-    const message = createBaseMetaData();
+  fromPartial<I extends Exact<DeepPartial<FileMetadata>, I>>(object: I): FileMetadata {
+    const message = createBaseFileMetadata();
     message.name = object.name ?? "";
     message.size = object.size ?? 0;
     message.type = object.type ?? "";
@@ -226,28 +346,44 @@ export const MetaData: MessageFns<MetaData> = {
   },
 };
 
-function createBaseControlChannelMessage(): ControlChannelMessage {
-  return { id: "", metaData: undefined, receiveEvent: undefined };
+function createBaseMessage(): Message {
+  return {
+    id: "",
+    fileMetadata: undefined,
+    filePartMetaData: undefined,
+    chunk: undefined,
+    fileEvent: undefined,
+    filePartEvent: undefined,
+  };
 }
 
-export const ControlChannelMessage: MessageFns<ControlChannelMessage> = {
-  encode(message: ControlChannelMessage, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const Message: MessageFns<Message> = {
+  encode(message: Message, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.id !== "") {
       writer.uint32(10).string(message.id);
     }
-    if (message.metaData !== undefined) {
-      MetaData.encode(message.metaData, writer.uint32(18).fork()).join();
+    if (message.fileMetadata !== undefined) {
+      FileMetadata.encode(message.fileMetadata, writer.uint32(18).fork()).join();
     }
-    if (message.receiveEvent !== undefined) {
-      writer.uint32(32).int32(message.receiveEvent);
+    if (message.filePartMetaData !== undefined) {
+      FilePartMetaData.encode(message.filePartMetaData, writer.uint32(26).fork()).join();
+    }
+    if (message.chunk !== undefined) {
+      writer.uint32(34).bytes(message.chunk);
+    }
+    if (message.fileEvent !== undefined) {
+      writer.uint32(40).int32(message.fileEvent);
+    }
+    if (message.filePartEvent !== undefined) {
+      writer.uint32(48).int32(message.filePartEvent);
     }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): ControlChannelMessage {
+  decode(input: BinaryReader | Uint8Array, length?: number): Message {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseControlChannelMessage();
+    const message = createBaseMessage();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -264,100 +400,41 @@ export const ControlChannelMessage: MessageFns<ControlChannelMessage> = {
             break;
           }
 
-          message.metaData = MetaData.decode(reader, reader.uint32());
+          message.fileMetadata = FileMetadata.decode(reader, reader.uint32());
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.filePartMetaData = FilePartMetaData.decode(reader, reader.uint32());
           continue;
         }
         case 4: {
-          if (tag !== 32) {
-            break;
-          }
-
-          message.receiveEvent = reader.int32() as any;
-          continue;
-        }
-      }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
-      }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
-
-  fromJSON(object: any): ControlChannelMessage {
-    return {
-      id: isSet(object.id) ? globalThis.String(object.id) : "",
-      metaData: isSet(object.metaData) ? MetaData.fromJSON(object.metaData) : undefined,
-      receiveEvent: isSet(object.receiveEvent) ? receiveEventFromJSON(object.receiveEvent) : undefined,
-    };
-  },
-
-  toJSON(message: ControlChannelMessage): unknown {
-    const obj: any = {};
-    if (message.id !== "") {
-      obj.id = message.id;
-    }
-    if (message.metaData !== undefined) {
-      obj.metaData = MetaData.toJSON(message.metaData);
-    }
-    if (message.receiveEvent !== undefined) {
-      obj.receiveEvent = receiveEventToJSON(message.receiveEvent);
-    }
-    return obj;
-  },
-
-  create<I extends Exact<DeepPartial<ControlChannelMessage>, I>>(base?: I): ControlChannelMessage {
-    return ControlChannelMessage.fromPartial(base ?? ({} as any));
-  },
-  fromPartial<I extends Exact<DeepPartial<ControlChannelMessage>, I>>(object: I): ControlChannelMessage {
-    const message = createBaseControlChannelMessage();
-    message.id = object.id ?? "";
-    message.metaData = (object.metaData !== undefined && object.metaData !== null)
-      ? MetaData.fromPartial(object.metaData)
-      : undefined;
-    message.receiveEvent = object.receiveEvent ?? undefined;
-    return message;
-  },
-};
-
-function createBaseChunkChannelMessage(): ChunkChannelMessage {
-  return { id: "", chunk: new Uint8Array(0) };
-}
-
-export const ChunkChannelMessage: MessageFns<ChunkChannelMessage> = {
-  encode(message: ChunkChannelMessage, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.id !== "") {
-      writer.uint32(10).string(message.id);
-    }
-    if (message.chunk.length !== 0) {
-      writer.uint32(18).bytes(message.chunk);
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): ChunkChannelMessage {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseChunkChannelMessage();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 10) {
-            break;
-          }
-
-          message.id = reader.string();
-          continue;
-        }
-        case 2: {
-          if (tag !== 18) {
+          if (tag !== 34) {
             break;
           }
 
           message.chunk = reader.bytes();
           continue;
         }
+        case 5: {
+          if (tag !== 40) {
+            break;
+          }
+
+          message.fileEvent = reader.int32() as any;
+          continue;
+        }
+        case 6: {
+          if (tag !== 48) {
+            break;
+          }
+
+          message.filePartEvent = reader.int32() as any;
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -367,31 +444,55 @@ export const ChunkChannelMessage: MessageFns<ChunkChannelMessage> = {
     return message;
   },
 
-  fromJSON(object: any): ChunkChannelMessage {
+  fromJSON(object: any): Message {
     return {
       id: isSet(object.id) ? globalThis.String(object.id) : "",
-      chunk: isSet(object.chunk) ? bytesFromBase64(object.chunk) : new Uint8Array(0),
+      fileMetadata: isSet(object.fileMetadata) ? FileMetadata.fromJSON(object.fileMetadata) : undefined,
+      filePartMetaData: isSet(object.filePartMetaData) ? FilePartMetaData.fromJSON(object.filePartMetaData) : undefined,
+      chunk: isSet(object.chunk) ? bytesFromBase64(object.chunk) : undefined,
+      fileEvent: isSet(object.fileEvent) ? fileEventFromJSON(object.fileEvent) : undefined,
+      filePartEvent: isSet(object.filePartEvent) ? filePartEventFromJSON(object.filePartEvent) : undefined,
     };
   },
 
-  toJSON(message: ChunkChannelMessage): unknown {
+  toJSON(message: Message): unknown {
     const obj: any = {};
     if (message.id !== "") {
       obj.id = message.id;
     }
-    if (message.chunk.length !== 0) {
+    if (message.fileMetadata !== undefined) {
+      obj.fileMetadata = FileMetadata.toJSON(message.fileMetadata);
+    }
+    if (message.filePartMetaData !== undefined) {
+      obj.filePartMetaData = FilePartMetaData.toJSON(message.filePartMetaData);
+    }
+    if (message.chunk !== undefined) {
       obj.chunk = base64FromBytes(message.chunk);
+    }
+    if (message.fileEvent !== undefined) {
+      obj.fileEvent = fileEventToJSON(message.fileEvent);
+    }
+    if (message.filePartEvent !== undefined) {
+      obj.filePartEvent = filePartEventToJSON(message.filePartEvent);
     }
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<ChunkChannelMessage>, I>>(base?: I): ChunkChannelMessage {
-    return ChunkChannelMessage.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<Message>, I>>(base?: I): Message {
+    return Message.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<ChunkChannelMessage>, I>>(object: I): ChunkChannelMessage {
-    const message = createBaseChunkChannelMessage();
+  fromPartial<I extends Exact<DeepPartial<Message>, I>>(object: I): Message {
+    const message = createBaseMessage();
     message.id = object.id ?? "";
-    message.chunk = object.chunk ?? new Uint8Array(0);
+    message.fileMetadata = (object.fileMetadata !== undefined && object.fileMetadata !== null)
+      ? FileMetadata.fromPartial(object.fileMetadata)
+      : undefined;
+    message.filePartMetaData = (object.filePartMetaData !== undefined && object.filePartMetaData !== null)
+      ? FilePartMetaData.fromPartial(object.filePartMetaData)
+      : undefined;
+    message.chunk = object.chunk ?? undefined;
+    message.fileEvent = object.fileEvent ?? undefined;
+    message.filePartEvent = object.filePartEvent ?? undefined;
     return message;
   },
 };

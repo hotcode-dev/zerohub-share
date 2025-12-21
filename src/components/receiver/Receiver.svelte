@@ -1,9 +1,11 @@
 <script lang="ts">
   import { addToastMessage } from "../../stores/toast";
   import {
-    ControlChannelMessage,
-    MetaData,
-    ReceiveEvent,
+    FileEvent,
+    FileMetadata,
+    Message,
+    FilePartMetaData,
+    FilePartEvent,
   } from "../../proto/message";
   import ReceivingFileList from "./ReceivingFileList.svelte";
   import {
@@ -16,109 +18,152 @@
 
   type Props = {
     peerMetaData: PeerMetaData;
-    controlChannel: RTCDataChannel;
     svgAvatar: string;
+    dataChannels: Record<string, RTCDataChannel>;
   };
 
-  let { peerMetaData, controlChannel, svgAvatar }: Props = $props();
+  let { peerMetaData, svgAvatar, dataChannels }: Props = $props();
 
   let receivingFiles: { [key: string]: ReceivingFile } = $state({});
   let collapseCheckbox: HTMLInputElement;
   let decryptModal: DecryptModal;
 
-  export async function onMetaData(id: string, metaData: MetaData) {
-    receivingFiles[id] = {
-      metaData: metaData,
+  export async function onFileMetaData(
+    fileId: string,
+    fileMetadata: FileMetadata,
+  ) {
+    receivingFiles[fileId] = {
+      fileMetadata: fileMetadata,
+      status: FileStatus.WaitingAccept,
+      isEncrypt: fileMetadata.isEncrypt,
+      encryptedAesKey: fileMetadata.key,
       progress: 0,
       bitrate: 0,
-      receivedSize: 0,
-      receivedChunks: [],
       startTime: 0,
-      status: FileStatus.WaitingAccept,
-      isEncrypt: metaData.isEncrypt,
-      encryptedAesKey: metaData.key,
+      receivedSize: 0,
+      fileParts: {},
     };
 
     collapseCheckbox.checked = true;
   }
 
-  export async function onChunkData(id: string, chunk: Uint8Array) {
-    let arrayBuffer = chunk;
-
-    if (!sendReceiveEvent(id, ReceiveEvent.EVENT_RECEIVED_CHUNK)) {
+  export async function onFilePartMetaData(
+    fileId: string,
+    channelLabel: string,
+    filePartMetaData: FilePartMetaData,
+  ) {
+    if (!receivingFiles[fileId]) {
+      console.error(
+        `Receiving file id ${fileId} not found for file part metadata`,
+      );
       return;
     }
 
-    const receivingFile = receivingFiles[id];
+    receivingFiles[fileId].fileParts[channelLabel] = {
+      filePartMetaData,
+      receivedSize: 0,
+      receivedChunks: [],
+    };
+
+    sendFilePartEvent(
+      fileId,
+      FilePartEvent.EVENT_RECEIVED_FILE_PART_METADATA,
+      channelLabel,
+    );
+  }
+
+  export async function onChunkData(
+    fileId: string,
+    channelLabel: string,
+    chunk: Uint8Array,
+  ) {
+    let arrayBuffer = chunk;
+
+    sendFilePartEvent(fileId, FilePartEvent.EVENT_RECEIVED_CHUNK, channelLabel);
+
+    const receivingFile = receivingFiles[fileId];
 
     if (receivingFile.isEncrypt && receivingFile.aesKey) {
       arrayBuffer = await decryptAesGcm(receivingFile.aesKey, arrayBuffer);
     }
     const receivingSize = arrayBuffer.byteLength;
 
-    receivingFiles[id].receivedChunks.push(arrayBuffer);
-    receivingFiles[id].receivedSize += receivingSize;
+    receivingFiles[fileId].fileParts[channelLabel].receivedChunks.push(
+      arrayBuffer,
+    );
+    receivingFiles[fileId].receivedSize += receivingSize;
 
     // calculate progress
-    receivingFiles[id].progress = Math.round(
-      (receivingFiles[id].receivedSize / receivingFile.metaData.size) * 100,
+    receivingFiles[fileId].progress = Math.round(
+      (receivingFiles[fileId].receivedSize / receivingFile.fileMetadata.size) *
+        100,
     );
-
     // calculate bitrate
-    receivingFiles[id].bitrate = Math.round(
-      receivingFiles[id].receivedSize /
-        ((Date.now() - receivingFiles[id].startTime) / 1000),
+    receivingFiles[fileId].bitrate = Math.round(
+      receivingFiles[fileId].receivedSize /
+        ((Date.now() - receivingFiles[fileId].startTime) / 1000),
     );
 
-    if (receivingFiles[id].receivedSize >= receivingFile.metaData.size) {
-      receivingFiles[id].status = FileStatus.Success;
+    // check if file received completely
+    if (
+      receivingFiles[fileId].receivedSize >= receivingFile.fileMetadata.size
+    ) {
+      receivingFiles[fileId].status = FileStatus.Success;
       addToastMessage(
-        `Received ${receivingFiles[id].metaData.name}`,
+        `Received ${receivingFiles[fileId].fileMetadata.name}`,
         "success",
       );
     }
   }
 
-  function onRemove(key: string) {
-    if (receivingFiles[key].status != FileStatus.Success) {
-      sendReceiveEvent(key, ReceiveEvent.EVENT_RECEIVER_REJECT);
+  function onRemove(fileId: string) {
+    if (receivingFiles[fileId].status != FileStatus.Success) {
+      sendFileEvent(fileId, FileEvent.EVENT_RECEIVER_REJECT);
     }
-    delete receivingFiles[key];
+    delete receivingFiles[fileId];
     receivingFiles = receivingFiles; // do this to trigger update the map
   }
 
-  async function onDownload(key: string) {
-    const receivedFile = receivingFiles[key];
-    const blobFile = new Blob(receivedFile.receivedChunks as BlobPart[], {
-      type: receivedFile.metaData.type,
+  async function onDownload(fileId: string) {
+    const receivedFile = receivingFiles[fileId];
+
+    const combinedParts = Object.values(receivedFile.fileParts)
+      .sort((a, b) => {
+        return a.filePartMetaData.partNumber - b.filePartMetaData.partNumber;
+      })
+      .map((part) => part.receivedChunks)
+      .flat();
+
+    const blobFile = new Blob(combinedParts as BlobPart[], {
+      type: receivedFile.fileMetadata.type,
     });
     const url = URL.createObjectURL(blobFile);
     const link = document.createElement("a");
     link.href = url;
-    link.download = receivedFile.metaData.name;
+    link.download = receivedFile.fileMetadata.name;
     link.click();
     URL.revokeObjectURL(url);
   }
 
-  async function onAccept(key: string) {
-    const receivedFile = receivingFiles[key];
+  async function onAccept(fileId: string) {
+    const receivedFile = receivingFiles[fileId];
 
     if (!receivedFile) {
-      console.error(`file key ${key} not found`);
+      console.error(`file key ${fileId} not found`);
       return;
     }
 
     // if not encrypted, accept directly
     if (!receivedFile.isEncrypt) {
-      receivingFiles[key].status = FileStatus.Processing;
-      receivingFiles[key].startTime = Date.now();
+      receivingFiles[fileId].status = FileStatus.Processing;
+      receivingFiles[fileId].startTime = Date.now();
 
-      sendReceiveEvent(key, ReceiveEvent.EVENT_RECEIVER_ACCEPT);
+      sendFileEvent(fileId, FileEvent.EVENT_RECEIVER_ACCEPT);
       return;
     }
 
     if (!receivedFile.encryptedAesKey) {
-      console.error(`file key ${key} missing encryptedAesKey`);
+      console.error(`file key ${fileId} missing encryptedAesKey`);
       return;
     }
 
@@ -133,49 +178,63 @@
         password,
       );
 
-      receivingFiles[key].aesKey = aesKey;
-      receivingFiles[key].status = FileStatus.Processing;
-      receivingFiles[key].startTime = Date.now();
+      receivingFiles[fileId].aesKey = aesKey;
+      receivingFiles[fileId].status = FileStatus.Processing;
+      receivingFiles[fileId].startTime = Date.now();
 
-      sendReceiveEvent(key, ReceiveEvent.EVENT_RECEIVER_ACCEPT);
+      sendFileEvent(fileId, FileEvent.EVENT_RECEIVER_ACCEPT);
     } catch (error) {
       console.error("decrypt aes key error", error);
       addToastMessage("Unlock error: wrong password", "error");
     }
   }
 
-  function onDeny(key: string) {
-    sendReceiveEvent(key, ReceiveEvent.EVENT_RECEIVER_REJECT);
-    delete receivingFiles[key];
+  function onDeny(fileId: string) {
+    sendFileEvent(fileId, FileEvent.EVENT_RECEIVER_REJECT);
+    delete receivingFiles[fileId];
     receivingFiles = receivingFiles; // do this to trigger update the map
   }
 
   async function downloadAllFiles() {
-    for (const key of Object.keys(receivingFiles)) {
+    for (const fileId of Object.keys(receivingFiles)) {
       if (
-        receivingFiles[key].status != FileStatus.Success ||
-        receivingFiles[key].error
+        receivingFiles[fileId].status != FileStatus.Success ||
+        receivingFiles[fileId].error
       ) {
         continue;
       }
-      onDownload(key);
+      onDownload(fileId);
     }
   }
 
-  function sendReceiveEvent(id: string, receiveEvent: ReceiveEvent) {
-    if (!controlChannel || controlChannel.readyState !== "open") {
-      console.error("Control channel is not ready");
-      return false;
+  function sendFileEvent(
+    fileId: string,
+    fileEvent: FileEvent,
+    channelLabel?: string,
+  ) {
+    if (!channelLabel) {
+      // send on the first data channel
+      channelLabel = Object.keys(dataChannels)[0];
     }
-
-    controlChannel.send(
-      ControlChannelMessage.encode({
-        id,
-        receiveEvent,
+    dataChannels[channelLabel].send(
+      Message.encode({
+        id: fileId,
+        fileEvent,
       }).finish(),
     );
+  }
 
-    return true;
+  function sendFilePartEvent(
+    fileId: string,
+    filePartEvent: FilePartEvent,
+    channelLabel: string,
+  ) {
+    dataChannels[channelLabel].send(
+      Message.encode({
+        id: fileId,
+        filePartEvent,
+      }).finish(),
+    );
   }
 </script>
 
