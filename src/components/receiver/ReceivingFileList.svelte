@@ -17,7 +17,7 @@
 </script>
 
 <div class="grid gap-2">
-  {#each Object.entries(receivingFiles) as [key, receivedFile], index (key)}
+  {#each Object.entries(receivingFiles) as [key, receivedFile]}
     <ReceiverFileCard receivingFile={receivedFile}>
       <div class="flex w-full flex-row items-center justify-between">
         {#if receivedFile.status === FileStatus.WaitingAccept && !receivedFile.error}

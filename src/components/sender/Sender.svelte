@@ -3,6 +3,7 @@
   import EventEmitter from "eventemitter3";
   import {
     FileStatus,
+    type FileStats,
     type PeerMetaData,
     type SendingFile,
     type SendingFilePart,
@@ -27,6 +28,7 @@
   import {
     DEFAULT_BYTES_PER_DATA_CHANNEL,
     MAX_DATA_CHANNELS,
+    PROGRESS_UPDATE_UI_STEP,
   } from "../../constants";
   import { settingAtom } from "../../stores/setting";
 
@@ -91,6 +93,12 @@
     const sendingFileSelection = sendingFileSelections[fileId];
     const file = sendingFileSelection.file;
     const peer = peers[peerId];
+    const fileStats: FileStats = {
+      progress: 0,
+      bitrate: 0,
+      startTime: Date.now(),
+      nextProgressUpdate: 0,
+    };
 
     if (!peer) {
       addToastMessage("Peer not found", "error");
@@ -149,7 +157,6 @@
       fileParts: {},
       progress: 0,
       bitrate: 0,
-      startTime: 0,
       event: new EventEmitter(),
     };
     sendingFileSelection.sendingFiles[peerId] = sendingFile;
@@ -176,6 +183,7 @@
 
         const sendingFilePart: SendingFilePart = {
           filePartMetaData: filePartMetaData,
+          channelLabel: channel.label,
           event: new EventEmitter(),
         };
 
@@ -200,8 +208,6 @@
                 channel.label
               ].filePartMetaData.partSize
             ) {
-              sendingFileSelections[fileId].sendingFiles[peerId].status =
-                FileStatus.Processing;
               // send next chunk if not finished
               sendNextChunk();
               return;
@@ -266,17 +272,21 @@
           fileOffset += buffer.byteLength;
 
           // calculate progress
-          sendingFileSelections[fileId].sendingFiles[peerId].progress =
-            Math.round((fileOffset / sendingFile.fileMetadata.size) * 100);
-          // calculate bitrate
-          sendingFileSelections[fileId].sendingFiles[peerId].bitrate =
-            Math.round(
-              fileOffset /
-                ((Date.now() -
-                  sendingFileSelections[fileId].sendingFiles[peerId]
-                    .startTime) /
-                  1000),
+          fileStats.progress = Math.round(
+            (fileOffset / sendingFile.fileMetadata.size) * 100,
+          );
+          if (fileStats.progress >= fileStats.nextProgressUpdate) {
+            // calculate bitrate
+            fileStats.bitrate = Math.round(
+              fileOffset / ((Date.now() - fileStats.startTime) / 1000),
             );
+            sendingFileSelections[fileId].sendingFiles[peerId].progress = fileStats.progress;
+            sendingFileSelections[fileId].sendingFiles[peerId].bitrate = fileStats.bitrate;
+            fileStats.nextProgressUpdate += PROGRESS_UPDATE_UI_STEP;
+            if (fileStats.nextProgressUpdate > 100) {
+              fileStats.nextProgressUpdate = 100;
+            }
+          }
         };
 
         sendingFilePart.event.on(
@@ -299,8 +309,6 @@
     sendingFile.event.on(FILE_EVENT[FileEvent.EVENT_RECEIVER_ACCEPT], () => {
       sendingFileSelections[fileId].sendingFiles[peerId].status =
         FileStatus.Processing;
-
-      sendingFileSelections[fileId].sendingFiles[peerId].startTime = Date.now();
       startSendFilePart();
     });
     sendingFile.event.on(FILE_EVENT[FileEvent.EVENT_VALIDATE_ERROR], () => {
@@ -348,7 +356,7 @@
       sendingFileSelections[file.name] = {
         file: file,
         // TODO add chunk per data channel setting
-        chunkSize: 16 * 1024, // 16MB
+        chunkSize: 32 * 1024, // 32MB
         isEncrypt: false,
         password: "",
         sendingFiles: {},
