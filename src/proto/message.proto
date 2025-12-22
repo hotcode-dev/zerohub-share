@@ -27,13 +27,13 @@ message FileMetadata {
   // file name
   string name = 1;
   // total size of the file in bytes
-  int32 size = 2;
+  int64 size = 2;
   // mime type
   string type = 3;
   // is the file part encrypted
   bool is_encrypt = 4;
   // number of channels used to send this part
-  int32 channels = 5;
+  int64 channels = 5;
   // encrypted AES key
   optional bytes key = 8;
 }

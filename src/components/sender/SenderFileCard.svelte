@@ -29,8 +29,10 @@
         <div
           class="bg-base-300 flex h-24 w-24 min-w-24 items-center justify-center rounded"
         >
-          <span class="text-lg font-bold">
-            {sendingFileSelection.file.name.split(".").pop()?.toUpperCase()}
+          <span
+            class="max-w-full overflow-hidden truncate px-1 text-lg font-bold uppercase"
+          >
+            {sendingFileSelection.file.name.split(".").pop()}
           </span>
         </div>
         <div class="flex flex-col gap-2 px-4 py-2">

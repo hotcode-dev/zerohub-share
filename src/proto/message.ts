@@ -216,7 +216,7 @@ export const FileMetadata: MessageFns<FileMetadata> = {
       writer.uint32(10).string(message.name);
     }
     if (message.size !== 0) {
-      writer.uint32(16).int32(message.size);
+      writer.uint32(16).int64(message.size);
     }
     if (message.type !== "") {
       writer.uint32(26).string(message.type);
@@ -225,7 +225,7 @@ export const FileMetadata: MessageFns<FileMetadata> = {
       writer.uint32(32).bool(message.isEncrypt);
     }
     if (message.channels !== 0) {
-      writer.uint32(40).int32(message.channels);
+      writer.uint32(40).int64(message.channels);
     }
     if (message.key !== undefined) {
       writer.uint32(66).bytes(message.key);
@@ -253,7 +253,7 @@ export const FileMetadata: MessageFns<FileMetadata> = {
             break;
           }
 
-          message.size = reader.int32();
+          message.size = longToNumber(reader.int64());
           continue;
         }
         case 3: {
@@ -277,7 +277,7 @@ export const FileMetadata: MessageFns<FileMetadata> = {
             break;
           }
 
-          message.channels = reader.int32();
+          message.channels = longToNumber(reader.int64());
           continue;
         }
         case 8: {
@@ -533,6 +533,17 @@ export type DeepPartial<T> = T extends Builtin ? T
 type KeysOfUnion<T> = T extends T ? keyof T : never;
 export type Exact<P, I extends P> = P extends Builtin ? P
   : P & { [K in keyof P]: Exact<P[K], I[K]> } & { [K in Exclude<keyof I, KeysOfUnion<P>>]: never };
+
+function longToNumber(int64: { toString(): string }): number {
+  const num = globalThis.Number(int64.toString());
+  if (num > globalThis.Number.MAX_SAFE_INTEGER) {
+    throw new globalThis.Error("Value is larger than Number.MAX_SAFE_INTEGER");
+  }
+  if (num < globalThis.Number.MIN_SAFE_INTEGER) {
+    throw new globalThis.Error("Value is smaller than Number.MIN_SAFE_INTEGER");
+  }
+  return num;
+}
 
 function isSet(value: any): boolean {
   return value !== null && value !== undefined;
