@@ -37,7 +37,7 @@
 </script>
 
 <div class="grid gap-4">
-  {#each Object.entries(sendingFileSelections) as [key, sendingFileSelection], index (key)}
+  {#each Object.entries(sendingFileSelections) as [key, sendingFileSelection]}
     <SenderFileCard {sendingFileSelection} {peers}>
       <div class="col-span-4 flex items-center justify-between">
         <button onclick={() => onRemove(key)} class="btn btn-ghost btn-sm pl-0">

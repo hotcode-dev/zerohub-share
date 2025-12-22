@@ -12,9 +12,12 @@
     FileStatus,
     type PeerMetaData,
     type ReceivingFile,
+    type ReceivingFilePartChunks,
+    type ReceivingFileStats,
   } from "../../type";
   import { decryptAesGcm, decryptAesWithPassword } from "../../utils/crypto";
   import DecryptModal from "./DecryptModal.svelte";
+    import { PROGRESS_UPDATE_UI_STEP } from "../../constants";
 
   type Props = {
     peerMetaData: PeerMetaData;
@@ -27,6 +30,13 @@
   let receivingFiles: { [key: string]: ReceivingFile } = $state({});
   let collapseCheckbox: HTMLInputElement;
   let decryptModal: DecryptModal;
+  // non state map to track receiving file part chunks
+  const receivingFilePartChunkMap: {
+    [fileId: string]: { [channelLabel: string]: ReceivingFilePartChunks };
+  } = {};
+  const receivingFileStatsMap: {
+    [fileId: string]: ReceivingFileStats;
+  } = {};
 
   export async function onFileMetaData(
     fileId: string,
@@ -39,9 +49,15 @@
       encryptedAesKey: fileMetadata.key,
       progress: 0,
       bitrate: 0,
-      startTime: 0,
-      receivedSize: 0,
       fileParts: {},
+    };
+
+    receivingFileStatsMap[fileId] = {
+      receivedSize: 0,
+      progress: 0,
+      bitrate: 0,
+      startTime: Date.now(),
+      nextProgressUpdate: 0,
     };
 
     collapseCheckbox.checked = true;
@@ -58,11 +74,17 @@
       );
       return;
     }
+    
+    if (!receivingFilePartChunkMap[fileId]) {
+      receivingFilePartChunkMap[fileId] = {};
+    }
+    receivingFilePartChunkMap[fileId][channelLabel] = {
+      receivedChunks: [],
+    }
 
     receivingFiles[fileId].fileParts[channelLabel] = {
       filePartMetaData,
-      receivedSize: 0,
-      receivedChunks: [],
+      channelLabel,
     };
 
     sendFilePartEvent(
@@ -88,25 +110,34 @@
     }
     const receivingSize = arrayBuffer.byteLength;
 
-    receivingFiles[fileId].fileParts[channelLabel].receivedChunks.push(
+    receivingFilePartChunkMap[fileId][channelLabel].receivedChunks.push(
       arrayBuffer,
     );
-    receivingFiles[fileId].receivedSize += receivingSize;
+    receivingFileStatsMap[fileId].receivedSize += receivingSize;
 
     // calculate progress
-    receivingFiles[fileId].progress = Math.round(
-      (receivingFiles[fileId].receivedSize / receivingFile.fileMetadata.size) *
+    receivingFileStatsMap[fileId].progress = Math.round(
+      (receivingFileStatsMap[fileId].receivedSize / receivingFile.fileMetadata.size) *
         100,
     );
-    // calculate bitrate
-    receivingFiles[fileId].bitrate = Math.round(
-      receivingFiles[fileId].receivedSize /
-        ((Date.now() - receivingFiles[fileId].startTime) / 1000),
-    );
+    if (receivingFileStatsMap[fileId].progress >= receivingFileStatsMap[fileId].nextProgressUpdate) {
+      // calculate bitrate
+      receivingFileStatsMap[fileId].bitrate = Math.round(
+        receivingFileStatsMap[fileId].receivedSize /
+          ((Date.now() - receivingFileStatsMap[fileId].startTime) / 1000),
+      );
+
+      receivingFiles[fileId].progress = receivingFileStatsMap[fileId].progress;
+      receivingFiles[fileId].bitrate = receivingFileStatsMap[fileId].bitrate;
+      receivingFileStatsMap[fileId].nextProgressUpdate += PROGRESS_UPDATE_UI_STEP;
+      if (receivingFileStatsMap[fileId].nextProgressUpdate > 100) {
+        receivingFileStatsMap[fileId].nextProgressUpdate = 100;
+      }
+    }
 
     // check if file received completely
     if (
-      receivingFiles[fileId].receivedSize >= receivingFile.fileMetadata.size
+      receivingFileStatsMap[fileId].receivedSize >= receivingFile.fileMetadata.size
     ) {
       receivingFiles[fileId].status = FileStatus.Success;
       addToastMessage(
@@ -131,7 +162,11 @@
       .sort((a, b) => {
         return a.filePartMetaData.partNumber - b.filePartMetaData.partNumber;
       })
-      .map((part) => part.receivedChunks)
+      .map((part) => {
+        return receivingFilePartChunkMap[fileId][
+          part.channelLabel
+        ].receivedChunks;
+      })
       .flat();
 
     const blobFile = new Blob(combinedParts as BlobPart[], {
@@ -156,7 +191,6 @@
     // if not encrypted, accept directly
     if (!receivedFile.isEncrypt) {
       receivingFiles[fileId].status = FileStatus.Processing;
-      receivingFiles[fileId].startTime = Date.now();
 
       sendFileEvent(fileId, FileEvent.EVENT_RECEIVER_ACCEPT);
       return;
@@ -180,7 +214,6 @@
 
       receivingFiles[fileId].aesKey = aesKey;
       receivingFiles[fileId].status = FileStatus.Processing;
-      receivingFiles[fileId].startTime = Date.now();
 
       sendFileEvent(fileId, FileEvent.EVENT_RECEIVER_ACCEPT);
     } catch (error) {
