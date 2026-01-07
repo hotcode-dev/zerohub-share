@@ -14,12 +14,14 @@ module.exports = {
       {
         light: {
           ...light,
+          primary: "#8B5CF6",
           fontFamily: "Inter, sans-serif, system-ui",
         },
       },
       {
         dark: {
           ...dark,
+          primary: "#8B5CF6",
           fontFamily: "Inter, sans-serif, system-ui",
         },
       },

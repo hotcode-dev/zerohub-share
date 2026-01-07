@@ -356,7 +356,7 @@
       sendingFileSelections[file.name] = {
         file: file,
         // TODO add chunk per data channel setting
-        chunkSize: 32 * 1024, // 32MB
+        chunkSize: 32 * 1024, // 32KB
         isEncrypt: false,
         password: "",
         sendingFiles: {},
