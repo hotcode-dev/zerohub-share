@@ -17,7 +17,7 @@
   } from "../../type";
   import { decryptAesGcm, decryptAesWithPassword } from "../../utils/crypto";
   import DecryptModal from "./DecryptModal.svelte";
-    import { PROGRESS_UPDATE_UI_STEP } from "../../constants";
+  import { PROGRESS_UPDATE_UI_STEP } from "../../constants";
 
   type Props = {
     peerMetaData: PeerMetaData;
@@ -74,13 +74,13 @@
       );
       return;
     }
-    
+
     if (!receivingFilePartChunkMap[fileId]) {
       receivingFilePartChunkMap[fileId] = {};
     }
     receivingFilePartChunkMap[fileId][channelLabel] = {
       receivedChunks: [],
-    }
+    };
 
     receivingFiles[fileId].fileParts[channelLabel] = {
       filePartMetaData,
@@ -117,10 +117,14 @@
 
     // calculate progress
     receivingFileStatsMap[fileId].progress = Math.round(
-      (receivingFileStatsMap[fileId].receivedSize / receivingFile.fileMetadata.size) *
+      (receivingFileStatsMap[fileId].receivedSize /
+        receivingFile.fileMetadata.size) *
         100,
     );
-    if (receivingFileStatsMap[fileId].progress >= receivingFileStatsMap[fileId].nextProgressUpdate) {
+    if (
+      receivingFileStatsMap[fileId].progress >=
+      receivingFileStatsMap[fileId].nextProgressUpdate
+    ) {
       // calculate bitrate
       receivingFileStatsMap[fileId].bitrate = Math.round(
         receivingFileStatsMap[fileId].receivedSize /
@@ -129,7 +133,8 @@
 
       receivingFiles[fileId].progress = receivingFileStatsMap[fileId].progress;
       receivingFiles[fileId].bitrate = receivingFileStatsMap[fileId].bitrate;
-      receivingFileStatsMap[fileId].nextProgressUpdate += PROGRESS_UPDATE_UI_STEP;
+      receivingFileStatsMap[fileId].nextProgressUpdate +=
+        PROGRESS_UPDATE_UI_STEP;
       if (receivingFileStatsMap[fileId].nextProgressUpdate > 100) {
         receivingFileStatsMap[fileId].nextProgressUpdate = 100;
       }
@@ -137,7 +142,8 @@
 
     // check if file received completely
     if (
-      receivingFileStatsMap[fileId].receivedSize >= receivingFile.fileMetadata.size
+      receivingFileStatsMap[fileId].receivedSize >=
+      receivingFile.fileMetadata.size
     ) {
       receivingFiles[fileId].status = FileStatus.Success;
       addToastMessage(
@@ -163,9 +169,8 @@
         return a.filePartMetaData.partNumber - b.filePartMetaData.partNumber;
       })
       .map((part) => {
-        return receivingFilePartChunkMap[fileId][
-          part.channelLabel
-        ].receivedChunks;
+        return receivingFilePartChunkMap[fileId][part.channelLabel]
+          .receivedChunks;
       })
       .flat();
 
@@ -271,7 +276,7 @@
   }
 </script>
 
-<div class="collapse-arrow bg-base-200 collapse">
+<div class="collapse collapse-arrow bg-base-200">
   <input
     type="checkbox"
     checked={peerMetaData.isHost}

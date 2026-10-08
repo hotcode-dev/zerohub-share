@@ -157,17 +157,17 @@ import Cog from "../icons/Cog.astro";
   const nameInput = document.getElementById("name-input") as HTMLInputElement;
   const iceInput = document.getElementById("ice-input") as HTMLInputElement;
   const sizePerChannelInput = document.getElementById(
-    "size-per-channel-input"
+    "size-per-channel-input",
   ) as HTMLInputElement;
   const autoDownloadInput = document.getElementById(
-    "auto-download-input"
+    "auto-download-input",
   ) as HTMLInputElement;
 
   const saveButton = document.getElementById(
-    "save-button"
+    "save-button",
   ) as HTMLButtonElement;
   const resetButton = document.getElementById(
-    "reset-button"
+    "reset-button",
   ) as HTMLInputElement;
 
   settingAtom.subscribe((s) => {
@@ -175,7 +175,7 @@ import Cog from "../icons/Cog.astro";
     iceInput.value = s.iceServer;
     sizePerChannelInput.value = Math.max(
       1,
-      Math.round(s.bytesPerDataChannel / (1024 * 1024))
+      Math.round(s.bytesPerDataChannel / (1024 * 1024)),
     ).toString();
     autoDownloadInput.checked = s.autoDownload;
   });
@@ -200,7 +200,7 @@ import Cog from "../icons/Cog.astro";
     nameInput.value = defaultSetting.name;
     iceInput.value = defaultSetting.iceServer;
     sizePerChannelInput.value = Math.round(
-      defaultSetting.bytesPerDataChannel / (1024 * 1024)
+      defaultSetting.bytesPerDataChannel / (1024 * 1024),
     ).toString();
     autoDownloadInput.checked = defaultSetting.autoDownload;
   };

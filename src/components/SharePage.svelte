@@ -230,7 +230,7 @@
 {#if hubId}
   <div class="flex w-full flex-col gap-4">
     <div class="flex flex-col gap-2">
-      <div class="collapse-close bg-base-200 collapse">
+      <div class="collapse-close collapse bg-base-200">
         <div
           class="collapse-title flex flex-row items-center justify-between p-0 text-xl font-medium"
         >
@@ -254,7 +254,7 @@
       {/each}
     </div>
     <div class="mx-auto flex w-full max-w-screen-md flex-col gap-2">
-      <div class="text-error text-center text-sm">
+      <div class="text-center text-sm text-error">
         It will see other peers with the same public IP
       </div>
       <div class="text-center text-sm">Invite more people with this link</div>
@@ -268,7 +268,7 @@
           ><ClipboardIcon />Copy Link</button
         >
         <button
-          class="btn btn-sm bg-base-300 gap-2"
+          class="btn btn-sm gap-2 bg-base-300"
           onclick={() => {
             qrModal.open(inviteLink);
           }}

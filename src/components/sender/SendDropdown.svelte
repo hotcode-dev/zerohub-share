@@ -28,7 +28,7 @@
   <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
   <ul
     tabindex="0"
-    class="menu dropdown-content rounded-box bg-base-200 z-[1] w-52 p-2 shadow"
+    class="menu dropdown-content z-[1] w-52 rounded-box bg-base-200 p-2 shadow"
   >
     {#each Object.entries(peers) as [peerId, peer]}
       {#if peer.isOnline}
