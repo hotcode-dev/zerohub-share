@@ -111,21 +111,13 @@ export interface FileMetadata {
 export interface Message {
   /** file id */
   id: string;
-  fileMetadata?:
-    | FileMetadata
-    | undefined;
+  fileMetadata?: FileMetadata | undefined;
   /** use for sender to send file metadata */
-  filePartMetaData?:
-    | FilePartMetaData
-    | undefined;
+  filePartMetaData?: FilePartMetaData | undefined;
   /** file part chunk data */
-  chunk?:
-    | Uint8Array
-    | undefined;
+  chunk?: Uint8Array | undefined;
   /** response event for file, receiver will tell the sender file status */
-  fileEvent?:
-    | FileEvent
-    | undefined;
+  fileEvent?: FileEvent | undefined;
   /** response event for file part, receiver will tell the sender file part status */
   filePartEvent?: FilePartEvent | undefined;
 }
@@ -135,7 +127,10 @@ function createBaseFilePartMetaData(): FilePartMetaData {
 }
 
 export const FilePartMetaData: MessageFns<FilePartMetaData> = {
-  encode(message: FilePartMetaData, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: FilePartMetaData,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.partNumber !== 0) {
       writer.uint32(48).int32(message.partNumber);
     }
@@ -146,7 +141,8 @@ export const FilePartMetaData: MessageFns<FilePartMetaData> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): FilePartMetaData {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseFilePartMetaData();
     while (reader.pos < end) {
@@ -179,7 +175,9 @@ export const FilePartMetaData: MessageFns<FilePartMetaData> = {
 
   fromJSON(object: any): FilePartMetaData {
     return {
-      partNumber: isSet(object.partNumber) ? globalThis.Number(object.partNumber) : 0,
+      partNumber: isSet(object.partNumber)
+        ? globalThis.Number(object.partNumber)
+        : 0,
       partSize: isSet(object.partSize) ? globalThis.Number(object.partSize) : 0,
     };
   },
@@ -195,10 +193,14 @@ export const FilePartMetaData: MessageFns<FilePartMetaData> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<FilePartMetaData>, I>>(base?: I): FilePartMetaData {
+  create<I extends Exact<DeepPartial<FilePartMetaData>, I>>(
+    base?: I,
+  ): FilePartMetaData {
     return FilePartMetaData.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<FilePartMetaData>, I>>(object: I): FilePartMetaData {
+  fromPartial<I extends Exact<DeepPartial<FilePartMetaData>, I>>(
+    object: I,
+  ): FilePartMetaData {
     const message = createBaseFilePartMetaData();
     message.partNumber = object.partNumber ?? 0;
     message.partSize = object.partSize ?? 0;
@@ -207,11 +209,21 @@ export const FilePartMetaData: MessageFns<FilePartMetaData> = {
 };
 
 function createBaseFileMetadata(): FileMetadata {
-  return { name: "", size: 0, type: "", isEncrypt: false, channels: 0, key: undefined };
+  return {
+    name: "",
+    size: 0,
+    type: "",
+    isEncrypt: false,
+    channels: 0,
+    key: undefined,
+  };
 }
 
 export const FileMetadata: MessageFns<FileMetadata> = {
-  encode(message: FileMetadata, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: FileMetadata,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.name !== "") {
       writer.uint32(10).string(message.name);
     }
@@ -234,7 +246,8 @@ export const FileMetadata: MessageFns<FileMetadata> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): FileMetadata {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseFileMetadata();
     while (reader.pos < end) {
@@ -302,7 +315,9 @@ export const FileMetadata: MessageFns<FileMetadata> = {
       name: isSet(object.name) ? globalThis.String(object.name) : "",
       size: isSet(object.size) ? globalThis.Number(object.size) : 0,
       type: isSet(object.type) ? globalThis.String(object.type) : "",
-      isEncrypt: isSet(object.isEncrypt) ? globalThis.Boolean(object.isEncrypt) : false,
+      isEncrypt: isSet(object.isEncrypt)
+        ? globalThis.Boolean(object.isEncrypt)
+        : false,
       channels: isSet(object.channels) ? globalThis.Number(object.channels) : 0,
       key: isSet(object.key) ? bytesFromBase64(object.key) : undefined,
     };
@@ -331,10 +346,14 @@ export const FileMetadata: MessageFns<FileMetadata> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<FileMetadata>, I>>(base?: I): FileMetadata {
+  create<I extends Exact<DeepPartial<FileMetadata>, I>>(
+    base?: I,
+  ): FileMetadata {
     return FileMetadata.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<FileMetadata>, I>>(object: I): FileMetadata {
+  fromPartial<I extends Exact<DeepPartial<FileMetadata>, I>>(
+    object: I,
+  ): FileMetadata {
     const message = createBaseFileMetadata();
     message.name = object.name ?? "";
     message.size = object.size ?? 0;
@@ -358,15 +377,24 @@ function createBaseMessage(): Message {
 }
 
 export const Message: MessageFns<Message> = {
-  encode(message: Message, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: Message,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.id !== "") {
       writer.uint32(10).string(message.id);
     }
     if (message.fileMetadata !== undefined) {
-      FileMetadata.encode(message.fileMetadata, writer.uint32(18).fork()).join();
+      FileMetadata.encode(
+        message.fileMetadata,
+        writer.uint32(18).fork(),
+      ).join();
     }
     if (message.filePartMetaData !== undefined) {
-      FilePartMetaData.encode(message.filePartMetaData, writer.uint32(26).fork()).join();
+      FilePartMetaData.encode(
+        message.filePartMetaData,
+        writer.uint32(26).fork(),
+      ).join();
     }
     if (message.chunk !== undefined) {
       writer.uint32(34).bytes(message.chunk);
@@ -381,7 +409,8 @@ export const Message: MessageFns<Message> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): Message {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseMessage();
     while (reader.pos < end) {
@@ -408,7 +437,10 @@ export const Message: MessageFns<Message> = {
             break;
           }
 
-          message.filePartMetaData = FilePartMetaData.decode(reader, reader.uint32());
+          message.filePartMetaData = FilePartMetaData.decode(
+            reader,
+            reader.uint32(),
+          );
           continue;
         }
         case 4: {
@@ -447,11 +479,19 @@ export const Message: MessageFns<Message> = {
   fromJSON(object: any): Message {
     return {
       id: isSet(object.id) ? globalThis.String(object.id) : "",
-      fileMetadata: isSet(object.fileMetadata) ? FileMetadata.fromJSON(object.fileMetadata) : undefined,
-      filePartMetaData: isSet(object.filePartMetaData) ? FilePartMetaData.fromJSON(object.filePartMetaData) : undefined,
+      fileMetadata: isSet(object.fileMetadata)
+        ? FileMetadata.fromJSON(object.fileMetadata)
+        : undefined,
+      filePartMetaData: isSet(object.filePartMetaData)
+        ? FilePartMetaData.fromJSON(object.filePartMetaData)
+        : undefined,
       chunk: isSet(object.chunk) ? bytesFromBase64(object.chunk) : undefined,
-      fileEvent: isSet(object.fileEvent) ? fileEventFromJSON(object.fileEvent) : undefined,
-      filePartEvent: isSet(object.filePartEvent) ? filePartEventFromJSON(object.filePartEvent) : undefined,
+      fileEvent: isSet(object.fileEvent)
+        ? fileEventFromJSON(object.fileEvent)
+        : undefined,
+      filePartEvent: isSet(object.filePartEvent)
+        ? filePartEventFromJSON(object.filePartEvent)
+        : undefined,
     };
   },
 
@@ -484,12 +524,14 @@ export const Message: MessageFns<Message> = {
   fromPartial<I extends Exact<DeepPartial<Message>, I>>(object: I): Message {
     const message = createBaseMessage();
     message.id = object.id ?? "";
-    message.fileMetadata = (object.fileMetadata !== undefined && object.fileMetadata !== null)
-      ? FileMetadata.fromPartial(object.fileMetadata)
-      : undefined;
-    message.filePartMetaData = (object.filePartMetaData !== undefined && object.filePartMetaData !== null)
-      ? FilePartMetaData.fromPartial(object.filePartMetaData)
-      : undefined;
+    message.fileMetadata =
+      object.fileMetadata !== undefined && object.fileMetadata !== null
+        ? FileMetadata.fromPartial(object.fileMetadata)
+        : undefined;
+    message.filePartMetaData =
+      object.filePartMetaData !== undefined && object.filePartMetaData !== null
+        ? FilePartMetaData.fromPartial(object.filePartMetaData)
+        : undefined;
     message.chunk = object.chunk ?? undefined;
     message.fileEvent = object.fileEvent ?? undefined;
     message.filePartEvent = object.filePartEvent ?? undefined;
@@ -522,17 +564,31 @@ function base64FromBytes(arr: Uint8Array): string {
   }
 }
 
-type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
+type Builtin =
+  | Date
+  | Function
+  | Uint8Array
+  | string
+  | number
+  | boolean
+  | undefined;
 
-export type DeepPartial<T> = T extends Builtin ? T
-  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
-  : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
-  : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
-  : Partial<T>;
+export type DeepPartial<T> = T extends Builtin
+  ? T
+  : T extends globalThis.Array<infer U>
+    ? globalThis.Array<DeepPartial<U>>
+    : T extends ReadonlyArray<infer U>
+      ? ReadonlyArray<DeepPartial<U>>
+      : T extends {}
+        ? { [K in keyof T]?: DeepPartial<T[K]> }
+        : Partial<T>;
 
 type KeysOfUnion<T> = T extends T ? keyof T : never;
-export type Exact<P, I extends P> = P extends Builtin ? P
-  : P & { [K in keyof P]: Exact<P[K], I[K]> } & { [K in Exclude<keyof I, KeysOfUnion<P>>]: never };
+export type Exact<P, I extends P> = P extends Builtin
+  ? P
+  : P & { [K in keyof P]: Exact<P[K], I[K]> } & {
+      [K in Exclude<keyof I, KeysOfUnion<P>>]: never;
+    };
 
 function longToNumber(int64: { toString(): string }): number {
   const num = globalThis.Number(int64.toString());

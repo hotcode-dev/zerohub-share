@@ -10,14 +10,16 @@
   let { children, receivingFile }: Props = $props();
 </script>
 
-<div class="card bg-base-100 shadow-base-300 shadow-lg">
+<div class="card bg-base-100 shadow-lg shadow-base-300">
   <div class="card-body p-2 lg:p-4">
     <div class="flex flex-col gap-2">
       <div class="flex flex-row">
         <div
-          class="bg-base-300 flex h-24 w-24 min-w-24 items-center justify-center rounded"
+          class="flex h-24 w-24 min-w-24 items-center justify-center rounded bg-base-300"
         >
-          <span class="max-w-full overflow-hidden truncate px-1 text-lg font-bold uppercase">
+          <span
+            class="max-w-full overflow-hidden truncate px-1 text-lg font-bold uppercase"
+          >
             {receivingFile.fileMetadata.name.split(".").pop()}
           </span>
         </div>

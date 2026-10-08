@@ -280,8 +280,10 @@
             fileStats.bitrate = Math.round(
               fileOffset / ((Date.now() - fileStats.startTime) / 1000),
             );
-            sendingFileSelections[fileId].sendingFiles[peerId].progress = fileStats.progress;
-            sendingFileSelections[fileId].sendingFiles[peerId].bitrate = fileStats.bitrate;
+            sendingFileSelections[fileId].sendingFiles[peerId].progress =
+              fileStats.progress;
+            sendingFileSelections[fileId].sendingFiles[peerId].bitrate =
+              fileStats.bitrate;
             fileStats.nextProgressUpdate += PROGRESS_UPDATE_UI_STEP;
             if (fileStats.nextProgressUpdate > 100) {
               fileStats.nextProgressUpdate = 100;
