@@ -1,0 +1,152 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:800c7f1a722484057f302282e7b1e53d2c4e36be1445b3377e719955a85fbd21",
+  "claims": [
+    {
+      "id": "claim_7353df58f67b45829000a88d6fb5463c",
+      "statement": "ZeroHub Share is a static Astro 5 + Svelte 5 web app; the Svelte app root SharePage is mounted in src/pages/index.astro via client:load client:only=\"svelte\" inside the MainLayout shell.",
+      "evidence": [
+        {
+          "resource": "repo://astro.config.mjs",
+          "version": "repo-file-v1:sha256:e91c55661553c1fbf46d47768d51406ba8db00147ccf00118dbcdc630fe3976f"
+        },
+        {
+          "resource": "repo://package.json",
+          "version": "repo-file-v1:sha256:ac45d3573fe373b4c870475e3fef01dca16f8ee9247a25516c955d0276267096"
+        },
+        {
+          "resource": "repo://src/pages/index.astro",
+          "version": "repo-file-v1:sha256:65843d18e32d3b003c0a5af40c09fac2a2c9b3c3b5505659294bb463838d12e0"
+        }
+      ]
+    },
+    {
+      "id": "claim_fe516ed7a7bf4ef2b39a14995551a100",
+      "statement": "SharePage constructs a single ZeroHubClient (from @zero-hub/client) using zeroHubHosts (derived from PUBLIC_ZEROHUB_HOST) and a config with tls=isProduction, logLevel Debug in dev / Error in prod, waitIceCandidatesTimeout, iceServers from settingAtom.iceServer, and dataChannelConfig with numberOfChannels=16, ordered=true, onDataChannel=handleDataChannel.",
+      "evidence": [
+        {
+          "resource": "repo://src/components/SharePage.svelte#L136-L160",
+          "version": "repo-lines-v1:sha256:8bfe50852114ea0e0f617c83556342826f461170e262a172ff69382d986d5a15:eyJzZWxlY3RlZExpbmVDb3VudCI6MjUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjVmZTY1MDkxZGQzOTNiZTdlOWY3MGRmNzZjOTJjNDQwNjMxNTZiYTJjYzQ4NmJlYjM4MmNjNjBhYTk4ODBiMjMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk1ZWYwMWJjMDhkYmMzYjYzZTRlNzVlYTNkMjZhNWI5NDE4OTE4NzdlMjdhZDg5MTMyOWM4NDExZDdkOGRjNGQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjhkYzk1ZTAxY2E2NDQ3ZmQ5ODY1OWUzODAyODU3YmVlMDk2ZjJlODdiZTFkODA0MGIwZjIyNzE1ZGY4ZTg3ZWEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjVhMDQ4MjE5ZDQ1M2FmY2Y4ZjA0M2M5NGI2NTBjODFiYWRkODE1NTAzNDI2MjRjMzlhYTRlOTVmOTFkZTBkNGQifQ"
+        },
+        {
+          "resource": "repo://src/configs.ts",
+          "version": "repo-file-v1:sha256:9c40fec2a6cea3a5e7467a90162304663e6dbd3eb1f0f82a53e5be7083d54659"
+        },
+        {
+          "resource": "repo://src/constants.ts",
+          "version": "repo-file-v1:sha256:c8812fb20a48692ad71802056bd20920d60e237cc5b558b8c67092156d1f648b"
+        }
+      ]
+    },
+    {
+      "id": "claim_399ddd7e6c814e739d195c01d485c7f7",
+      "statement": "The hub is joined either by joinOrCreateIPHub (when the URL has no ?id= param, joining/creating a hub by the client's public IP) or by joinIPHub (when ?id= is present, joining the named hub); the hub id is exposed to the UI via onHubInfo and embedded into the invite link as the id query param.",
+      "evidence": [
+        {
+          "resource": "repo://src/components/SharePage.svelte#L162-L223",
+          "version": "repo-lines-v1:sha256:bae92527949c794ef6cba2d4a63f159cfb46384480d1443202272c5754900b48:eyJzZWxlY3RlZExpbmVDb3VudCI6NjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjY2OGM4NTZmNWU3MmM1ZTMxYWUyMTU2ZDUwODI0ZGM4Zjc0MjgxODU4NjJiMDliNDRlMjgzYWUwMjcyM2ZiNTAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI1MjEyNzVjMDczMjMyYzkwNTYyODAzYmZjZDY2MGVjOTdlMzI5NWI2NGIwOGJhMmExYjc4MjMxODk3ZDBiMGYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjIyY2VmYmY4YzhiZmY4NTljN2ZlYzM0YTQxYmQ2MmZjZTdiNDNkY2U0ZmY0ZTVkMzBlYjFmZTA0M2RkMzMxZjIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjU0MmExZTc2ZTNjYmM4ZDRmMjQ2MzQ2MGJjNTFjNzA0M2FhYzlmMTdkNThlZTJlMGIyZjlmNTE4NjBhMjY3ZmQifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_a922d975219b4edeb521d0ce40aafb68",
+      "statement": "Per remote peer, SharePage maintains a reactive record of {isOnline, dataChannels (by channel label), receiver, metadata, svgAvatar}; a Sender is rendered for the local user and one Receiver per online remote peer that has at least one open data channel.",
+      "evidence": [
+        {
+          "resource": "repo://src/components/SharePage.svelte#L245-L253",
+          "version": "repo-lines-v1:sha256:1e8bccb61eb35ddf855818ad730d32dbf4f2508597957fc09dc050eb8d9b3d52:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMWQ4ZmEzNGFiMDYxMGE5YWMzZmFmNzNhNTAxZmEwMWMxMWNhMTBiZjQ3Yjc3OTM0NDU5MWQ4NzQ4MDM0MTExMCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNGM3MTM3YTNkMjY5MmIzMTNmZWZiYTc1YTdmOTMzMjkxZWQ5MWNkN2ZkZWM5MDc2ZTFiOGViN2UxNGJiZDMxYiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNWM5ODZlZmJjZjFiM2I3MTVmYmE0YjE3ZTk0YTE4OWY4NDRlOWRlZDliZTE0Nzc1ZTNkZWI4Y2Q0MTE2NWFjOCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNmIzNjcwMjVkODVkZGQxMDQ1ZmU5ZmU2ZWNlYTc1Yzg4MzU2MmE0YThiMzYxZmNjYjNjNmZjYmJkMzdmMGI1NSJ9"
+        },
+        {
+          "resource": "repo://src/components/SharePage.svelte#L37-L45",
+          "version": "repo-lines-v1:sha256:5013cee6dff7cc07a4d75df91dac3c32d56bb7fbd1b9663dd6687c57de986d28:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZThkNDA4ZjYwZGVhMTllNTZmNTM1NTEzYzAwZWJiODc4ZGMzNTBhZGY3Nzc4Zjk4YzNhNjkxZTllZjQ1Y2I5NCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZDRkN2MwOTUwY2ZmYzBjYWE3OGJlYmY0MzQ4MWE3MDk2YjkzZjg4ZjEwNjk4Y2UyMzI1NzBjZWVmYWMxMTQ1NiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZmEyMDg1OTFiNjFlNjJlZmYxODU5N2FiODMzYmQyNTEwYzNlMDZkMzc1NjU5ZTNiMmQxNTI5Zjk0MDMzMWNhMCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiODA2MDljN2RiYzc5ZTY3YmEwNjIzNTBiNjIwNmM2ZDM0NGY5MjllMzI4NTJmMWRlNDVmZjE3ODRjNzBiODU3MyJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_e8a4c08e62dd464c9a7532d3d842ab31",
+      "statement": "handleDataChannel routes decoded protobuf Message oneof payloads: chunk and fileMetadata and filePartMetaData go to the peer's Receiver, while fileEvent and filePartEvent are forwarded to the local Sender.",
+      "evidence": [
+        {
+          "resource": "repo://src/components/SharePage.svelte#L73-L134",
+          "version": "repo-lines-v1:sha256:e747551e4a1aebb09545c53c58aa2a46dadcda9f0102b55d388dcf619c2cacb2:eyJzZWxlY3RlZExpbmVDb3VudCI6NjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImYwMjEwN2JkY2E4YmRhM2NmMWI0NGZhZDgwOWQzZmExN2VhYjBmYjUxYTZkMDhiZTk1NGZiMTA3OGQ3MWQxOGYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjYyYjFlZTM0MjkxMzJkNGJkZWE1Mjk2NGQ5OTdhZGZiZjYxNGYzNGQxOTdjNjVlNTBhNzgxZWYyOTY2ODk1ZmUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImM2ZjFiYjVjMWZjNzBkNDgzM2Y4YzZjZDIwZTJhNzZkZDNkMTViMDJhMzVlNWM1MThjN2NiZDA3OTNiNWM1ODMifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_1913a9378ce846709da12b0ae4cce7a9",
+      "statement": "When the last data channel of a peer closes the peer is marked offline, and when the client reports PeerStatus.ZeroHubDisconnected SharePage explicitly closes all of that peer's data channels and clears the map.",
+      "evidence": [
+        {
+          "resource": "repo://src/components/SharePage.svelte#L122-L131",
+          "version": "repo-lines-v1:sha256:8340aed66fe67911987395e4e53a32b78027091fbaf393f91075d90bd6d0ea9a:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjIzYzg4NzcyZmYxZGI5MGQxMjVjMWRiZTFiZjg3MGUzMTRlNTNhNDI0ZmYzZjY3NTA4MWQ2YmM5NDllOTA3MTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFkOWUxMjU0NjQyNTU3NmQzZGVhZThjOWI5ZGJmMTI4ZDVkNmRkYWY1ZDdmZTg1NzkzNDkyN2RlZmZhM2I5ZGQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImI2ODY5Mzg5MmYzNzY5YmI3MTdkMTE2Y2Y1ZDM4ZDNhMzY4MTc1NDE5MGMzYTliYjAzMzQ1NjM5ZjBiOTE0YTMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjFkZmRkZjNhZDZkZTdlNDkzMWNkMzhlYzY1OTA5YTBiNmMyNTE3NzBhYmEwZTI2MmRhYTVkMWEyN2IzNzUyYjkifQ"
+        },
+        {
+          "resource": "repo://src/components/SharePage.svelte#L188-L201",
+          "version": "repo-lines-v1:sha256:ebac43bd1dc210bd29aa09e3402e7cfec8d8fb7152a0e23bcc64634f27a22329:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImYwZjNjYmRiMDE1OGU1ZjM5YjRmNmNjMjdmOWE1OTFhOWZkNDQ5NmYyMmRiYzgwOThjMTM3NGIxNmZkZjkwZDIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImM1OWNhNmY1ZmYxNDM5ZDQxMzhiMWI1NzIxYzMwMTBkYjFiMTQxYWU1NjYxYTczZGJiYjRiODBmMjQ5ODJkMzAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImJlY2U5MmNjODUxZDJhY2U0ZDIzODI1NTgzNzQ4Y2VkZDVkNGMwNDY4YzZjNTkyNDBmNjQ4MWZjMzBkODFhMzEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_40cff0f6731d4800b08a2237c8cf3e2e",
+      "statement": "FileStatus is a four-state machine (Pending, WaitingAccept, Processing, Success); the sender moves Pending->WaitingAccept when it publishes FileMetadata on channel[0], WaitingAccept->Processing on the receiver's EVENT_RECEIVER_ACCEPT, and reverts to Pending on EVENT_RECEIVER_REJECT or EVENT_VALIDATE_ERROR; the receiver reaches Success when total received bytes meet fileMetadata.size.",
+      "evidence": [
+        {
+          "resource": "repo://src/components/receiver/Receiver.svelte#L143-L153",
+          "version": "repo-lines-v1:sha256:dde635182029a8d34c473d125fbac994d68e4fe3b52ace2edee8b8685cbd24e8:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdiNjc0NGM3MDQwNzUwZDA4MzZkZWNlY2ZkOGZlMmI5MjEzMzk4ZjFhMjEwMDBkMDRlNjViMTQ1NjVhMWZlZTIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjA0YjlhMGIxNmI5OTEwYmFhNWQwYTRkY2FmZjhhNjBjNDI5NjMzYmYyYWUzY2JhY2M4MjAyOTA3NTgwZDEwY2EiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjJkOGFjYjJiMWQ4ZGM2NjU3ZTdkMmY3YmM5NTE4YjU2M2UyYzA0Yjc2NmUwNWM3NmNlYzg4MWJlM2ZkZDcxODYifQ"
+        },
+        {
+          "resource": "repo://src/components/sender/Sender.svelte#L311-L332",
+          "version": "repo-lines-v1:sha256:6cd64c5f6e5496cfbc89ac57f87f960e3c118beb38fc43644d60afbab4fe0c95:eyJzZWxlY3RlZExpbmVDb3VudCI6MjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU1NjNhZTJiNzA5ZTkyZGJkMzdjZDA0ZjJkZmNkYzVhNzIzNGFjZDkyYTY0YzA4NmJmOWFmMzQ1YzA1MDk0ZDAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjIyZDExY2FmNDNlOTdlZjM2OWU2YmVlZDFhMjY4YmQwNTgzOGYyOWI5ZGQyNTRiZjY5YmE2NDg4NDE0NzIzNGEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjM2ZWY0NmVmNzI5M2YzMTkwZjVlN2YyMDMwNmMwNDI0NDk2ZDQ4NzQ1Y2U5ZmVkN2U4N2I3YzcxMzM4YTdkZjYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImZiYzRjZjYwYjhjNTBiNGIzOWJlMzgxMTBmYWRiMzgxODExNmFmODllM2NmMjE4OGQ1Yjg1MzgxY2JiODkxZTQifQ"
+        },
+        {
+          "resource": "repo://src/components/sender/Sender.svelte#L335-L343",
+          "version": "repo-lines-v1:sha256:1ace84809508791b9fad3a833f5c33410e885ffd5726b6b1d521b3b5a6256edf:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYTE4MzY4NjljMDY3YTdmNTczYzdiM2YxMzg2YzQ5ZTEyZDkwOTM1ZDliMzg0ZGM3YTNlODQ0ZjNjNzlhNjdhOSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNjIwZjQ5Yzg4ZDYyMWE4ODQ0ZGI0ZTk3ZjY5ZDMwOWJjMGNjZjk2OWQ2MmY3ZTQyMDdmZGFhNjhjMjYyZGEwMCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMjMzNzJjMDBiNjgwY2E5MzE2OTM4ODg5YzhhZmFkZDkyNzdlZDAzOTliMTE5NjA1NjNhMTc0ZDNkMWEyNzQ5OSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMzQ3Y2NiNmMyMzdmMmM2YWYyNWQ0ZDZlYWJlZWY4MzdiZTI1NDNmMGYxZjk2NGRlMjg5MjM2ZmMzZTUxNmFkMiJ9"
+        },
+        {
+          "resource": "repo://src/type.ts#L20-L25",
+          "version": "repo-lines-v1:sha256:a36a12fc3c3c39b2f00bd82f5a4cfb653892714967abc7dfcfbcf303906d8fc7:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMzAzNmY4ODFjZjVhNzNiZTUwOTc2MzRmODZmNDU4YzY1MmUzN2E1OTM3NDdmMjMxYzY3NTY4ZjI5NjQ5MjM1NyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDEyY2EzNDVjY2Y3NWJmOWMwODA2YmNlNjk1YmU4ZGU4MDhiNzk5ODQyNTFhN2E1NGQyMDJjZjYxMDFkZDQ1MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYTA1ODg0N2QyNjE4NTkzMTlmOTM3YmExNTA2MDc3ZjBjNGFmYWUyNjc1MjE3ZWQwNzUyZDhiMTdiZjJkNzVkZCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMWQ4NDZjNGJmMzQ1ZGY5MzI0Nzk4YmJmNTE2NDc5NjEyNWRjMGQ0Y2RlMDg4ZmFlZjNmZDUzZDNjOTVlOTRkZCJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_8d26f78b6362473795186c4aa72ea285",
+      "statement": "User settings are persisted in localStorage under the key 'setting' via @nanostores/persistent with defaults: a random Star Wars name, iceServer=stun:stun.l.google.com:19302, autoDownload=true, bytesPerDataChannel=25MB.",
+      "evidence": [
+        {
+          "resource": "repo://src/configs.ts#L5-L16",
+          "version": "repo-lines-v1:sha256:5d1165c6cfced2ddac7bcfce1245305c1cc28a959b2fb0ca2c28eb8d760c29cc:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjY2MDg5ZmNlNzAzYTgyOTBkNDI4MDk2MjFmM2ZhNWE0YzRhMDZjYzRhYzZhYWM3YjczYTRlZDlkN2VhMmViMGIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImIwMmQyYzBkNmRjNWU3NGQ5MmZhMTRiOTFkYmVhMjY0MDkwYmViMzVmZGI5MTg4ZDliMzQxMTgxZGNlOWY0Y2UiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImM0OGEzNGVjYjAyZThlZDliOTUwODBkZmFjN2VhNGVhMGY1NDk4ZjNmYjUyYWU5ZWYyYWI4ZTU1NzYyNWQ0N2UiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzZjg1ZTM5NzllZWYyM2U2M2Q0MTg4OWVjM2YyNmM1YTcyMWJlYmQ1YWE2Y2FhNTYxNTljZGFjYTlmNmVlYWEifQ"
+        },
+        {
+          "resource": "repo://src/stores/setting.ts",
+          "version": "repo-file-v1:sha256:58798a1c5c7d1f7149f9af34206cfd49731f837daa2e7d98d534527ba88a62e0"
+        }
+      ]
+    },
+    {
+      "id": "claim_ecb2628f53014ae38b2564e7e1739b77",
+      "statement": "File progress and bitrate updates are throttled: a non-reactive FileStats tracks nextProgressUpdate and the reactive file state is only updated once progress reaches nextProgressUpdate, after which nextProgressUpdate is advanced by PROGRESS_UPDATE_UI_STEP (3%) to reduce Svelte re-renders.",
+      "evidence": [
+        {
+          "resource": "repo://src/components/receiver/Receiver.svelte#L118-L141",
+          "version": "repo-lines-v1:sha256:766b4bb735a9a560195c711fb108eaa1c5fc034392222c833adb8bbcf45c81a2:eyJzZWxlY3RlZExpbmVDb3VudCI6MjQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjExMmNhYzExZGRmYjlkYTRiOGEwYjliMmFlNGJlYmExZTlmNGM1M2UwOTU1NjBhOTYzYTZjN2IwNzE5ZGUxMWEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjBiY2VmZGM3YzUwZjMxMzAxMzM4YThmMzgzOWY1NGJiYTExMmMxYTliN2I1NWFhNzgyNjU0YjliNjViNjRhYTYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjE3ZWNiNjU2NDhlMjVlZjY1NDc4MTRjOTRiNDJjZWRjMjAzZDgzZWNkYTk5M2Q1NGFjZGE1NWI3MTE3YjhlMzcifQ"
+        },
+        {
+          "resource": "repo://src/components/sender/Sender.svelte#L274-L291",
+          "version": "repo-lines-v1:sha256:df2c780982913a6eb0594595148b176c1a647652548cdcd4170636215aa940bb:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijc1YjdjZTAxYWUwZjJkZTdlMDE0NDg1YTcwMjUwMTVkYmE2NDYxZGM5MGQwOWRkYzFiZGJjYzE1ZTYyODZmMmEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg4MDA1ZDU3MTA2YTM2MmViMDAwZGFmM2RhNDY3NGM4MmI1MThmZjVhMmUyZjY3ZWU4ZTc1N2EzMzNjMmFmNjYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjBjMDRkNmEyNDY3NmNjNDk5YzEzZTIxOWEwNDA3YjgwNDUzNzEzYzI3ZmRjNzM3OGI2NjExYTAwMThkYWI2NDgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImU3N2YxZTU5ZTE2NGNlZjAzMzM3ZjQzMTllNDI4MWI3NTM4NzYwOWJjMTkwMTU0MGEzMDM0OWU5ZWRlODZlMzkifQ"
+        },
+        {
+          "resource": "repo://src/constants.ts#L5-L5",
+          "version": "repo-lines-v1:sha256:01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMDFiYTQ3MTljODBiNmZlOTExYjA5MWE3YzA1MTI0YjY0ZWVlY2U5NjRlMDljMDU4ZWY4Zjk4MDVkYWNhNTQ2YiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMDFiYTQ3MTljODBiNmZlOTExYjA5MWE3YzA1MTI0YjY0ZWVlY2U5NjRlMDljMDU4ZWY4Zjk4MDVkYWNhNTQ2YiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiOWU5NjY0MWU4N2Q0OWEyMTc1NjdkNzg5MTE0NmQ0MjgxYjU1NjQ4N2UyZjE4OTFhMzFjMmQ3OTA0OTc4MzIwMiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjEsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTQ2NDNlNDcxOGRlOTUyYzNkNDNjN2JhZDMxNDNkMWM1Y2Y1MTY3NWQ0ZGQ2ZDVmMmJjMzFiOGY1ODE4MWY5MSJ9"
+        },
+        {
+          "resource": "repo://src/type.ts#L70-L85",
+          "version": "repo-lines-v1:sha256:c9926f851e22b34f9205cad9aa657cdc8b161c7c1925811128d252b8ea6a779f:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg2NzVmMzliNWIwYzgxZmRlNGJiMzc0YTI5NGUzYjBmZmMyMGEzNTJiZWE3N2NkMTZmM2M2ODQ4YjYyZmJiNmQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjA5MTE2MmJjZjc3MGQzY2ZkNjI3YWRiNGRkZjUxNmUwYzRhZTYyMjc2ZTk3N2I1MTRhNzQ5M2EyOTUxYzk2MDgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjI1NDYxY2E3NjMwMDQ1MzY0OTdjMDNhZjA4NTVjNzU1YjEwMTU2NjFkMDNlMThjNzFlMDVkZjM0ZGI5ZDY2NjMifQ"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.6.0",
+    "at": "2026-10-08T14:31:05.399Z"
+  }
+}
