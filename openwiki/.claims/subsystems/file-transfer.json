@@ -1,0 +1,110 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:5c2c115ac6ba4c412acc2d828de824d24193fc6e0d1300bd888ff7b1c2bdc060",
+  "claims": [
+    {
+      "id": "claim_94e6f7dfdde840309c6fc3d276f8dbd6",
+      "statement": "The wire protocol is a single protobuf Message with an id (the file name used as the transfer correlation key) and a oneof data: fileMetadata, filePartMetaData, chunk, fileEvent, filePartEvent; it is defined in src/proto/message.proto and compiled to src/proto/message.ts via the protogen script (ts-proto).",
+      "evidence": [
+        {
+          "resource": "repo://package.json#L13-L13",
+          "version": "repo-lines-v1:sha256:a5b592d1a3cf27163d2140db14e0f29c8239c4bf06e1b7a8e9023caf14a1fccd:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYTViNTkyZDFhM2NmMjcxNjNkMjE0MGRiMTRlMGYyOWM4MjM5YzRiZjA2ZTFiN2E4ZTkwMjNjYWYxNGExZmNjZCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYTViNTkyZDFhM2NmMjcxNjNkMjE0MGRiMTRlMGYyOWM4MjM5YzRiZjA2ZTFiN2E4ZTkwMjNjYWYxNGExZmNjZCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMWMzOGM0YThmMjVmNzg3OTI4MjgxMGYxMTY1OTJhZDRlNmIzYzMzNTUyZDBkMTQ2YTMzYzNkZGI5ZWM1MWQxOCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYzhlMjE1MWY0Mzk5MDU2MjZhZjY4YTQ2YThhMjc3OWNhMGJlMDU3MWM1NTQxODlhNWZiN2Y0NDJlYTU5NjVmMyJ9"
+        },
+        {
+          "resource": "repo://src/components/SharePage.svelte#L83-L115",
+          "version": "repo-lines-v1:sha256:7a8286ac0182d1bf1eba838349714acf74223b5e56387ce92f09e68bffe6232a:eyJzZWxlY3RlZExpbmVDb3VudCI6MzMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRiNGE0YmU5YmM3NjE4YTU4YTg1NTUzZDE5NDA0OGY5MzE0ODZjYWQ0ZmNjZTUwZThkODM5NDNhOGEwODRjNjgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFkOWUxMjU0NjQyNTU3NmQzZGVhZThjOWI5ZGJmMTI4ZDVkNmRkYWY1ZDdmZTg1NzkzNDkyN2RlZmZhM2I5ZGQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImU1ZDY2ZDllMTJhZDMwNDk3MjE3MjY0YWFkZTI5MjQ4ZWRjZTU5NmE3MjVjYTc1YzJiZWNlYTY4Nzc2NWE2ZDUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjE0NTkxOTVjNmE3ZTYwZjZmZTZkYTBhNTc1N2ZlNzVlY2NkZWUzNGM5Y2ZmNmJjYzg4ODIwMzVlZTNmNTdkNWEifQ"
+        },
+        {
+          "resource": "repo://src/proto/message.proto#L41-L55",
+          "version": "repo-lines-v1:sha256:87a7850dd7b460aa8021802ba66518773b4e85e2a7da34d3d376892d1bc69beb:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjUyOGI3MGVlN2YyNTI4YTA2M2M4MGMwZWNkZGIxZDE3MjlhNTBjMWM4OTAzMDc5OTY4MTU2MDRmODJmNjg4MWEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImU0NzE5M2E1ODk0YWM1ZjI5ZmIzNjJhNWM1NmIzMGMxMTRkYmVhYTBlOTkwY2U5MTAyMWVkOWQ5NmEyYWE4ZGYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_bb8002622b5f4ed388b1cc138cbf01eb",
+      "statement": "Files are multiplexed across WebRTC data channels: requestedFilePartChannelCount = min(MAX_DATA_CHANNELS=16, ceil(file.size/bytesPerChannel)) where bytesPerChannel defaults to 25MB (settingAtom.bytesPerDataChannel), active channel count = min(requested, open channels), partSize = ceil(file.size/channelCount), and if no channels are open the send aborts with a toast.",
+      "evidence": [
+        {
+          "resource": "repo://src/components/sender/Sender.svelte#L108-L129",
+          "version": "repo-lines-v1:sha256:d7df644fad26b36955d066a50bf300c5662da5ac28f99f753cdbe079dbbc4f78:eyJzZWxlY3RlZExpbmVDb3VudCI6MjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImUwZGY4ZDQ2ZjhkOTZhZjI5ZDExMDY1NjY3Yzg5MzIzNDYzMDA2NTUwYWRkNTExMzNhY2U3MGE5ZGU5NmMwZWEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI5ZjViODQzZmE1YWFhMWJlMGQ4Zjc3YWVjYmE1MjJlODM0YjA5NjVhNGU1M2QyMWE4MTcxNmE1M2IwYzU2OTkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjZhNDFkNzNjNDUyMmJlYTM5ZmY4MTVlMjRiY2YxMzExODUzMWQ2NzFlYjNjZjUzMTIxODg1ZTExYTFjNDcyNGQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjI4NmU3NmE1N2RmNjA4ODE4OGNmZGZjOTFjMTIxYjllNDFhMGEyMDkyZjJhNGZlZjY3NGQ5OWQ5ZWIxOTgwMWQifQ"
+        },
+        {
+          "resource": "repo://src/constants.ts#L1-L4",
+          "version": "repo-lines-v1:sha256:a3f9ce3dd8a65875515f25a9fad4a45d70cac29a15322a8862ec408be39ab8a9:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZmFiYzU5MTNjMzQwZDhjMGQ5MDNjNzg4NDhjY2U2ZGE2NmM1MGUzYTJkNDEwNjdiZmM2ZGJiNjMxZDM1ZDcyOCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZjNiZDkyZjk1Nzg4YjAwMjNlZTJiYzQ5ZDAzMTNhMGZlMzI0OTEwNDI5MTg1MjRhMzhhMDJkYWQzOTUzYzI4OSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjIsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMDJhMDJmMDU2MmNmODA2Y2M3NzM4Nzg3MzZlYTUyZjI2NzBiZmVkYmU3ZDcxZjJhZjVjM2E2MzkzZTQ1YjM4ZSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_14a7d00476d049208af0a07765b46dcd",
+      "statement": "The per-chunk ACK flow is stop-and-wait per channel: sender publishes FileMetadata on channel[0] and moves to WaitingAccept; on the receiver's EVENT_RECEIVER_ACCEPT it starts each channel's loop sending FilePartMetaData; the first chunk on a channel is sent only after that channel's EVENT_RECEIVED_FILE_PART_METADATA; each sent chunk is acknowledged by the receiver's EVENT_RECEIVED_CHUNK which triggers the next chunk; when all parts finish, the SendingFile becomes Success.",
+      "evidence": [
+        {
+          "resource": "repo://src/components/receiver/Receiver.svelte#L66-L95",
+          "version": "repo-lines-v1:sha256:df1a7c87ba1b406b2addfd3df3c6fbb0ab6a2104be58d8a8b6ba36e0765136e2:eyJzZWxlY3RlZExpbmVDb3VudCI6MzAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVkNzIxNTY3MGNiMzkwODVmM2UwZGEyMmQ4ZmNmMmI3MWM0YjI2NDBjMDZmNWQ2MGU5OTVjMzQyOGNmZjQwOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImY2MGFlYTQ0MmNlNmUzZTg0ZjEwYjcwNjRlYTFjZmU0MGRjYjU0YWI5ZGZhMDgyOTk1ODA4Zjg1OTE5YjU5NGIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImViZjc2NjZlYmUxYjAxZWZjNGYwYjc0NGI1NWFkNTU2NWZjZTM4MmI0MGNhYjMyM2JiODJhNTZmZmYyNDZlNGEifQ"
+        },
+        {
+          "resource": "repo://src/components/sender/Sender.svelte#L193-L227",
+          "version": "repo-lines-v1:sha256:a2d567b61f54e685ba85b5a85822f72b8c5246e5a24f36978cd960ea55924913:eyJzZWxlY3RlZExpbmVDb3VudCI6MzUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImNlZTY4MjQzMmE4NTc2MTczYTIzNDNlOTY2MDRlNmVlYWQ4MjM4ZjAyMmNjM2QwZTZlYTEwY2JmY2E0MjAwMWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFlNzVjNzBkOTQ2MzYyNWUxMDc5ZmQ4ZmM4ZWU2MmFkMmU5MmM0MmJlYWFiZmQ4NWI3OGQ4ZTBhNDk3OWI5NGEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjBhZWU0ODZlNjRjMWYxYjIzZmNiMmNjZTlhMThjNjk2Njg1NzVmODZlOTI5NjBlODQ1ZTI4M2JhZTVkMjQ2YzciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjNjN2ExY2QzMTg2MDUyZTFmODQ2OTFiOTkzYjE2ZjhiOTk3NWY5Y2E4OGMzNjcxNzk1NGVjNmQxNTUxMmFkNmMifQ"
+        },
+        {
+          "resource": "repo://src/components/sender/Sender.svelte#L294-L340",
+          "version": "repo-lines-v1:sha256:4ca8979eaeb238e9c7cf7ef0519de8647405eaec0c169c4d583c653f48bb9ba1:eyJzZWxlY3RlZExpbmVDb3VudCI6NDcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImNlZTY4MjQzMmE4NTc2MTczYTIzNDNlOTY2MDRlNmVlYWQ4MjM4ZjAyMmNjM2QwZTZlYTEwY2JmY2E0MjAwMWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg0ZTQyMDhjZDZmZmI4YzRhMzU0N2IyZjU0YWRhMTk5NzhjM2YzNjVlNzhmOTUwMmVmNTE0NWNkZDJhYTg1NDMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImEzN2ZmNjAzNzVlNzA0NDcxNmEwM2M2NzQxM2FkODY3MTVhNzhkY2U5ZDI4NjNjYjY0YzRjYjQ1YzVjMTE2ZjAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjllMGZhZDI3NjYyMDg4NGM5YzA5NjEwMjgwZDc2ZTM2MGYxZjhlY2QxMjc1YTA5Y2M0NTQ5NDBlZDliOTEwMTgifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_c64471aae02c42bb849929af6edae229",
+      "statement": "The chunk size is hardcoded to 32KB (32*1024) in Sender.onFilesPick (marked TODO for a user setting), and each chunk is a slice of a file part that is AES-GCM encrypted when isEncrypt is enabled before being framed in Message.chunk.",
+      "evidence": [
+        {
+          "resource": "repo://src/components/sender/Sender.svelte#L229-L250",
+          "version": "repo-lines-v1:sha256:e422f57bf391445ddd2bbe09a913651fdbf84e970028318f66b268dbdea39a02:eyJzZWxlY3RlZExpbmVDb3VudCI6MjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjZjZjViNDNkOThkZDdmYzJjOTRjNDdjYWQ1NjM2MTM2OTI4OTJkNzM3NmQ0Nzc0NTUxY2UzOWZhZGJhNDA1MDkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU2YjA0NDkxNDY5NzIyZTgzNjNhOTRlNDA0NDUzOGUwMTNhMmEyMTdlMzZiMWU1NjhiYTYwYWNiN2I0YzhmMmUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjYyYWI5NmJhNTEwZmNjYWIwMjc3MmFmZDQ5YWJlMjMxNDA0NDM2OGUyNWRmODhiZmY2YjM3NDUwYjIzYWI2MTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijc0MGViZDk5NDEwYTIxOThmMzcxODllYThjMGE1ZjBlZWVmNDM5OWExY2JjODllYzQ1MjFlMDc3OGE0NTExOGMifQ"
+        },
+        {
+          "resource": "repo://src/components/sender/Sender.svelte#L356-L365",
+          "version": "repo-lines-v1:sha256:0fc287c41df1d69f5e38e0d99cf8b605d9bec1d9967fbb7fd57373f3c8775bac:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjUyMzhkMWExZDYzN2M4M2M1NTRlNjk0YzI2MGEwMTMxN2M5MGNmMWY1Y2RjNDBmZjY2Zjk2N2M5MjlkOTNkOWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZlMzNkYzczMWU3ZDA3YjFmMGMwNWNmZWJkN2UxOTIyMDIzZTYwNzdiYzBhZTdiYTMwMTQ4ZjUwODMzYTI1YTkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImM5MDdjM2JlNTY1NjQ5OTc2MGVjNzMwZjkwZGQ4MmNiZWFiOWI5YWY3NmFkM2NjMDQxOTc5MTIyZGQzMDk3Y2EiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjJlODcyNWEzOTllNjAyYTE1ZGM0NWQzYmZmN2JhYmVmNDc1M2FhOTVjZGNjN2E1MGE1ZjVmYWIyYWY5N2VlOTkifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_69fd877a77a042d4a3481d3057b2e559",
+      "statement": "The receiver accumulates chunks per file and per channel in a non-reactive receivingFilePartChunkMap of Uint8Array arrays; when total receivedSize >= fileMetadata.size the ReceivingFile status becomes Success, and onDownload reassembles the file by sorting parts by partNumber, flattening the per-channel chunks in order, and building a Blob with the original mime type.",
+      "evidence": [
+        {
+          "resource": "repo://src/components/receiver/Receiver.svelte#L143-L153",
+          "version": "repo-lines-v1:sha256:dde635182029a8d34c473d125fbac994d68e4fe3b52ace2edee8b8685cbd24e8:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdiNjc0NGM3MDQwNzUwZDA4MzZkZWNlY2ZkOGZlMmI5MjEzMzk4ZjFhMjEwMDBkMDRlNjViMTQ1NjVhMWZlZTIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjA0YjlhMGIxNmI5OTEwYmFhNWQwYTRkY2FmZjhhNjBjNDI5NjMzYmYyYWUzY2JhY2M4MjAyOTA3NTgwZDEwY2EiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjJkOGFjYjJiMWQ4ZGM2NjU3ZTdkMmY3YmM5NTE4YjU2M2UyYzA0Yjc2NmUwNWM3NmNlYzg4MWJlM2ZkZDcxODYifQ"
+        },
+        {
+          "resource": "repo://src/components/receiver/Receiver.svelte#L164-L186",
+          "version": "repo-lines-v1:sha256:124a653e8f3516c488efb41f477ae1a5911160948fc7a9f2d1f61662f544ad95:eyJzZWxlY3RlZExpbmVDb3VudCI6MjMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE4ZTVmMjYyZTZiZWVjMDc3MzY2ODE2YWJiMjdlYWY4YzgxZjI1OTRjODFhOWUyZTBlZWUxNGM0NWNjNWY4MjEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjQ4NGRkZjc4YjI3YTBmZGY0YjU5MWUyNTZkODEzMWY2YjgwZjE3ODIxYjJlMGI4MzBkM2NmZWU2MGVkYTUxZWQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImEzOTI5NmE0ZTE0ZTBiYTk3YTIzN2Q3NGQ3NTczYjA4Y2UzZWQ4NGNjMjNkYzBhYTYyOTY3YWUxNmU2NzYxNWYifQ"
+        },
+        {
+          "resource": "repo://src/components/receiver/Receiver.svelte#L33-L39",
+          "version": "repo-lines-v1:sha256:dd039096874ace0b0ae72e7e57edc42dc67b927c232b479bff0726a845d57ce9:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYTZiZTViNDFjZTRkZjQ1ODQ2ZmI1YmM2ZmI5YTRkNWRhZjQ0NTczMWE5ZTZkNDE0YWEyYTg5ZmViMWRlZWNkYyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiN2FiODRkMGJlMjY1NWVmZWU5OTEwYTNhZTZiMjVmMGIwZGY0ZGY2MzNlN2I0Y2Y5ODU2MWYzYmJjNDgzNDA1ZCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNTJmZDY1MjgyYTdiNWM3NTU0MWJiMGM3MThlMzQyN2Q2YTgzZTMzZDE4OWVlNDdmNWZkZmRhZmY4YjYxMTZlNSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMjJhNDJiZWYyYTYwYmUxMmU0M2JiNDc5NTI5M2FmMjk5ZTA5MTBkZDg5NDg3MjQwMjczYWM4Zjc5Y2Q2OWJjNSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_ea5dea8924284de2b36bd85542dff855",
+      "statement": "Failure handling: EVENT_RECEIVER_REJECT and EVENT_VALIDATE_ERROR both revert the SendingFile to Pending and set an error; a per-chunk send error sets sendingFile.error and stops further sends; the EVENT_RECEIVED_CHUNK handler re-checks sendingFile.error and, if set, resets the SendingFile status to Pending and progress to 0.",
+      "evidence": [
+        {
+          "resource": "repo://src/components/sender/Sender.svelte#L196-L203",
+          "version": "repo-lines-v1:sha256:f0046dfcad19bb09a44b0519bf16adedea11fd1826b8383ffc07454490b22006:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOGUzODg4NDU5MzUyYzk4Y2ZiNDRhMzc0N2JmNTVjMWVlYTNiNGQyZTRkNTZjNDQ1Njg3OGNhODgyM2VhYjIyMSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNTUyMmM0MmNkMTljNmQwM2Q4MDhjNDUyNzIwNTUyODI1YjdlYTFjNWI0OTFiMjE4NTExY2FjNzQxNWNmOWQ5YiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiOTMzMmJlNzg5NmU2ZjQyMGRmY2MzZjdlZjMwMmQxNjMzMDcxNmU1NzNlMGM0MzVkYjdiZTk0NGRiZjE5MTczMSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNjVmOWY4YjhjM2QwNDdiZjQ2ZjUwY2E2NTZmYWE3MTc2M2M2NzFhZWJkZDE4ZmMwYTIwMzIyZTBlZWJjMGY0ZiJ9"
+        },
+        {
+          "resource": "repo://src/components/sender/Sender.svelte#L259-L269",
+          "version": "repo-lines-v1:sha256:bfd97999a4957b22a33da8c28eae38a6b5eec74db7a57af4233716a140fc7811:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMwOGMyYTM0ZTY3YWU3MzdmMWU4YWQ1ZDNhM2M2MjMwYjYwNzM3YTg3ZDA0Y2ZmNTllNzUwNGE4MzFlOTRmM2QiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg4MDA1ZDU3MTA2YTM2MmViMDAwZGFmM2RhNDY3NGM4MmI1MThmZjVhMmUyZjY3ZWU4ZTc1N2EzMzNjMmFmNjYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjI1ZmRiN2E5ZGEwODYyYzA3Nzk5ZmFlYmM3NmQ4ZDU2OWQ2MDMyMmEwZDcyNzg5Njk3MmQ1YzZlOTVlNzQwM2UiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImU0YWQ4NWQ2YWJiYTJjZWM1ZTFmZTNkZTE0NWZmMGIyMDZkNTQ1ODZjZmY3ZDVmOWFjMWVkOTgyMmY2YTg3M2MifQ"
+        },
+        {
+          "resource": "repo://src/components/sender/Sender.svelte#L316-L332",
+          "version": "repo-lines-v1:sha256:cb0b3fe34e32c3b0a8681ef6c69abe073a3209a9bfcbd670c01ecedf28ce40d0:eyJzZWxlY3RlZExpbmVDb3VudCI6MTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImMxYjkyYmIzYWQ1MDMyMThhNzU2OTFiMTIxZTVhNTI5YzJlM2E0ZmVlNjQxYmM3ODEyMTc1NWYzYWY0YzFhMGMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjIyZDExY2FmNDNlOTdlZjM2OWU2YmVlZDFhMjY4YmQwNTgzOGYyOWI5ZGQyNTRiZjY5YmE2NDg4NDE0NzIzNGEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjBmM2EyMThiMWQ3ZGQ0ZGQ4NjI2NmNlMWU5NDE1YzVjZDQ3ZGIyN2QxMzQ5N2IwY2VkYWNkZjc1ZWM3YmI0NzMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImZiYzRjZjYwYjhjNTBiNGIzOWJlMzgxMTBmYWRiMzgxODExNmFmODllM2NmMjE4OGQ1Yjg1MzgxY2JiODkxZTQifQ"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.6.0",
+    "at": "2026-10-08T14:31:05.399Z"
+  }
+}

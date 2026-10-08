@@ -1,0 +1,82 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:f7ff7448c093eef8be7c493c759dd3d2f6c0abd7e1a6f75f5d9200d1febeb71f",
+  "claims": [
+    {
+      "id": "claim_6919c6c1150c461ab0cda5f1d16db512",
+      "statement": "ZeroHub Share is a static Astro 5 + Svelte 5 web app for secure P2P file sharing over WebRTC, using @zero-hub/client for signaling; the Svelte app root SharePage is mounted client-side (client:load) from src/pages/index.astro inside the MainLayout shell.",
+      "evidence": [
+        {
+          "resource": "repo://public/manifest.webmanifest",
+          "version": "repo-file-v1:sha256:06dec7cb42352d7c33292da5f6213f3d9804d0397e8f97d882316c4d0ba412f9"
+        },
+        {
+          "resource": "repo://src/layouts/main.astro",
+          "version": "repo-file-v1:sha256:477760dc0397cc55ac1041b956951661e7919ee593f12499ecd256fad8831513"
+        },
+        {
+          "resource": "repo://src/pages/index.astro",
+          "version": "repo-file-v1:sha256:65843d18e32d3b003c0a5af40c09fac2a2c9b3c3b5505659294bb463838d12e0"
+        }
+      ]
+    },
+    {
+      "id": "claim_9201a64e22574c979b53b429a3383d2b",
+      "statement": "The repo's npm scripts are dev/start (astro dev), build (astro check && astro build), preview, test (vitest), test:watch, pretty, protogen (regenerates src/proto/message.ts from src/proto/message.proto via ts-proto), and astro; the test suite is src/utils/crypto.test.ts.",
+      "evidence": [
+        {
+          "resource": "repo://package.json#L7-L17",
+          "version": "repo-lines-v1:sha256:a17a2ec79ee68699012833a47ae553a70af7a735209d9ee77f71aaf4d784d3b1:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM0ODMzZDU5NDljMDNhNDBjYTk1MjQ5MTYxMGE2NjU5NjQ0YjNhYTQ2NjM2MmY3OTkwMjBkYmYxOTgxNTQ3ZGIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRkNWNkMmZiNGYzZGY4ODQ1MTUyNTViMzk1MjNmMmY4YjU0NzJiZWVhOWY1NjZmZmNhMjA0ZGI4MDI1NjEwNDEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImE1ZGE3N2U2ZDdiMzA1ZTYwOTk2ZmQxZGQ4NWU0M2ViMzJkZDAzNDAxOWJiZGYzYTJiZTJmOTljMzU4ZTg1YzYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImZkZDA1Y2Q0ZTFlYjdiOWQ2ZGM1OWE1YTZhZTFjZjg4Y2U0NzAwZDM5OTg1NzY0MGQ0MzI5OGQyZDRkNDA0YmEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_bf376e4ff77f4f79b47e5334085b6806",
+      "statement": "The quickstart task-routing map points agents to the matching openwiki page by concern: the component tree, hub join, and data-channel lifecycle documented around SharePage/architecture; the protobuf Message wire protocol, channel multiplexing, and per-chunk ACK flow documented around message.proto and the sender/receiver components; the AES-128-GCM / PBKDF2 / RSA key-wrapping layer documented around crypto.ts; and env vars, npm scripts, the precommit gate, and theming documented around the config files and .zerofactory/precommit.sh.",
+      "evidence": [
+        {
+          "resource": "repo://.zerofactory/precommit.sh#L19-L40",
+          "version": "repo-lines-v1:sha256:d77c17c12118c9dcadbd26abe67621a4ef4dc08a350dca3e7d3a4a8ed41099c0:eyJzZWxlY3RlZExpbmVDb3VudCI6MjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQ5OWY4ZjZlMTU5NmViMzk1NTEyMzllMDMwNTQ4Mzg5YWI5NDZjZjA3MDdhYTczZWM4ZGMzODZlZDMwMjRiNDIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjZkNzJiZDkxNDQwMzA4ZTgzYjg1ZWE0MmRiMTEyYjNkNThkY2IyZjg1NGZhYTBjNDIwOGYyZDkwZWY5YjVmZGUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjRiOTA1MWVjZjUyOTVlYzUyMDViOWJlYTQwZTMxOWU5NDJkZGE5YTk0ZjgzNTI5NjUyMzVkNjk3N2EwMDAwYWEifQ"
+        },
+        {
+          "resource": "repo://src/components/SharePage.svelte#L136-L223",
+          "version": "repo-lines-v1:sha256:535fbc04bb2084c9b8b4cc353607fddb9097038b14a0d5ca435c97c4fdaafe02:eyJzZWxlY3RlZExpbmVDb3VudCI6ODgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjVmZTY1MDkxZGQzOTNiZTdlOWY3MGRmNzZjOTJjNDQwNjMxNTZiYTJjYzQ4NmJlYjM4MmNjNjBhYTk4ODBiMjMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI1MjEyNzVjMDczMjMyYzkwNTYyODAzYmZjZDY2MGVjOTdlMzI5NWI2NGIwOGJhMmExYjc4MjMxODk3ZDBiMGYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjhkYzk1ZTAxY2E2NDQ3ZmQ5ODY1OWUzODAyODU3YmVlMDk2ZjJlODdiZTFkODA0MGIwZjIyNzE1ZGY4ZTg3ZWEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjU0MmExZTc2ZTNjYmM4ZDRmMjQ2MzQ2MGJjNTFjNzA0M2FhYzlmMTdkNThlZTJlMGIyZjlmNTE4NjBhMjY3ZmQifQ"
+        },
+        {
+          "resource": "repo://src/proto/message.proto#L41-L55",
+          "version": "repo-lines-v1:sha256:87a7850dd7b460aa8021802ba66518773b4e85e2a7da34d3d376892d1bc69beb:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjUyOGI3MGVlN2YyNTI4YTA2M2M4MGMwZWNkZGIxZDE3MjlhNTBjMWM4OTAzMDc5OTY4MTU2MDRmODJmNjg4MWEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImU0NzE5M2E1ODk0YWM1ZjI5ZmIzNjJhNWM1NmIzMGMxMTRkYmVhYTBlOTkwY2U5MTAyMWVkOWQ5NmEyYWE4ZGYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://src/utils/crypto.ts#L145-L227",
+          "version": "repo-lines-v1:sha256:7b2d1ee02b4df632c7dc0c9e1be6043f2b46349284646fb1c2effe23ade4de0b:eyJzZWxlY3RlZExpbmVDb3VudCI6ODMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjgwN2NkYzQ0NDAxZTBmMzIyM2YwZDlmYjMwZGRmNWJjMGFlMmUyM2M1ZDBhMjJjMGRmZTQ3YWZlMzdjMzhlNmMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjgwNDVhNTE3NWEyNjg4YjJhNzc4NWI0OTQ4MDhiOTgwZTQzZGNkY2ZiNWVmZjkzMjRjZjQyMjdhOTliMTdhNjIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_bf50500aa4624bb7964a9ce2e7802258",
+      "statement": "Repository conventions: Svelte 5 runes are used throughout ($state, $props, $bindable, $effect), TypeScript is strict via astro/tsconfigs/strict, Prettier is pinned to 3.6.2 because 3.7.x crashes on Svelte files, and the precommit gate .zerofactory/precommit.sh must pass format, build and test before committing.",
+      "evidence": [
+        {
+          "resource": "repo://.zerofactory/precommit.sh#L19-L40",
+          "version": "repo-lines-v1:sha256:d77c17c12118c9dcadbd26abe67621a4ef4dc08a350dca3e7d3a4a8ed41099c0:eyJzZWxlY3RlZExpbmVDb3VudCI6MjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQ5OWY4ZjZlMTU5NmViMzk1NTEyMzllMDMwNTQ4Mzg5YWI5NDZjZjA3MDdhYTczZWM4ZGMzODZlZDMwMjRiNDIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjZkNzJiZDkxNDQwMzA4ZTgzYjg1ZWE0MmRiMTEyYjNkNThkY2IyZjg1NGZhYTBjNDIwOGYyZDkwZWY5YjVmZGUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjRiOTA1MWVjZjUyOTVlYzUyMDViOWJlYTQwZTMxOWU5NDJkZGE5YTk0ZjgzNTI5NjUyMzVkNjk3N2EwMDAwYWEifQ"
+        },
+        {
+          "resource": "repo://package.json#L36-L38",
+          "version": "repo-lines-v1:sha256:890922a64c8a186382a98cee2a79de036698dde446577c9177a7364c34f18342:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiODM5MGRkNDdlYzVmMzA2NTZmZTg3NWNlN2NlMWFiYmI3ZDI0YTA5NWI2MTYxYmZlYzExMWViZTU3ZTc3YWQxYSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZjRkMDc3OGU5NTk2YTgxYTQ0NTE1OGM4YjFiNzQ4YTI3ZTFmY2EwOWE2OGFhYTc1NmE5YTcyYTUwMDMxNWE4NiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNTlhZmI2OWNjNDFjNDlhMjk4MjQ2OGVjOWYxY2FiMGE5OTUwYWJiYzVhYjNlMTFiYjMwMzc5ZWY4ODgyMDU3ZSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiODFjMWRjODFhMDQ3MzhjZDVlZjY3MGMxM2Q2NTYwODE4ZTUxMDE1ZDhmYzAzMTczOTBmMGNlNzdhZGQ3MzRhZCJ9"
+        },
+        {
+          "resource": "repo://src/components/SharePage.svelte#L36-L48",
+          "version": "repo-lines-v1:sha256:2c41ec04296f092fee8f7d40ac8e9e0276e4f1b6cb7e01c7cc84c0b37b04fd3b:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdhMWQxZTU2YjMzM2MwMGMwOGYzMmVhZmY3OTNkNTA4MzdiM2QyNDg1NzM3OTY2N2FiMDMzMTFkM2E3ZmIxODgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM2YzI5MzdiNTZkNWI5Zjk3ZjMyODJiMDcxZDQ0NGM5ZDAwYzE1MzFkZTcyYjhiYzgwZTMwNTdlMzQ0MDAyNGMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjNiN2YwMzRkNDVjMjY5MDc1MzlhYTFhMzc1ODNiNmJlM2JkZmMwMzBhYmI5Y2M2OWM4YTFjOTA2MTRlZGFkZGUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQ1MzUxM2RhODAxY2UwNzU5ZWI1ZGMwNmQwYzI3NDdhNGIyYTQzNzdjYTZhOTkwYzMzYmNkNDQyODM0ZDE5ODcifQ"
+        },
+        {
+          "resource": "repo://tsconfig.json",
+          "version": "repo-file-v1:sha256:b5b0a5b04a14cddd7713c5e1c82e86c79c17c2f86b170e26e9b170b3d5e01cd9"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.6.0",
+    "at": "2026-10-08T14:31:05.399Z"
+  }
+}

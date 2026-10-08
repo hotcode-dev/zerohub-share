@@ -1,0 +1,118 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:4d4e43afea02e775410c14d29c1a3e43667e4bce311ccf195e5b90b7f0255fbf",
+  "claims": [
+    {
+      "id": "claim_2d085767647846c29298ca3de38e38d1",
+      "statement": "The ZeroHub signaling host is configured via the PUBLIC_ZEROHUB_HOST env var, read as import.meta.env.PUBLIC_ZEROHUB_HOST into zeroHubHosts (a single-entry array) in src/configs.ts and typed in src/env.d.ts; isProduction (import.meta.env.PROD) toggles tls and logLevel on the client.",
+      "evidence": [
+        {
+          "resource": "repo://src/components/SharePage.svelte#L136-L140",
+          "version": "repo-lines-v1:sha256:04eee04539c8e8ab9e909d5ff5a3f67e0a420dddb6841b2482be23d4679d0441:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNWZlNjUwOTFkZDM5M2JlN2U5ZjcwZGY3NmM5MmM0NDA2MzE1NmJhMmNjNDg2YmViMzgyY2M2MGFhOTg4MGIyMyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYzMwZmJhOTcyZWVmYTg5NDEzMWVlMDE3ODI1ODg5MGNiYjEzNTQ5YzYzZjViMDIwMzZmM2FjM2JiMDQzMzMwZCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiOGRjOTVlMDFjYTY0NDdmZDk4NjU5ZTM4MDI4NTdiZWUwOTZmMmU4N2JlMWQ4MDQwYjBmMjI3MTVkZjhlODdlYSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiOTVlZmJmNzE0NDA1YzBkMDg3ZjcyMDYxM2QzNzliYWFiYTJlNGIyNmZiY2NhN2U5YTRiNDFjYjYxNDk4NDcwMSJ9"
+        },
+        {
+          "resource": "repo://src/configs.ts#L1-L3",
+          "version": "repo-lines-v1:sha256:49e31aaf5d75d6f9c63961e1bbe5708907336e4ac522d59e03ae923e8c26782c:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYjE2MTBmY2IxMmEwZWI3MWViZDM1MzJkMjkwMDdiNTcxZTg3MWViODNiNjBhMzllZmM4MmU5NzJmZDg2MjE4NiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZDViMWE1ZWMyNjRjNmEzNzU0ZWQxYjA4MGVlMjk5OTgxN2QxMWRhNjQ5MzkwMGM4YmViNGEwYzAyYmRlZTk2OCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMDZlOWI1NTVlNGE3NTk1YmU3ZmM5ZTgzNjIwMzRmNzFhMzdjOTZjYmI4ZjNkMmU5MTEyYzdjNjRlYTNiN2EyMCJ9"
+        },
+        {
+          "resource": "repo://src/env.d.ts",
+          "version": "repo-file-v1:sha256:4e4c486d3967a329ff0ee9ca927d7d5e9aed6f83dfcc4c84f4eea66bd17d2698"
+        }
+      ]
+    },
+    {
+      "id": "claim_214ce5b298ba4fc59362f7bfb80dab06",
+      "statement": "package.json defines the npm scripts dev/start (astro dev), build (astro check && astro build), preview (astro preview), test (vitest), test:watch, pretty (prettier --write over src), protogen (protoc + ts-proto regenerating src/proto/message.ts from src/proto/message.proto), and astro; the project is ESM via type: module.",
+      "evidence": [
+        {
+          "resource": "repo://package.json#L7-L17",
+          "version": "repo-lines-v1:sha256:a17a2ec79ee68699012833a47ae553a70af7a735209d9ee77f71aaf4d784d3b1:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM0ODMzZDU5NDljMDNhNDBjYTk1MjQ5MTYxMGE2NjU5NjQ0YjNhYTQ2NjM2MmY3OTkwMjBkYmYxOTgxNTQ3ZGIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRkNWNkMmZiNGYzZGY4ODQ1MTUyNTViMzk1MjNmMmY4YjU0NzJiZWVhOWY1NjZmZmNhMjA0ZGI4MDI1NjEwNDEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImE1ZGE3N2U2ZDdiMzA1ZTYwOTk2ZmQxZGQ4NWU0M2ViMzJkZDAzNDAxOWJiZGYzYTJiZTJmOTljMzU4ZTg1YzYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImZkZDA1Y2Q0ZTFlYjdiOWQ2ZGM1OWE1YTZhZTFjZjg4Y2U0NzAwZDM5OTg1NzY0MGQ0MzI5OGQyZDRkNDA0YmEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_e84b247f30fd49c687112be8747cd478",
+      "statement": "The Zero Factory precommit gate .zerofactory/precommit.sh offers format (prettier write then check with --ignore-unknown), build (npm run build), test (npx vitest run), install-hook (symlinks the script to the git pre-commit hook), and all (default: format+build+test); it auto-runs npm ci when node_modules/.bin lacks prettier or vitest.",
+      "evidence": [
+        {
+          "resource": "repo://.zerofactory/precommit.sh#L19-L67",
+          "version": "repo-lines-v1:sha256:735acbade644e46cc9e912eb1e7c7352ebc3e3dddaa1631a8d9e5ae78995f706:eyJzZWxlY3RlZExpbmVDb3VudCI6NDksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQ5OWY4ZjZlMTU5NmViMzk1NTEyMzllMDMwNTQ4Mzg5YWI5NDZjZjA3MDdhYTczZWM4ZGMzODZlZDMwMjRiNDIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM0YTJiZWNmZjhhZmIzNGRiMjYwZGFiYzk2OTE1ZmZlY2ZkZTg0ODkyOTU0MWM2MTkzZGU2ZDE2NGMyMWU4ZGEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjZkNzJiZDkxNDQwMzA4ZTgzYjg1ZWE0MmRiMTEyYjNkNThkY2IyZjg1NGZhYTBjNDIwOGYyZDkwZWY5YjVmZGUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoyLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImExNzU1MGY2ODE3ODAwNGExNmE0MjBmODgwNmRlYzQ0MWMzZjdlMTM3ZjJiODQ4Y2Q1ZTlmYTRkNDVmYmVlOGYifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_4f94a582524843a5851d24e6eda27d5d",
+      "statement": "In a linked worktree the install-hook subcommand installs the pre-commit hook against the main checkout's .git directory, because a worktree's .git is a file; it resolves the hook dir via git rev-parse --git-path hooks.",
+      "evidence": [
+        {
+          "resource": "repo://.zerofactory/precommit.sh#L41-L55",
+          "version": "repo-lines-v1:sha256:06057d874b6cea6020cf9826cd85ece3032d8521882488ab0d26cb1e27777074:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImEyNWM2ZmNmYTA5M2EyNDRkMjUwMDg4ZTk2MGJjZjZmMWZmYjY2ZWNjNDg5ZjUxZjAxMzc3ZWY4NjgxNDc4OWEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImIwYzgxMjliZmMwNDY4YWExZjU0MzFhOTBkOTE1NmY4MmU2ZTI2ZjIzZWI0ZTYxNjUzODhmYjJmNjZhOTIyOGQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjVhYzdmMDRkMjE3NzA1YWQwZDYwYjBkMzRmNjk5Yzk2MDdiNzQyNDAxOTNiNzhlNDA2NjYxMjgwNjI4ODFkZTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_578c6013ecf64b7dba6b2f8f883d696f",
+      "statement": "Prettier is pinned to 3.6.2 with prettier-plugin-svelte 3.2.7 in package.json because Prettier 3.7.x crashes on Svelte files with 'getVisitorKeys is not a function' when paired with prettier-plugin-svelte 3.x.",
+      "evidence": [
+        {
+          "resource": "repo://.zerofactory/precommit.sh#L5-L6",
+          "version": "repo-lines-v1:sha256:6c2cae6a2745f391729db525462a32996b99021fa4f781f104bb4278da79af47:eyJzZWxlY3RlZExpbmVDb3VudCI6MiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMTY3ODdkMDlmOTkzNjViNjdjZGRlNWRlYzI2N2I2ZmNiNjMxYTVmN2Y2MjQ4ZWI4YTc4MWIyMDY0MDUxNTAxZCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOTY4ZjljYzdmYTMzNDlhZmNjYjBlMGMzNjA4M2ZhYTk5NDE2ZjFiMTlhODM3YWNiYTA4YWFmODYxZmM3MmM1YyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMzA3NGY4N2M4YjU2NjUzZTAwNGExODE2OWFkN2I3OTUxZjUyYmUzMGNiOTBhZGIwZGI0ZDdiMjc5YmIzZjg5YSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMTE5NmQ3YWRkNGQ5NWIyMGRhNzMzZmE1NzdlMjYzNDcwNjU3Y2QyOTJmNGY5OTJkYmFjNmFkZWE1ZGE5N2ZmMSJ9"
+        },
+        {
+          "resource": "repo://package.json#L36-L38",
+          "version": "repo-lines-v1:sha256:890922a64c8a186382a98cee2a79de036698dde446577c9177a7364c34f18342:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiODM5MGRkNDdlYzVmMzA2NTZmZTg3NWNlN2NlMWFiYmI3ZDI0YTA5NWI2MTYxYmZlYzExMWViZTU3ZTc3YWQxYSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZjRkMDc3OGU5NTk2YTgxYTQ0NTE1OGM4YjFiNzQ4YTI3ZTFmY2EwOWE2OGFhYTc1NmE5YTcyYTUwMDMxNWE4NiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNTlhZmI2OWNjNDFjNDlhMjk4MjQ2OGVjOWYxY2FiMGE5OTUwYWJiYzVhYjNlMTFiYjMwMzc5ZWY4ODgyMDU3ZSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiODFjMWRjODFhMDQ3MzhjZDVlZjY3MGMxM2Q2NTYwODE4ZTUxMDE1ZDhmYzAzMTczOTBmMGNlNzdhZGQ3MzRhZCJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_565da462b2df4d04a2a6218bd23fc5ca",
+      "statement": "Tailwind uses two DaisyUI themes from daisyui-ntsd (light and dark) with primary #8B5CF6 and Inter font, darkMode via class, the @tailwindcss/typography and daisyui plugins, and a safelist of alert-info/success/error; Svelte is preprocessed with vitePreprocess and Svelte 5 runs through the pinned @sveltejs/vite-plugin-svelte ^4.0.0-next.6 override.",
+      "evidence": [
+        {
+          "resource": "repo://package.json#L50-L52",
+          "version": "repo-lines-v1:sha256:95bf1c0e59716ac890b543b9825056c6387f4f957ebabe10c7a2f5fb5ca7c59e:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMTY4MzJiMjFmNjFiYzNjYTBiZTQxNTE2OTgzZjI4ZTJlMWIwNGNiOWE3NTEyNjk4MGIyZGJlNTA3YzA5NzY4OSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNGQ1Y2QyZmI0ZjNkZjg4NDUxNTI1NWIzOTUyM2YyZjhiNTQ3MmJlZWE5ZjU2NmZmY2EyMDRkYjgwMjU2MTA0MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMmQ0MWYwMjIxODE3ZjVhMjExMTkyZjE1MWZjZTcxMjQwZmJjMzUyNGZjOWRjMjZhYjI3YmIxMTc4YzQ0ODRjMiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjIsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNzdjMGFkYTMwM2IzM2ZmYTU4MDJmNjVjZDY4YWEwMjA5NTkxM2MxZDE4YmNiN2IwY2MxZjg1MzMyNmQ0Y2Y1NyJ9"
+        },
+        {
+          "resource": "repo://svelte.config.js",
+          "version": "repo-file-v1:sha256:a8e44170b3a994cd7120f3a1e16a2bb53065d4e5d2b1a77b0e498735de639c28"
+        },
+        {
+          "resource": "repo://tailwind.config.ts",
+          "version": "repo-file-v1:sha256:0ece81232659974543cae89e7e5aa6d6b3fcd465b228b16d37f721b658479c9e"
+        }
+      ]
+    },
+    {
+      "id": "claim_22d48ff191f2452484c76185c03d2530",
+      "statement": "The PWA manifest declares ZeroHub Share as a standalone app with theme/background color #0F172A, handle_links auto, and favicon.svg as the sole icon; the service worker comes from the astrojs-service-worker integration in astro.config.mjs rather than a hand-written sw.js.",
+      "evidence": [
+        {
+          "resource": "repo://astro.config.mjs#L1-L10",
+          "version": "repo-lines-v1:sha256:6a6b8ea7d010ba52224b5530cedcb0cda0acd39b31224069b1e9f69719b255a2:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFlMGU1MTRlNGI4ZGY2ZmYwMWFhZDlmNGYwNGYwNmFhMmJkN2IwMGZmYTYzNTc0MDM4ODk4MjkxNWI1NTgxMmUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjIxZjFmMmM4N2Q0MGQwZTYxMzY5OWUxZDIxYjU1MGI1MTljMWQyZjU0OGZjYjJjOTRlMDM4ODkyOWMxNzI0MjAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjFkY2YzOGY3MGM0ZDE1YjZmYWY1NWJmYzZmODc5Yzk5YjkxYTFhZGFmNjdkZjQ2NjNjYjQ3NGU0N2ZmNmE0OGEifQ"
+        },
+        {
+          "resource": "repo://public/manifest.webmanifest",
+          "version": "repo-file-v1:sha256:06dec7cb42352d7c33292da5f6213f3d9804d0397e8f97d882316c4d0ba412f9"
+        }
+      ]
+    },
+    {
+      "id": "claim_38198151395a47a9b92c2b866ca465ee",
+      "statement": "Astro is configured for static output with compressHTML and integrations [tailwind, svelte, serviceWorker] plus Vite resolve condition 'browser'; tsconfig.json extends astro/tsconfigs/strict, includes .astro/types.d.ts and all files, and excludes dist.",
+      "evidence": [
+        {
+          "resource": "repo://astro.config.mjs",
+          "version": "repo-file-v1:sha256:e91c55661553c1fbf46d47768d51406ba8db00147ccf00118dbcdc630fe3976f"
+        },
+        {
+          "resource": "repo://tsconfig.json",
+          "version": "repo-file-v1:sha256:b5b0a5b04a14cddd7713c5e1c82e86c79c17c2f86b170e26e9b170b3d5e01cd9"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.6.0",
+    "at": "2026-10-08T14:31:05.399Z"
+  }
+}

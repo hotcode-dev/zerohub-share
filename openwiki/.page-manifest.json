@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "pages": {
+    "/openwiki/architecture.md": {
+      "pageVersion": "sha256:800c7f1a722484057f302282e7b1e53d2c4e36be1445b3377e719955a85fbd21",
+      "completedBy": "hermes",
+      "completedRunId": "b81ce116-4459-48e3-8c3a-8b6edf3187d7",
+      "gitHead": "401936770e9edca6fbe955b7c912b5e3b329f1c2",
+      "sourceFingerprint": "sha256:9e928287a661d90ec204cd2849e64b9537c73e0b914fbd36d99a4565754aaeb5"
+    },
+    "/openwiki/operations.md": {
+      "pageVersion": "sha256:4d4e43afea02e775410c14d29c1a3e43667e4bce311ccf195e5b90b7f0255fbf",
+      "completedBy": "hermes",
+      "completedRunId": "b81ce116-4459-48e3-8c3a-8b6edf3187d7",
+      "gitHead": "401936770e9edca6fbe955b7c912b5e3b329f1c2",
+      "sourceFingerprint": "sha256:9e928287a661d90ec204cd2849e64b9537c73e0b914fbd36d99a4565754aaeb5"
+    },
+    "/openwiki/quickstart.md": {
+      "pageVersion": "sha256:f7ff7448c093eef8be7c493c759dd3d2f6c0abd7e1a6f75f5d9200d1febeb71f",
+      "completedBy": "hermes",
+      "completedRunId": "b81ce116-4459-48e3-8c3a-8b6edf3187d7",
+      "gitHead": "401936770e9edca6fbe955b7c912b5e3b329f1c2",
+      "sourceFingerprint": "sha256:9e928287a661d90ec204cd2849e64b9537c73e0b914fbd36d99a4565754aaeb5"
+    },
+    "/openwiki/subsystems/crypto.md": {
+      "pageVersion": "sha256:45b861df3e07d4be1da6ebd21e2689b1ade7a0b0b32cd23b954c793996031fe1",
+      "completedBy": "hermes",
+      "completedRunId": "b81ce116-4459-48e3-8c3a-8b6edf3187d7",
+      "gitHead": "401936770e9edca6fbe955b7c912b5e3b329f1c2",
+      "sourceFingerprint": "sha256:9e928287a661d90ec204cd2849e64b9537c73e0b914fbd36d99a4565754aaeb5"
+    },
+    "/openwiki/subsystems/file-transfer.md": {
+      "pageVersion": "sha256:5c2c115ac6ba4c412acc2d828de824d24193fc6e0d1300bd888ff7b1c2bdc060",
+      "completedBy": "hermes",
+      "completedRunId": "b81ce116-4459-48e3-8c3a-8b6edf3187d7",
+      "gitHead": "401936770e9edca6fbe955b7c912b5e3b329f1c2",
+      "sourceFingerprint": "sha256:9e928287a661d90ec204cd2849e64b9537c73e0b914fbd36d99a4565754aaeb5"
+    }
+  }
+}
