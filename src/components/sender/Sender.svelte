@@ -232,7 +232,7 @@
             if (aesKey) {
               const encrypted = await encryptAesGcm(aesKey, buffer);
               const payload = Message.encode({
-                id: sendingFile.fileMetadata.name,
+                id: fileId,
                 chunk: encrypted,
               }).finish();
 
@@ -242,7 +242,7 @@
           }
 
           const payload = Message.encode({
-            id: sendingFile.fileMetadata.name,
+            id: fileId,
             chunk: new Uint8Array(buffer),
           }).finish();
 
@@ -301,7 +301,7 @@
 
         // send meta data
         const metadataPayload = Message.encode({
-          id: sendingFile.fileMetadata.name,
+          id: fileId,
           filePartMetaData: filePartMetaData,
         }).finish();
         channel.send(metadataPayload);
@@ -334,7 +334,7 @@
     // send file metadata over the first channel
     dataChannels[0].send(
       Message.encode({
-        id: file.name,
+        id: fileId,
         fileMetadata: fileMetadata,
       }).finish(),
     );
@@ -355,7 +355,10 @@
 
   function onFilesPick(files: FileList) {
     Array.from(files).forEach(async (file) => {
-      sendingFileSelections[file.name] = {
+      // Use a unique id per picked file (not the filename) so two files that
+      // share the same name don't collide in the map or on the wire.
+      const fileId = crypto.randomUUID();
+      sendingFileSelections[fileId] = {
         file: file,
         // TODO add chunk per data channel setting
         chunkSize: 32 * 1024, // 32KB
@@ -367,7 +370,7 @@
       // if it's drop mode send file to all peers after pick
       if (isDrop && peers) {
         for (const peerId of Object.keys(peers)) {
-          await onSend(file.name, peerId);
+          await onSend(fileId, peerId);
         }
       }
     });
