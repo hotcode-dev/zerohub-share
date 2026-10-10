@@ -1,9 +1,0 @@
----
-import MainLayout from "../layouts/main.astro";
-
-import DropPage from "../components/DropPage.svelte";
----
-
-<MainLayout isDrop={true}>
-  <DropPage client:load client:only="svelte" />
-</MainLayout>
