@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:f7ff7448c093eef8be7c493c759dd3d2f6c0abd7e1a6f75f5d9200d1febeb71f",
+  "pageVersion": "sha256:d6d9b42e6c83c358078563645b1ea5d697fbfe242c1270892d9ccb055358359f",
   "claims": [
     {
       "id": "claim_6919c6c1150c461ab0cda5f1d16db512",
@@ -73,10 +73,28 @@
           "version": "repo-file-v1:sha256:b5b0a5b04a14cddd7713c5e1c82e86c79c17c2f86b170e26e9b170b3d5e01cd9"
         }
       ]
+    },
+    {
+      "id": "claim_9f5780ac3b17425d86b130b7e8318484",
+      "statement": "GitHub issues filed through the templates in .github/ISSUE_TEMPLATE/ (bug_report.yml, feature_request.yml; config.yml disables blank issues) carry the zerofactory label and are picked up by Zero Factory's AI orchestrator for human-gated triage; the full workflow is documented in operations.md under 'GitHub Issue Templates & Triage Workflow'.",
+      "evidence": [
+        {
+          "resource": "repo://.github/ISSUE_TEMPLATE/bug_report.yml",
+          "version": "repo-file-v1:sha256:bd661a92bf50274a7a54416d65af6468955f35bc342cba6b4002ee76964de129"
+        },
+        {
+          "resource": "repo://.github/ISSUE_TEMPLATE/config.yml",
+          "version": "repo-file-v1:sha256:fc64968a7a1a0d44f27f68a6ef74a708ac4027addb4979d6ac77e517aba83edd"
+        },
+        {
+          "resource": "repo://.github/ISSUE_TEMPLATE/feature_request.yml",
+          "version": "repo-file-v1:sha256:2bb31e8bd87c4a5cf4a0be193ab3e8694865f6a86ec12176c21c598b17c38db8"
+        }
+      ]
     }
   ],
   "verification": {
     "by": "openwiki/0.6.0",
-    "at": "2026-10-08T14:31:05.399Z"
+    "at": "2026-10-10T02:18:08.107Z"
   }
 }

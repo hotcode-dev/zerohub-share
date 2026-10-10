@@ -3,9 +3,6 @@ type: subsystem
 title: File Transfer Protocol
 description: "The ZeroHub Share wire protocol: the protobuf Message oneof, how a file is split across up to 16 WebRTC data channels, the per-chunk ACK handshake, receiver-side chunk accumulation, and failure handling."
 tags: [protocol, protobuf, web-rtc, data-channels, chunking, ack, file-transfer]
-verified:
-  - by: openwiki/0.6.0
-    at: 2026-10-08T14:31:05.399Z
 sources:
   - id: openwiki-source-5b54a58d1b51cd490b0e7162
     resource: repo://package.json
@@ -19,7 +16,10 @@ sources:
     resource: repo://src/constants.ts
   - id: openwiki-source-8ef4b7799f3c645f0b2b5ac2
     resource: repo://src/proto/message.proto
-generated: { by: "hermes", at: "2026-10-08T14:31:05.399Z" }
+generated: { by: "hermes", at: "2026-10-10T02:18:08.107Z" }
+verified:
+  - by: openwiki/0.6.0
+    at: 2026-10-10T02:18:08.107Z
 ---
 
 File transfer in ZeroHub Share is a custom protocol carried over WebRTC data
