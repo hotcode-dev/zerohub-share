@@ -3,10 +3,13 @@ type: quickstart
 title: ZeroHub Share - Task Routing & Quickstart
 description: "Canonical entry point for agents working in this repo: what ZeroHub Share is, where the code lives, how to build/test it, and which openwiki page to read for a given task."
 tags: [quickstart, task-routing, entry-points, navigation]
-verified:
-  - by: openwiki/0.6.0
-    at: 2026-10-08T14:31:05.399Z
 sources:
+  - id: openwiki-source-7ddd532074a33ef91da2f06e
+    resource: repo://.github/ISSUE_TEMPLATE/bug_report.yml
+  - id: openwiki-source-a3ef188491b69d9ba48062e2
+    resource: repo://.github/ISSUE_TEMPLATE/config.yml
+  - id: openwiki-source-e6bb7eadbc71eea2d5463daf
+    resource: repo://.github/ISSUE_TEMPLATE/feature_request.yml
   - id: openwiki-source-9ab161c6e9774cf771b19ced
     resource: repo://.zerofactory/precommit.sh
   - id: openwiki-source-5b54a58d1b51cd490b0e7162
@@ -25,7 +28,10 @@ sources:
     resource: repo://src/utils/crypto.ts
   - id: openwiki-source-98d5ddb014a0fd4d678f6f2a
     resource: repo://tsconfig.json
-generated: { by: "hermes", at: "2026-10-08T14:31:05.399Z" }
+generated: { by: "hermes", at: "2026-10-10T02:18:08.107Z" }
+verified:
+  - by: openwiki/0.6.0
+    at: 2026-10-10T02:18:08.107Z
 ---
 
 ZeroHub Share (`zero-hub-share`) is a browser web app for **secure P2P file
@@ -102,5 +108,9 @@ setup.
 - **Don't commit** `.github/workflows/openwiki-update.yml` or `CLAUDE.md` if a
   tool generates them; Zero Factory manages updates via background cron, not
   GitHub Actions.
+- **Issue triage**: GitHub issues filed through the templates in
+  `.github/ISSUE_TEMPLATE/` carry the `zerofactory` label and are picked up
+  by Zero Factory's AI orchestrator for human-gated triage — see the
+  `GitHub Issue Templates & Triage Workflow` section in `operations.md`.
 - This `openwiki/` directory is the agent knowledge base; keep it in sync via
   the OpenWiki lifecycle, not by hand.

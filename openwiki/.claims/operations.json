@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:4d4e43afea02e775410c14d29c1a3e43667e4bce311ccf195e5b90b7f0255fbf",
+  "pageVersion": "sha256:709f485a17b1cad532f3a15a58456171203b73fc985c016eeb7d71ed1114a625",
   "claims": [
     {
       "id": "claim_2d085767647846c29298ca3de38e38d1",
@@ -109,10 +109,28 @@
           "version": "repo-file-v1:sha256:b5b0a5b04a14cddd7713c5e1c82e86c79c17c2f86b170e26e9b170b3d5e01cd9"
         }
       ]
+    },
+    {
+      "id": "claim_116788b579d249e993d171fb33b85e3c",
+      "statement": "The repo defines GitHub issue templates in .github/ISSUE_TEMPLATE: bug_report.yml (title prefix '[Bug]: ', auto labels bug+zerofactory, required problem/reproduction/expected-actual sections, optional Zero Factory AI investigation checkbox) and feature_request.yml (title prefix '[Feature]: ', auto labels feature+zerofactory, required summary+proposed-solution sections, optional constraints/acceptance-criteria and AI-investigation checkbox); config.yml disables blank issues and routes to GitHub Discussions and the Zero Factory repo via contact_links; issues labeled zerofactory are picked up by Zero Factory's AI orchestrator into a human-gated Triage task.",
+      "evidence": [
+        {
+          "resource": "repo://.github/ISSUE_TEMPLATE/bug_report.yml",
+          "version": "repo-file-v1:sha256:bd661a92bf50274a7a54416d65af6468955f35bc342cba6b4002ee76964de129"
+        },
+        {
+          "resource": "repo://.github/ISSUE_TEMPLATE/config.yml",
+          "version": "repo-file-v1:sha256:fc64968a7a1a0d44f27f68a6ef74a708ac4027addb4979d6ac77e517aba83edd"
+        },
+        {
+          "resource": "repo://.github/ISSUE_TEMPLATE/feature_request.yml",
+          "version": "repo-file-v1:sha256:2bb31e8bd87c4a5cf4a0be193ab3e8694865f6a86ec12176c21c598b17c38db8"
+        }
+      ]
     }
   ],
   "verification": {
     "by": "openwiki/0.6.0",
-    "at": "2026-10-08T14:31:05.399Z"
+    "at": "2026-10-10T02:18:08.107Z"
   }
 }

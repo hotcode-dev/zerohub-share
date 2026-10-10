@@ -5,7 +5,7 @@ description: "Top-level architecture of ZeroHub Share: how the ZeroHubClient hub
 tags: [architecture, web-rtc, zero-hub, p2p, svelte, state-machine]
 verified:
   - by: openwiki/0.6.0
-    at: 2026-10-08T14:31:05.399Z
+    at: 2026-10-10T02:18:08.107Z
 sources:
   - id: openwiki-source-c50574f22a4c0741148fc769
     resource: repo://astro.config.mjs

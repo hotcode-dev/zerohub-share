@@ -3,9 +3,6 @@ type: subsystem
 title: Encryption & Key Management
 description: "The ZeroHub Share cryptographic layer: AES-128-GCM payload encryption, the two key-wrapping schemes (PBKDF2 password mode and RSA-OAEP mode), key exchange via FileMetadata.key, the IV||ciphertext chunk format, and the Vitest round-trip coverage."
 tags: [crypto, web-crypto, aes-gcm, pbkdf2, rsa, key-wrapping, encryption]
-verified:
-  - by: openwiki/0.6.0
-    at: 2026-10-08T14:31:05.399Z
 sources:
   - id: openwiki-source-9ab161c6e9774cf771b19ced
     resource: repo://.zerofactory/precommit.sh
@@ -23,7 +20,10 @@ sources:
     resource: repo://src/utils/crypto.test.ts
   - id: openwiki-source-825971ed9c72d5969af1b150
     resource: repo://src/utils/crypto.ts
-generated: { by: "hermes", at: "2026-10-08T14:31:05.399Z" }
+generated: { by: "hermes", at: "2026-10-10T02:18:08.107Z" }
+verified:
+  - by: openwiki/0.6.0
+    at: 2026-10-10T02:18:08.107Z
 ---
 
 Encryption in ZeroHub Share is optional per-file and runs entirely in the

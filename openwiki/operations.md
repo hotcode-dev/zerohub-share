@@ -4,10 +4,13 @@ title: Configuration, Build & Operations
 description: "Operational reference for ZeroHub Share: the PUBLIC_ZEROHUB_HOST env var, all npm scripts, the Zero Factory precommit gate, the Prettier 3.6.2 pin, Tailwind/DaisyUI theming, and the PWA/TypeScript/Astro configuration."
 tags:
   [operations, configuration, build, precommit, astro, prettier, tailwind, pwa]
-verified:
-  - by: openwiki/0.6.0
-    at: 2026-10-08T14:31:05.399Z
 sources:
+  - id: openwiki-source-7ddd532074a33ef91da2f06e
+    resource: repo://.github/ISSUE_TEMPLATE/bug_report.yml
+  - id: openwiki-source-a3ef188491b69d9ba48062e2
+    resource: repo://.github/ISSUE_TEMPLATE/config.yml
+  - id: openwiki-source-e6bb7eadbc71eea2d5463daf
+    resource: repo://.github/ISSUE_TEMPLATE/feature_request.yml
   - id: openwiki-source-9ab161c6e9774cf771b19ced
     resource: repo://.zerofactory/precommit.sh
   - id: openwiki-source-c50574f22a4c0741148fc769
@@ -28,7 +31,10 @@ sources:
     resource: repo://tailwind.config.ts
   - id: openwiki-source-98d5ddb014a0fd4d678f6f2a
     resource: repo://tsconfig.json
-generated: { by: "hermes", at: "2026-10-08T14:31:05.399Z" }
+generated: { by: "hermes", at: "2026-10-10T02:18:08.107Z" }
+verified:
+  - by: openwiki/0.6.0
+    at: 2026-10-10T02:18:08.107Z
 ---
 
 Operational reference for building, checking, and configuring ZeroHub Share
@@ -134,6 +140,28 @@ integration in `astro.config.mjs` (no manual `sw.js` in the repo).
   `.astro/types.d.ts` and `**/*`, excludes `dist`.
 - Static output: `astro build` emits `dist/` which can be served from any
   static host; the app has no server routes.
+
+## GitHub Issue Templates & Triage Workflow
+
+`.github/ISSUE_TEMPLATE/` contains the repo's issue workflow (used with Zero
+Factory):
+
+- `bug_report.yml` — "🐛 Bug Report (Zero Factory)". Title prefix `[Bug]: `,
+  auto-applied labels `bug` + `zerofactory`; required sections for problem
+  description, steps to reproduce, and expected vs actual behavior, plus an
+  optional checkbox to request Zero Factory AI investigation.
+- `feature_request.yml` — "🚀 Feature Request (Zero Factory)". Title prefix
+  `[Feature]: `, auto-applied labels `feature` + `zerofactory`; required
+  sections for feature summary/motivation and proposed solution, optional
+  technical constraints/acceptance criteria, and the same AI-investigation
+  checkbox.
+- `config.yml` — `blank_issues_enabled: false`; directs blank issues to
+  GitHub Discussions (`hotcode-dev/zerohub-share`) and the Zero Factory repo
+  docs via `contact_links`.
+
+Per the template markdown blocks, issues carrying the `zerofactory` label are
+picked up automatically by Zero Factory's AI orchestrator into a human-gated
+Triage task.
 
 ## Verification Commands
 
