@@ -1,9 +1,9 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { stunServers, waitIceCandidatesTimeout } from "../configs";
 import {
   buildIceServers,
+  closeAllPeerChannels,
   createInitialPeerConnectionState,
-  isPeerOfferer,
   registerDataChannel,
   handleDataChannelOpen,
   handleDataChannelClose,
@@ -100,12 +100,6 @@ describe("WebRTC configuration", () => {
 });
 
 describe("Peer connection and data channel state tracking", () => {
-  it("compares peer IDs numerically for offerer election", () => {
-    expect(isPeerOfferer("10", "2")).toBe(true);
-    expect(isPeerOfferer("2", "10")).toBe(false);
-    expect(isPeerOfferer("5", "5")).toBe(false);
-  });
-
   it("does NOT mark peer online or count connecting channels as ready before onopen", () => {
     const state: PeerChannelState = createInitialPeerConnectionState();
 
@@ -159,5 +153,48 @@ describe("Peer connection and data channel state tracking", () => {
     handleDataChannelClose(state, "0");
     expect(state.isOnline).toBe(false);
     expect(Object.keys(state.dataChannels)).toHaveLength(0);
+  });
+
+  it("closes each channel exactly once when both channel maps are populated", () => {
+    const state = createInitialPeerConnectionState();
+    const ch0 = createMockChannel("0", "open");
+    const ch1 = createMockChannel("1", "open");
+    registerDataChannel(state, ch0);
+    registerDataChannel(state, ch1);
+
+    const close0 = vi.fn();
+    const close1 = vi.fn();
+    ch0.close = close0;
+    ch1.close = close1;
+
+    closeAllPeerChannels(state);
+
+    expect(close0).toHaveBeenCalledTimes(1);
+    expect(close1).toHaveBeenCalledTimes(1);
+    expect(Object.keys(state.allChannels)).toHaveLength(0);
+    expect(Object.keys(state.dataChannels)).toHaveLength(0);
+    expect(state.isOnline).toBe(false);
+    expect(state.connectionState).toBe("disconnected");
+  });
+
+  it("ignores close errors on failing channels and still resets state", () => {
+    const state = createInitialPeerConnectionState();
+    const ch0 = createMockChannel("0", "open");
+    const ch1 = createMockChannel("1", "open");
+    registerDataChannel(state, ch0);
+    registerDataChannel(state, ch1);
+
+    const close1 = vi.fn();
+    ch0.close = () => {
+      throw new Error("close failed");
+    };
+    ch1.close = close1;
+
+    expect(() => closeAllPeerChannels(state)).not.toThrow();
+    expect(close1).toHaveBeenCalledTimes(1);
+    expect(Object.keys(state.allChannels)).toHaveLength(0);
+    expect(Object.keys(state.dataChannels)).toHaveLength(0);
+    expect(state.isOnline).toBe(false);
+    expect(state.connectionState).toBe("disconnected");
   });
 });

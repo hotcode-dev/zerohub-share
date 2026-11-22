@@ -104,10 +104,6 @@ export function buildIceServers(
   return iceServers;
 }
 
-export function isPeerOfferer(peerId: string, myPeerId: string): boolean {
-  return Number.parseInt(peerId, 10) > Number.parseInt(myPeerId, 10);
-}
-
 export function createInitialPeerConnectionState(): PeerChannelState {
   return {
     isOnline: false,
@@ -195,13 +191,7 @@ export function handlePeerConnectionStateChange(
 }
 
 export function closeAllPeerChannels(state: PeerChannelState): void {
-  const seen = new Set<RTCDataChannel>();
-  for (const channel of [
-    ...Object.values(state.allChannels),
-    ...Object.values(state.dataChannels),
-  ]) {
-    if (seen.has(channel)) continue;
-    seen.add(channel);
+  for (const channel of Object.values(state.allChannels)) {
     try {
       channel.close();
     } catch {
