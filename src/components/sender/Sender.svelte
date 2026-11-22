@@ -50,6 +50,8 @@
   let sendingFileSelections: { [fileId: string]: SendingFileSelection } =
     $state({});
 
+  let queuedCount = $derived(Object.keys(sendingFileSelections).length);
+
   const FILE_EVENT: { [key in FileEvent]: string } = {
     [FileEvent.EVENT_RECEIVER_ACCEPT]: "receiver_accept",
     [FileEvent.EVENT_RECEIVER_REJECT]: "receiver_reject",
@@ -128,7 +130,6 @@
     let dataChannels = workingFilePartChannels.slice(0, filePartChannelsCount);
     const partSize = Math.ceil(file.size / dataChannels.length);
 
-    // initial aes key
     let aesKey;
     let aesEncrypted: Uint8Array | undefined;
     if (sendingFileSelection.isEncrypt) {
@@ -139,7 +140,6 @@
       );
     }
 
-    // prepare file metadata
     const fileMetadata: FileMetadata = {
       name: file.name,
       size: file.size,
@@ -149,7 +149,6 @@
       channels: requestedFilePartChannelCount,
     };
 
-    // initialize sending file entry
     const sendingFile: SendingFile = {
       status: FileStatus.Pending,
       aesKey: aesKey,
@@ -167,15 +166,12 @@
       for (let i = 0; i < dataChannels.length; i++) {
         const channel = dataChannels[i];
 
-        // separate file into parts
         const start = i * partSize;
         const end = Math.min(start + partSize, file.size);
         const filePart = file.slice(start, end);
 
-        // send file part offset
         let filePartoffset = 0;
 
-        // initial file meta data
         const filePartMetaData: FilePartMetaData = {
           partNumber: i,
           partSize: filePart.size,
@@ -193,7 +189,6 @@
         sendingFilePart.event.on(
           FILE_PART_EVENT[FilePartEvent.EVENT_RECEIVED_CHUNK],
           async () => {
-            // if there is error, stop sending
             if (sendingFile.error) {
               console.log("error", sendingFile.error);
               sendingFileSelections[fileId].sendingFiles[peerId].status =
@@ -208,12 +203,10 @@
                 channel.label
               ].filePartMetaData.partSize
             ) {
-              // send next chunk if not finished
               sendNextChunk();
               return;
             }
 
-            // check if all file parts are sent
             successFileParts += 1;
             if (successFileParts === dataChannels.length) {
               sendingFileSelections[fileId].sendingFiles[peerId].status =
@@ -271,12 +264,10 @@
           filePartoffset += buffer.byteLength;
           fileOffset += buffer.byteLength;
 
-          // calculate progress
           fileStats.progress = Math.round(
             (fileOffset / sendingFile.fileMetadata.size) * 100,
           );
           if (fileStats.progress >= fileStats.nextProgressUpdate) {
-            // calculate bitrate
             fileStats.bitrate = Math.round(
               fileOffset / ((Date.now() - fileStats.startTime) / 1000),
             );
@@ -294,12 +285,10 @@
         sendingFilePart.event.on(
           FILE_PART_EVENT[FilePartEvent.EVENT_RECEIVED_FILE_PART_METADATA],
           () => {
-            // start sending first chunk after receiver got file part meta data
             sendNextChunk();
           },
         );
 
-        // send meta data
         const metadataPayload = Message.encode({
           id: fileId,
           filePartMetaData: filePartMetaData,
@@ -331,7 +320,6 @@
         FileStatus.Pending;
     });
 
-    // send file metadata over the first channel
     dataChannels[0].send(
       Message.encode({
         id: fileId,
@@ -355,19 +343,15 @@
 
   function onFilesPick(files: FileList) {
     Array.from(files).forEach(async (file) => {
-      // Use a unique id per picked file (not the filename) so two files that
-      // share the same name don't collide in the map or on the wire.
       const fileId = crypto.randomUUID();
       sendingFileSelections[fileId] = {
         file: file,
-        // TODO add chunk per data channel setting
-        chunkSize: 32 * 1024, // 32KB
+        chunkSize: 32 * 1024,
         isEncrypt: false,
         password: "",
         sendingFiles: {},
       };
 
-      // if it's drop mode send file to all peers after pick
       if (isDrop && peers) {
         for (const peerId of Object.keys(peers)) {
           await onSend(fileId, peerId);
@@ -379,7 +363,27 @@
 
 <div class="flex flex-col gap-4">
   <DragAndDrop {onFilesPick} />
-  {#if Object.keys(sendingFileSelections).length > 0}
+
+  {#if queuedCount > 0}
+    <div class="flex items-center justify-between pt-2">
+      <div class="flex items-center gap-2">
+        <h3 class="text-sm font-semibold text-base-content">
+          Queued files
+        </h3>
+        <span
+          class="rounded-full bg-base-300/70 px-2 py-0.5 font-mono text-xs font-medium tabular-nums text-base-content/80"
+        >
+          {queuedCount}
+        </span>
+      </div>
+      {#if !hideSendButton && queuedCount > 1}
+        <SendDropdown {peers} onSend={sendAllFiles}>
+          <UpTray />
+          <span>Send all</span>
+        </SendDropdown>
+      {/if}
+    </div>
+
     <SendingFileList
       {peers}
       {onRemove}
@@ -387,12 +391,5 @@
       {hideSendButton}
       bind:sendingFileSelections
     />
-    {#if !hideSendButton}
-      <div class="self-end">
-        <SendDropdown {peers} onSend={sendAllFiles}>
-          <UpTray /> Send all files
-        </SendDropdown>
-      </div>
-    {/if}
   {/if}
 </div>

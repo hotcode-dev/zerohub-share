@@ -28,9 +28,18 @@
   let { peerMetaData, svgAvatar, dataChannels }: Props = $props();
 
   let receivingFiles: { [key: string]: ReceivingFile } = $state({});
-  let collapseCheckbox: HTMLInputElement;
+  let isExpanded = $state(false);
   let decryptModal: DecryptModal;
-  // non state map to track receiving file part chunks
+
+  $effect(() => {
+    if (peerMetaData.isHost) {
+      isExpanded = true;
+    }
+  });
+
+  let incomingCount = $derived(Object.keys(receivingFiles).length);
+  let channelCount = $derived(Object.keys(dataChannels).length);
+
   const receivingFilePartChunkMap: {
     [fileId: string]: { [channelLabel: string]: ReceivingFilePartChunks };
   } = {};
@@ -60,7 +69,7 @@
       nextProgressUpdate: 0,
     };
 
-    collapseCheckbox.checked = true;
+    isExpanded = true;
   }
 
   export async function onFilePartMetaData(
@@ -115,7 +124,6 @@
     );
     receivingFileStatsMap[fileId].receivedSize += receivingSize;
 
-    // calculate progress
     receivingFileStatsMap[fileId].progress = Math.round(
       (receivingFileStatsMap[fileId].receivedSize /
         receivingFile.fileMetadata.size) *
@@ -125,7 +133,6 @@
       receivingFileStatsMap[fileId].progress >=
       receivingFileStatsMap[fileId].nextProgressUpdate
     ) {
-      // calculate bitrate
       receivingFileStatsMap[fileId].bitrate = Math.round(
         receivingFileStatsMap[fileId].receivedSize /
           ((Date.now() - receivingFileStatsMap[fileId].startTime) / 1000),
@@ -140,7 +147,6 @@
       }
     }
 
-    // check if file received completely
     if (
       receivingFileStatsMap[fileId].receivedSize >=
       receivingFile.fileMetadata.size
@@ -158,7 +164,7 @@
       sendFileEvent(fileId, FileEvent.EVENT_RECEIVER_REJECT);
     }
     delete receivingFiles[fileId];
-    receivingFiles = receivingFiles; // do this to trigger update the map
+    receivingFiles = receivingFiles;
   }
 
   async function onDownload(fileId: string) {
@@ -193,10 +199,8 @@
       return;
     }
 
-    // if not encrypted, accept directly
     if (!receivedFile.isEncrypt) {
       receivingFiles[fileId].status = FileStatus.Processing;
-
       sendFileEvent(fileId, FileEvent.EVENT_RECEIVER_ACCEPT);
       return;
     }
@@ -230,7 +234,7 @@
   function onDeny(fileId: string) {
     sendFileEvent(fileId, FileEvent.EVENT_RECEIVER_REJECT);
     delete receivingFiles[fileId];
-    receivingFiles = receivingFiles; // do this to trigger update the map
+    receivingFiles = receivingFiles;
   }
 
   async function downloadAllFiles() {
@@ -251,7 +255,6 @@
     channelLabel?: string,
   ) {
     if (!channelLabel) {
-      // send on the first data channel
       channelLabel = Object.keys(dataChannels)[0];
     }
     dataChannels[channelLabel].send(
@@ -276,43 +279,99 @@
   }
 </script>
 
-<div class="collapse collapse-arrow bg-base-200">
-  <input
-    type="checkbox"
-    checked={peerMetaData.isHost}
-    bind:this={collapseCheckbox}
+<div class="overflow-hidden rounded-xl border border-base-300 bg-base-200/40">
+  <button
+    type="button"
+    aria-expanded={isExpanded}
     disabled={peerMetaData.isHost}
-  />
-  <div
-    class="collapse-title flex flex-row items-center justify-between p-0 text-xl font-medium"
+    onclick={() => {
+      if (!peerMetaData.isHost) isExpanded = !isExpanded;
+    }}
+    class="flex min-h-[56px] w-full items-center justify-between gap-3 px-3.5 py-2.5 text-left hover:bg-base-200/80 disabled:cursor-default disabled:hover:bg-transparent"
   >
-    <div class="flex flex-row items-center gap-4">
-      <img src={svgAvatar} class="h-8 w-8" alt="avatar" />
-      <span
-        >{peerMetaData.name}{#if peerMetaData.isHost}{" (Uploader)"}{/if}</span
-      >
-    </div>
-  </div>
-  <div class="collapse-content p-1">
-    <div class="flex flex-col gap-4">
-      {#if Object.keys(receivingFiles).length > 0}
-        <ReceivingFileList
-          {receivingFiles}
-          {onRemove}
-          {onDownload}
-          {onAccept}
-          {onDeny}
+    <div class="flex min-w-0 items-center gap-3">
+      <div class="relative shrink-0">
+        <img
+          src={svgAvatar}
+          width="36"
+          height="36"
+          class="h-9 w-9 rounded-full border border-base-300 bg-base-100"
+          alt=""
+          aria-hidden="true"
         />
-        {#if Object.keys(receivingFiles).length > 1}
-          <button class="btn btn-primary mt-2" onclick={downloadAllFiles}
-            >Download all files (zip)</button
-          >
-        {/if}
-      {:else}
-        <p class="mt-4">Connected, Waiting for files...</p>
+        <span
+          class="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-base-100 bg-success"
+          aria-hidden="true"
+        ></span>
+      </div>
+      <div class="min-w-0">
+        <p class="truncate text-sm font-semibold text-base-content">
+          {peerMetaData.name}{#if peerMetaData.isHost}
+            <span class="ml-1.5 text-xs font-normal text-base-content/60">
+              (Uploader)
+            </span>
+          {/if}
+        </p>
+        <p class="font-mono text-[11px] tabular-nums text-base-content/60">
+          {channelCount} {channelCount === 1 ? "channel" : "channels"} ready
+        </p>
+      </div>
+    </div>
+
+    <div class="flex shrink-0 items-center gap-2">
+      {#if incomingCount > 0}
+        <span
+          class="rounded-full bg-primary px-2 py-0.5 font-mono text-[11px] font-semibold tabular-nums text-primary-content"
+        >
+          {incomingCount}
+        </span>
+      {/if}
+      {#if !peerMetaData.isHost}
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 20 20"
+          fill="currentColor"
+          class="zh-chevron h-4 w-4 text-base-content/60 {isExpanded ? 'rotate-180' : ''}"
+          aria-hidden="true"
+        >
+          <path
+            fill-rule="evenodd"
+            d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z"
+            clip-rule="evenodd"
+          />
+        </svg>
       {/if}
     </div>
-  </div>
+  </button>
+
+  {#if isExpanded}
+    <div class="border-t border-base-300 bg-base-100/70 p-3">
+      {#if incomingCount > 0}
+        <div class="flex flex-col gap-3">
+          <ReceivingFileList
+            {receivingFiles}
+            {onRemove}
+            {onDownload}
+            {onAccept}
+            {onDeny}
+          />
+          {#if incomingCount > 1}
+            <button
+              type="button"
+              class="btn btn-primary min-h-[44px] w-full rounded-xl text-sm font-semibold"
+              onclick={downloadAllFiles}
+            >
+              Download all files
+            </button>
+          {/if}
+        </div>
+      {:else}
+        <p class="py-2 text-center text-xs text-base-content/65">
+          Connected — waiting for incoming files…
+        </p>
+      {/if}
+    </div>
+  {/if}
 </div>
 
 <DecryptModal bind:this={decryptModal} />

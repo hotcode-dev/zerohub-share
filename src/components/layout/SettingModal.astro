@@ -2,119 +2,171 @@
 import Cog from "../icons/Cog.astro";
 ---
 
-<button class="btn btn-ghost" onclick="settingmodal.showModal()"><Cog /></button
+<button
+  type="button"
+  aria-label="Open settings"
+  class="btn btn-ghost min-h-[44px] min-w-[44px] gap-2 rounded-xl px-3 text-base-content/80 hover:bg-base-200 hover:text-base-content"
+  onclick="settingmodal.showModal()"
 >
+  <Cog />
+  <span class="hidden text-sm font-medium sm:inline">Settings</span>
+</button>
+
 <dialog id="settingmodal" class="modal modal-bottom sm:modal-middle">
-  <div class="modal-box">
-    <div class="flex flex-row justify-between">
-      <h3 class="text-lg font-bold">Setting</h3>
-      <label class="flex cursor-pointer gap-2">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="20"
-          height="20"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
+  <div
+    class="modal-box border border-base-300 bg-base-100 p-6 shadow-xl sm:max-w-md sm:rounded-2xl"
+  >
+    <div class="flex items-center justify-between border-b border-base-300 pb-4">
+      <div>
+        <h2 class="text-lg font-bold tracking-tight text-base-content">
+          Settings
+        </h2>
+        <span class="mt-1 block text-sm leading-normal text-base-content/75">
+          Configure your peer identity and WebRTC transfer options.
+        </span>
+      </div>
+      <form method="dialog">
+        <button
+          type="submit"
+          aria-label="Close settings"
+          class="btn btn-ghost btn-circle min-h-[44px] min-w-[44px] text-base-content/70 hover:bg-base-200 hover:text-base-content"
         >
-          <circle cx="12" cy="12" r="5"></circle>
-          <path
-            d="M12 1v2M12 21v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M1 12h2M21 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"
-          ></path>
-        </svg>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M18 6 6 18M6 6l12 12"></path>
+          </svg>
+        </button>
+      </form>
+    </div>
+
+    <div class="flex flex-col gap-4 py-5">
+      <label
+        for="darkmode-toggle"
+        class="flex min-h-[48px] cursor-pointer items-center justify-between rounded-xl border border-base-300 bg-base-200/60 px-4 py-3"
+      >
+        <span class="text-base font-medium text-base-content">
+          Dark appearance
+        </span>
         <input
           type="checkbox"
-          class="theme-controller toggle"
+          name="darkMode"
+          class="toggle toggle-primary"
           id="darkmode-toggle"
         />
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="20"
-          height="20"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        >
-          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-        </svg>
       </label>
-    </div>
-    <div class="flex flex-col gap-4 py-4">
-      <label class="form-control w-full">
-        <div class="label">
-          <span class="label-text">Name</span>
-        </div>
+
+      <div class="form-control w-full gap-2">
+        <label for="name-input" class="text-sm font-medium text-base-content">
+          Display name
+        </label>
         <input
           type="text"
-          placeholder="Enter your name here"
-          class="input input-bordered w-full"
+          name="displayName"
+          placeholder="e.g. Alex Rivera…"
+          class="input input-bordered min-h-[44px] w-full rounded-xl bg-base-100 text-base leading-normal focus:border-primary"
           id="name-input"
+          autocomplete="nickname"
+          spellcheck="false"
         />
-      </label>
-      <label class="form-control w-full">
-        <div class="label">
-          <span class="label-text">ICE Server (STUN/TURN)</span>
-        </div>
+      </div>
+
+      <div class="form-control w-full gap-2">
+        <label for="ice-input" class="text-sm font-medium text-base-content">
+          ICE server (STUN / TURN)
+        </label>
         <input
           type="text"
-          placeholder="Enter ice server here"
-          class="input input-bordered w-full"
+          name="iceServer"
+          placeholder="stun:stun.l.google.com:19302…"
+          class="input input-bordered min-h-[44px] w-full rounded-xl bg-base-100 font-mono text-base leading-normal focus:border-primary"
           id="ice-input"
+          autocomplete="off"
+          spellcheck="false"
         />
-      </label>
-      <label class="form-control w-full">
-        <div class="label">
-          <span class="label-text">Size per data channel (MB)</span>
-        </div>
+      </div>
+
+      <div class="form-control w-full gap-2">
+        <label
+          for="size-per-channel-input"
+          class="text-sm font-medium text-base-content"
+        >
+          Size per data channel (MB)
+        </label>
         <input
           type="number"
+          name="sizePerChannel"
+          inputmode="numeric"
           min="1"
           step="1"
-          placeholder="Enter size per channel"
-          class="input input-bordered w-full"
+          placeholder="25"
+          class="input input-bordered min-h-[44px] w-full rounded-xl bg-base-100 font-mono text-base leading-normal focus:border-primary"
           id="size-per-channel-input"
         />
-      </label>
+      </div>
+
       <label
-        class="form-control flex w-full flex-row items-center justify-between"
+        for="auto-download-input"
+        class="flex min-h-[48px] cursor-pointer items-center justify-between rounded-xl border border-base-300 bg-base-200/60 px-4 py-3"
       >
-        <div class="label">
-          <span class="label-text">Auto Download</span>
-        </div>
+        <span class="text-base font-medium text-base-content">
+          Auto-download received files
+        </span>
         <input
           type="checkbox"
+          name="autoDownload"
           class="toggle toggle-primary"
           id="auto-download-input"
         />
       </label>
     </div>
-    <div class="modal-action">
-      <form method="dialog">
-        <button class="btn btn-error" id="reset-button">Reset</button>
-      </form>
-      <form method="dialog">
-        <button class="btn btn-primary" id="save-button">Save</button>
-      </form>
+
+    <div class="modal-action mt-0 flex items-center justify-between border-t border-base-300 pt-4">
+      <button
+        type="button"
+        class="btn btn-ghost min-h-[44px] rounded-xl text-error hover:bg-error/10"
+        id="reset-button"
+      >
+        Reset defaults
+      </button>
+      <div class="flex items-center gap-2">
+        <form method="dialog">
+          <button
+            type="submit"
+            class="btn btn-ghost min-h-[44px] rounded-xl"
+          >
+            Cancel
+          </button>
+        </form>
+        <button
+          type="button"
+          class="btn btn-primary min-h-[44px] rounded-xl px-5"
+          id="save-button"
+        >
+          Save changes
+        </button>
+      </div>
     </div>
   </div>
-  <!-- Modal backdrop, close when click outside -->
   <form method="dialog" class="modal-backdrop">
-    <button>close</button>
+    <button type="submit" aria-label="Close settings backdrop">close</button>
   </form>
 </dialog>
 
 <script>
-  // dark mode toggle
   const localDarkKey = "darkMode";
   let localDarkMode = localStorage.getItem(localDarkKey);
   let darkMode = false;
-  // initial dark mode from local storage or media
+
   switch (localDarkMode) {
     case "true":
       darkMode = true;
@@ -127,28 +179,48 @@ import Cog from "../icons/Cog.astro";
         window?.matchMedia?.("(prefers-color-scheme:dark)")?.matches || false;
   }
 
-  const button = document.getElementById("darkmode-toggle") as HTMLInputElement;
-  const setToggleClass = (darkMode: boolean) => {
-    if (darkMode) {
-      button.checked = true;
-    } else {
-      button.checked = false;
+  const modalToggle = document.getElementById(
+    "darkmode-toggle",
+  ) as HTMLInputElement;
+  const navbarToggle = document.getElementById(
+    "navbar-theme-toggle",
+  ) as HTMLButtonElement | null;
+  const sunIcon = document.getElementById("navbar-sun-icon");
+  const moonIcon = document.getElementById("navbar-moon-icon");
+
+  function syncThemeUI(isDark: boolean) {
+    if (modalToggle) modalToggle.checked = isDark;
+    if (sunIcon && moonIcon) {
+      sunIcon.classList.toggle("hidden", !isDark);
+      moonIcon.classList.toggle("hidden", isDark);
     }
-  };
-
-  function setTheme(darkMode: boolean) {
-    setToggleClass(darkMode);
-
-    localStorage.setItem(localDarkKey, darkMode ? "true" : "false");
-    document
-      ?.querySelector("html")
-      ?.setAttribute("data-theme", darkMode ? "dark" : "light");
+    if (navbarToggle) {
+      navbarToggle.setAttribute(
+        "aria-label",
+        isDark ? "Switch to light mode" : "Switch to dark mode",
+      );
+    }
   }
 
-  button.onclick = () => {
-    darkMode = !darkMode;
-    setTheme(darkMode);
-  };
+  function setTheme(isDark: boolean) {
+    darkMode = isDark;
+    syncThemeUI(isDark);
+    localStorage.setItem(localDarkKey, isDark ? "true" : "false");
+    document
+      ?.querySelector("html")
+      ?.setAttribute("data-theme", isDark ? "dark" : "light");
+    const themeMeta = document.getElementById("theme-color-meta");
+    if (themeMeta) {
+      themeMeta.setAttribute("content", isDark ? "#09090B" : "#F8FAFC");
+    }
+  }
+
+  if (modalToggle) {
+    modalToggle.onchange = () => setTheme(modalToggle.checked);
+  }
+  if (navbarToggle) {
+    navbarToggle.onclick = () => setTheme(!darkMode);
+  }
 
   setTheme(darkMode);
 
@@ -168,7 +240,7 @@ import Cog from "../icons/Cog.astro";
   ) as HTMLButtonElement;
   const resetButton = document.getElementById(
     "reset-button",
-  ) as HTMLInputElement;
+  ) as HTMLButtonElement;
 
   settingAtom.subscribe((s) => {
     nameInput.value = s.name;
@@ -188,13 +260,14 @@ import Cog from "../icons/Cog.astro";
         ? Math.round(parsedSizePerChannel * 1024 * 1024)
         : defaultSetting.bytesPerDataChannel;
     settingAtom.set({
-      name: nameInput.value,
-      iceServer: iceInput.value,
+      name: nameInput.value.trim() || defaultSetting.name,
+      iceServer: iceInput.value.trim() || defaultSetting.iceServer,
       bytesPerDataChannel: chunkBytes,
       autoDownload: autoDownloadInput.checked,
     });
     window.location.reload();
   };
+
   resetButton.onclick = (e) => {
     e.preventDefault();
     nameInput.value = defaultSetting.name;

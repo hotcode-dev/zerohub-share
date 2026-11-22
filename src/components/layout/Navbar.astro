@@ -8,26 +8,83 @@ interface Props {
 const { isDrop } = Astro.props;
 ---
 
-<div class="container mx-auto flex flex-col gap-2 p-2">
-  <div class="flex flex-row items-center justify-center">
-    <img
-      src="/favicon.svg"
-      width="40"
-      height="40"
-      alt="ZeroHub icon"
-      class="title-icon"
-      loading="lazy"
-      decoding="async"
-    />
-    <div class="flex-1">
-      <a href="/">
-        <h1 class="text-2xl font-bold">
+<header
+  class="sticky top-0 z-30 border-b border-base-300 bg-base-100/90 backdrop-blur-md"
+>
+  <nav
+    aria-label="Primary"
+    class="mx-auto flex h-16 w-full max-w-5xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8"
+  >
+    <a
+      href="/"
+      class="group flex min-h-[44px] items-center gap-3 rounded-lg pr-2"
+    >
+      <img
+        src="/favicon.svg"
+        width="32"
+        height="32"
+        alt="ZeroHub logo"
+        class="h-8 w-8 shrink-0"
+        decoding="async"
+      />
+      <div class="flex items-center gap-2">
+        <span
+          translate="no"
+          class="text-lg font-bold tracking-tight text-base-content"
+        >
           ZeroHub<span class="text-primary">{isDrop ? "Drop" : "Share"}</span>
-        </h1>
-      </a>
-    </div>
-    <div class="flex-none">
+        </span>
+        <span
+          class="hidden rounded-md border border-base-300 bg-base-200 px-2 py-1 font-mono text-xs font-medium text-base-content/75 sm:inline-block"
+        >
+          WebRTC P2P
+        </span>
+      </div>
+    </a>
+
+    <div class="flex items-center gap-2">
+      <button
+        type="button"
+        id="navbar-theme-toggle"
+        aria-label="Toggle color theme"
+        class="btn btn-ghost min-h-[44px] min-w-[44px] rounded-xl px-3 text-base-content/80 hover:bg-base-200 hover:text-base-content"
+      >
+        <svg
+          id="navbar-sun-icon"
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.75"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="hidden"
+          aria-hidden="true"
+        >
+          <circle cx="12" cy="12" r="4"></circle>
+          <path
+            d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"
+          ></path>
+        </svg>
+        <svg
+          id="navbar-moon-icon"
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.75"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+        </svg>
+      </button>
       <SettingModal />
     </div>
-  </div>
-</div>
+  </nav>
+</header>

@@ -16,29 +16,47 @@
     $props();
 </script>
 
-<div class="grid gap-2">
-  {#each Object.entries(receivingFiles) as [key, receivedFile]}
+<div class="flex flex-col gap-2.5">
+  {#each Object.entries(receivingFiles) as [key, receivedFile] (key)}
     <ReceiverFileCard receivingFile={receivedFile}>
-      <div class="flex w-full flex-row items-center justify-between">
+      <div
+        class="flex w-full items-center justify-between gap-2 border-t border-base-300 pt-2.5"
+      >
         {#if receivedFile.status === FileStatus.WaitingAccept && !receivedFile.error}
-          <div class="ml-auto">
-            <button onclick={() => onDeny(key)} class="btn btn-ghost"
-              >Deny</button
+          <div class="ml-auto flex items-center gap-2">
+            <button
+              type="button"
+              onclick={() => onDeny(key)}
+              class="btn btn-ghost min-h-[44px] rounded-xl px-3 text-xs font-semibold text-base-content/75 hover:bg-error/10 hover:text-error"
             >
-            <button onclick={() => onAccept(key)} class="btn btn-primary"
-              >{receivedFile.isEncrypt ? "Unlock" : "Accept"}</button
+              Deny
+            </button>
+            <button
+              type="button"
+              onclick={() => onAccept(key)}
+              class="btn btn-primary min-h-[44px] rounded-xl px-4 text-xs font-semibold"
             >
+              {receivedFile.isEncrypt ? "Unlock & accept" : "Accept"}
+            </button>
           </div>
         {:else}
           <button
+            type="button"
             onclick={() => onRemove(key)}
-            class="btn btn-ghost btn-sm pl-0"
+            aria-label={`Remove ${receivedFile.fileMetadata.name}`}
+            class="btn btn-ghost min-h-[44px] gap-1.5 rounded-xl px-3 text-xs font-medium text-base-content/70 hover:bg-error/10 hover:text-error"
           >
-            <Trash /><span class="hidden lg:block">Remove</span>
+            <Trash />
+            <span>Remove</span>
           </button>
           {#if receivedFile.status === FileStatus.Success}
-            <button onclick={() => onDownload(key)} class="btn btn-primary">
-              <DownTray /> Download
+            <button
+              type="button"
+              onclick={() => onDownload(key)}
+              class="btn btn-primary min-h-[44px] gap-1.5 rounded-xl px-4 text-xs font-semibold"
+            >
+              <DownTray />
+              <span>Download</span>
             </button>
           {/if}
         {/if}

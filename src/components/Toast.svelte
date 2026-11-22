@@ -1,5 +1,6 @@
 <script lang="ts">
-  import { fade } from "svelte/transition";
+  import { cubicOut } from "svelte/easing";
+  import { fade, fly } from "svelte/transition";
   import { toastAtom, type ToastMessage } from "../stores/toast";
 
   let toasts: ToastMessage[] = $state([]);
@@ -16,16 +17,18 @@
   });
 </script>
 
-<div class="fixed bottom-4 right-4 space-y-2">
-  {#each toasts as toast}
+<div
+  class="pointer-events-none fixed bottom-4 right-4 z-50 flex max-w-sm flex-col gap-2"
+  aria-live="polite"
+  aria-atomic="true"
+>
+  {#each toasts as toast (toast.id)}
     <div
-      class="alert alert-{toast.status}"
-      in:fade|global={{ duration: 300 }}
-      out:fade|global={{ duration: 300 }}
+      class="pointer-events-auto flex items-center gap-2.5 rounded-xl border border-base-300 px-4 py-3 text-sm font-medium shadow-lg alert alert-{toast.status}"
+      in:fly|global={{ y: 12, duration: 220, easing: cubicOut }}
+      out:fade|global={{ duration: 150 }}
     >
-      <div>
-        <span>{toast.message}</span>
-      </div>
+      <span>{toast.message}</span>
     </div>
   {/each}
 </div>

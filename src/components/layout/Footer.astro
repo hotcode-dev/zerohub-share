@@ -3,33 +3,37 @@ import { githubLink } from "../../configs";
 import Github from "../icons/Github.astro";
 ---
 
-<footer
-  class="container mx-auto flex flex-row items-center justify-between gap-2 p-4"
->
-  <div>
-    <p class="text-xs md:text-sm">
+<footer class="border-t border-base-300 bg-base-100/60">
+  <div
+    class="mx-auto flex w-full max-w-5xl flex-row items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8"
+  >
+    <p class="text-base leading-normal text-base-content/75">
       <a
-        class="link"
+        class="inline-flex min-h-[44px] items-center underline decoration-base-content/30 underline-offset-4 hover:text-base-content hover:decoration-primary"
         href={githubLink + "/blob/main/LICENSE"}
         target="_blank"
-        rel="noopener noreferrer">MIT License</a
+        rel="noopener noreferrer"
       >
+        MIT License
+      </a>
+      <span class="mx-2 text-base-content/30" aria-hidden="true">·</span>
       Powered by
       <a
-        class="link"
+        class="ml-1 inline-flex min-h-[44px] items-center font-medium text-base-content underline decoration-base-content/30 underline-offset-4 hover:text-primary hover:decoration-primary"
         href="https://zerohub.dev"
         target="_blank"
-        rel="noopener noreferrer">ZeroHub</a
+        rel="noopener noreferrer"
       >
+        ZeroHub
+      </a>
     </p>
-  </div>
-  <div class="flex flex-row gap-4">
+
     <a
-      aria-label="Github"
+      aria-label="ZeroHub Share on GitHub"
       target="_blank"
       href={githubLink}
-      rel="noopener"
-      class="drawer-button normal-case"
+      rel="noopener noreferrer"
+      class="inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-xl text-base-content/75 hover:bg-base-200 hover:text-base-content"
     >
       <Github />
     </a>

@@ -28,22 +28,25 @@
     onSend,
     hideSendButton,
   }: Props = $props();
-
-  $inspect(sendingFileSelections).with((type, sendingFileSelections) => {
-    if (type === "update") {
-      console.log("sendingFileSelections", sendingFileSelections);
-    }
-  });
 </script>
 
-<div class="grid gap-4">
-  {#each Object.entries(sendingFileSelections) as [key, sendingFileSelection]}
+<div class="flex flex-col gap-3">
+  {#each Object.entries(sendingFileSelections) as [key, sendingFileSelection] (key)}
     <SenderFileCard {sendingFileSelection} {peers}>
-      <div class="col-span-4 flex items-center justify-between">
-        <button onclick={() => onRemove(key)} class="btn btn-ghost btn-sm pl-0">
-          <Trash /><span class="hidden lg:block">Remove</span>
+      <div
+        class="flex flex-wrap items-center justify-between gap-2 border-t border-base-300 pt-3"
+      >
+        <button
+          type="button"
+          onclick={() => onRemove(key)}
+          aria-label={`Remove ${sendingFileSelection.file.name}`}
+          class="btn btn-ghost min-h-[44px] gap-1.5 rounded-xl px-3 text-xs font-medium text-base-content/70 hover:bg-error/10 hover:text-error"
+        >
+          <Trash />
+          <span>Remove</span>
         </button>
-        <div class="flex flex-row items-center gap-2">
+
+        <div class="flex items-center gap-2">
           <EncryptModal
             bind:sendingFileSelection={sendingFileSelections[key]}
           />
@@ -54,7 +57,8 @@
                 onSend(key, peerId);
               }}
             >
-              <UpTray /> Send
+              <UpTray />
+              <span>Send</span>
             </SendDropdown>
           {/if}
         </div>

@@ -8,62 +8,68 @@
   };
 
   let { children, receivingFile }: Props = $props();
+
+  let ext = $derived(
+    receivingFile.fileMetadata.name.includes(".")
+      ? receivingFile.fileMetadata.name.split(".").pop()?.slice(0, 5) ?? "FILE"
+      : "FILE",
+  );
 </script>
 
-<div class="card bg-base-100 shadow-lg shadow-base-300">
-  <div class="card-body p-2 lg:p-4">
-    <div class="flex flex-col gap-2">
-      <div class="flex flex-row">
-        <div
-          class="flex h-24 w-24 min-w-24 items-center justify-center rounded bg-base-300"
-        >
-          <span
-            class="max-w-full overflow-hidden truncate px-1 text-lg font-bold uppercase"
-          >
-            {receivingFile.fileMetadata.name.split(".").pop()}
-          </span>
-        </div>
-        <div class="flex flex-col gap-2 px-4 py-2">
-          <p class="text-sm font-bold">{receivingFile.fileMetadata.name}</p>
-          <p class="text-xs">
-            <strong>Size:</strong>
-            {humanFileSize(receivingFile.fileMetadata.size)}
-          </p>
-          {#if receivingFile.fileMetadata.type}
-            <p class="text-xs">
-              <strong>Type:</strong>
-              {receivingFile.fileMetadata.type}
-            </p>
-          {/if}
-        </div>
-      </div>
-      <div class="flex flex-col gap-1">
-        <div class="text-center text-xs xl:text-sm">
-          {#if receivingFile.status === FileStatus.Processing}
-            Receiving: {humanFileSize(receivingFile.bitrate)}/sec, Channels: {receivingFile
-              .fileMetadata.channels}
-          {:else if receivingFile.error}
-            <div class="text-error">
-              Error: {receivingFile.error.message}
-            </div>
-          {:else if receivingFile.status === FileStatus.WaitingAccept}
-            Waiting Accept
-          {:else if receivingFile.status === FileStatus.Success}
-            Success {humanFileSize(receivingFile.bitrate)}/sec, Channels: {receivingFile
-              .fileMetadata.channels}
-          {:else}
-            Pending
-          {/if}
-        </div>
-        <progress
-          value={isNaN(receivingFile.progress) ? 100 : receivingFile.progress}
-          max="100"
-          class="progress progress-accent"
-        ></progress>
-      </div>
-      <div>
-        {@render children?.()}
+<article class="flex flex-col gap-2.5 rounded-xl border border-base-300 bg-base-100 p-3">
+  <div class="flex items-center gap-3">
+    <div
+      class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-base-300 bg-base-200 font-mono text-[11px] font-semibold uppercase text-primary"
+    >
+      <span class="truncate px-1">{ext}</span>
+    </div>
+
+    <div class="min-w-0 flex-1">
+      <p class="truncate text-sm font-semibold text-base-content">
+        {receivingFile.fileMetadata.name}
+      </p>
+      <div class="mt-0.5 flex flex-wrap items-center gap-x-2 text-xs text-base-content/65">
+        <span class="font-mono tabular-nums">
+          {humanFileSize(receivingFile.fileMetadata.size)}
+        </span>
+        {#if receivingFile.isEncrypt}
+          <span aria-hidden="true">·</span>
+          <span class="font-medium text-warning">Encrypted</span>
+        {/if}
       </div>
     </div>
   </div>
-</div>
+
+  <div class="flex flex-col gap-1.5">
+    <div class="flex items-center justify-between font-mono text-[11px] tabular-nums">
+      {#if receivingFile.status === FileStatus.Processing}
+        <span class="text-primary">
+          Receiving · {humanFileSize(receivingFile.bitrate)}/s
+        </span>
+        <span class="text-base-content/60">
+          {receivingFile.fileMetadata.channels} ch
+        </span>
+      {:else if receivingFile.error}
+        <span class="font-sans font-medium text-error">
+          Error: {receivingFile.error.message}
+        </span>
+      {:else if receivingFile.status === FileStatus.WaitingAccept}
+        <span class="font-sans text-warning">Incoming file request</span>
+      {:else if receivingFile.status === FileStatus.Success}
+        <span class="text-success">
+          Ready · {humanFileSize(receivingFile.bitrate)}/s
+        </span>
+        <span class="text-base-content/60">100%</span>
+      {:else}
+        <span class="font-sans text-base-content/60">Pending</span>
+      {/if}
+    </div>
+    <progress
+      value={isNaN(receivingFile.progress) ? 100 : receivingFile.progress}
+      max="100"
+      class="progress progress-primary h-1.5 w-full"
+    ></progress>
+  </div>
+
+  {@render children?.()}
+</article>

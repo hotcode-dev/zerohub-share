@@ -1,0 +1,135 @@
+:root {
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+}
+
+[data-theme="light"] {
+  color-scheme: light;
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+h1,
+h2,
+h3 {
+  text-wrap: balance;
+}
+
+button,
+a,
+input,
+label {
+  touch-action: manipulation;
+}
+
+/* Accessible focus ring everywhere without removing outlines */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid oklch(var(--p));
+  outline-offset: 2px;
+}
+
+/* Tactile button press feedback — explicit properties, never transition: all */
+.btn {
+  transition:
+    transform 150ms var(--ease-out),
+    background-color 150ms ease,
+    border-color 150ms ease,
+    color 150ms ease,
+    opacity 150ms ease;
+}
+
+.btn:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+/* Modal entrance: centered origin, subtle scale from 0.96 (never scale(0)) */
+.modal .modal-box {
+  overscroll-behavior: contain;
+  transform-origin: center;
+  transition:
+    transform 220ms var(--ease-out),
+    opacity 200ms var(--ease-out);
+}
+
+.modal:not(.modal-open):not([open]) .modal-box {
+  transform: scale(0.96);
+  opacity: 0;
+}
+
+/* Origin-aware dropdown popover (opens upward from bottom-right trigger) */
+.dropdown-top.dropdown-end .dropdown-content {
+  transform-origin: bottom right;
+  transition:
+    transform 180ms var(--ease-out),
+    opacity 160ms var(--ease-out);
+}
+
+.dropdown:not(.dropdown-open):not(:focus-within) .dropdown-content {
+  transform: scale(0.95);
+  opacity: 0;
+}
+
+/* Dropzone & card interactive polish gated for pointer devices */
+.zh-dropzone {
+  transition:
+    border-color 180ms var(--ease-out),
+    background-color 180ms ease,
+    transform 180ms var(--ease-out);
+}
+
+.zh-dropzone-icon {
+  transition:
+    transform 180ms var(--ease-out),
+    background-color 180ms ease,
+    border-color 180ms ease;
+}
+
+.zh-dropzone[data-dragging="true"] .zh-dropzone-icon {
+  transform: translateY(-3px) scale(1.04);
+}
+
+.zh-chevron {
+  transition: transform 180ms var(--ease-out);
+}
+
+.zh-card {
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .zh-dropzone:hover .zh-dropzone-icon {
+    transform: translateY(-2px);
+  }
+
+  .zh-card:hover {
+    border-color: oklch(var(--p) / 0.35);
+  }
+}
+
+/* Respect reduced motion: remove transform motion, preserve gentle opacity/color */
+@media (prefers-reduced-motion: reduce) {
+  .btn:active:not(:disabled),
+  .zh-dropzone[data-dragging="true"] .zh-dropzone-icon,
+  .zh-dropzone:hover .zh-dropzone-icon {
+    transform: none;
+  }
+
+  .modal .modal-box,
+  .dropdown-top.dropdown-end .dropdown-content,
+  .zh-chevron,
+  .zh-dropzone,
+  .zh-dropzone-icon,
+  .zh-card {
+    transition-duration: 120ms;
+    transition-property: opacity, background-color, border-color, color;
+  }
+}

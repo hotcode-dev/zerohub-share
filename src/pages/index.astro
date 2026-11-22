@@ -5,5 +5,42 @@ import SharePage from "../components/SharePage.svelte";
 ---
 
 <MainLayout isDrop={false}>
-  <SharePage client:load client:only="svelte" />
+  <SharePage client:only="svelte">
+    <div slot="fallback" class="flex w-full flex-col gap-6">
+      <section class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <div class="space-y-1">
+          <h1 class="text-2xl font-bold tracking-tight text-base-content sm:text-3xl">
+            Direct peer-to-peer file sharing
+          </h1>
+          <p class="max-w-2xl text-base leading-relaxed text-base-content/75">
+            Transfer files straight between devices over WebRTC with optional
+            AES-256 encryption.
+          </p>
+        </div>
+        <div
+          class="inline-flex w-fit items-center gap-2 rounded-full border border-base-300 bg-base-100 px-4 py-2 text-sm font-medium text-base-content"
+        >
+          <span class="loading loading-spinner loading-xs text-primary" aria-hidden="true"></span>
+          <span>Connecting to hub…</span>
+        </div>
+      </section>
+      <section
+        aria-label="Connecting to hub"
+        class="flex flex-1 flex-col items-center justify-center rounded-2xl border border-base-300 bg-base-100 px-6 py-16 text-center shadow-sm"
+      >
+        <div
+          class="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary"
+        >
+          <span class="loading loading-spinner loading-md" aria-hidden="true"></span>
+        </div>
+        <h2 class="text-lg font-semibold text-base-content">
+          Establishing peer-to-peer hub
+        </h2>
+        <p class="mt-2 max-w-sm text-base leading-relaxed text-base-content/75">
+          Connecting to the signaling server to create your private WebRTC
+          session.
+        </p>
+      </section>
+    </div>
+  </SharePage>
 </MainLayout>
