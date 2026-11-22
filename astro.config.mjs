@@ -5,6 +5,7 @@ import serviceWorker from "astrojs-service-worker";
 
 // https://astro.build/config
 export default defineConfig({
+  site: "https://share.zerohub.dev",
   output: "static",
   compressHTML: true,
   integrations: [tailwind(), svelte(), serviceWorker()],
