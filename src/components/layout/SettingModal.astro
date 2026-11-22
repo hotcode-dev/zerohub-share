@@ -182,29 +182,10 @@ import Cog from "../icons/Cog.astro";
   const modalToggle = document.getElementById(
     "darkmode-toggle",
   ) as HTMLInputElement;
-  const navbarToggle = document.getElementById(
-    "navbar-theme-toggle",
-  ) as HTMLButtonElement | null;
-  const sunIcon = document.getElementById("navbar-sun-icon");
-  const moonIcon = document.getElementById("navbar-moon-icon");
-
-  function syncThemeUI(isDark: boolean) {
-    if (modalToggle) modalToggle.checked = isDark;
-    if (sunIcon && moonIcon) {
-      sunIcon.classList.toggle("hidden", !isDark);
-      moonIcon.classList.toggle("hidden", isDark);
-    }
-    if (navbarToggle) {
-      navbarToggle.setAttribute(
-        "aria-label",
-        isDark ? "Switch to light mode" : "Switch to dark mode",
-      );
-    }
-  }
 
   function setTheme(isDark: boolean) {
     darkMode = isDark;
-    syncThemeUI(isDark);
+    if (modalToggle) modalToggle.checked = isDark;
     localStorage.setItem(localDarkKey, isDark ? "true" : "false");
     document
       ?.querySelector("html")
@@ -217,9 +198,6 @@ import Cog from "../icons/Cog.astro";
 
   if (modalToggle) {
     modalToggle.onchange = () => setTheme(modalToggle.checked);
-  }
-  if (navbarToggle) {
-    navbarToggle.onclick = () => setTheme(!darkMode);
   }
 
   setTheme(darkMode);
