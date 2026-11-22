@@ -24,7 +24,7 @@
 >
   {#each toasts as toast (toast.id)}
     <div
-      class="pointer-events-auto flex items-center gap-2.5 rounded-xl border border-base-300 px-4 py-3 text-sm font-medium shadow-lg alert alert-{toast.status}"
+      class="alert pointer-events-auto flex items-center gap-2.5 rounded-xl border border-base-300 px-4 py-3 text-sm font-medium shadow-lg alert-{toast.status}"
       in:fly|global={{ y: 12, duration: 220, easing: cubicOut }}
       out:fade|global={{ duration: 150 }}
     >

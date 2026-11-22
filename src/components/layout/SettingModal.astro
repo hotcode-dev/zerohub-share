@@ -16,7 +16,9 @@ import Cog from "../icons/Cog.astro";
   <div
     class="modal-box border border-base-300 bg-base-100 p-6 shadow-xl sm:max-w-md sm:rounded-2xl"
   >
-    <div class="flex items-center justify-between border-b border-base-300 pb-4">
+    <div
+      class="flex items-center justify-between border-b border-base-300 pb-4"
+    >
       <div>
         <h2 class="text-lg font-bold tracking-tight text-base-content">
           Settings
@@ -29,7 +31,7 @@ import Cog from "../icons/Cog.astro";
         <button
           type="submit"
           aria-label="Close settings"
-          class="btn btn-ghost btn-circle min-h-[44px] min-w-[44px] text-base-content/70 hover:bg-base-200 hover:text-base-content"
+          class="btn btn-circle btn-ghost min-h-[44px] min-w-[44px] text-base-content/70 hover:bg-base-200 hover:text-base-content"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -171,7 +173,9 @@ import Cog from "../icons/Cog.astro";
       </label>
     </div>
 
-    <div class="modal-action mt-0 flex items-center justify-between border-t border-base-300 pt-4">
+    <div
+      class="modal-action mt-0 flex items-center justify-between border-t border-base-300 pt-4"
+    >
       <button
         type="button"
         class="btn btn-ghost min-h-[44px] rounded-xl text-error hover:bg-error/10"
@@ -181,10 +185,7 @@ import Cog from "../icons/Cog.astro";
       </button>
       <div class="flex items-center gap-2">
         <form method="dialog">
-          <button
-            type="submit"
-            class="btn btn-ghost min-h-[44px] rounded-xl"
-          >
+          <button type="submit" class="btn btn-ghost min-h-[44px] rounded-xl">
             Cancel
           </button>
         </form>

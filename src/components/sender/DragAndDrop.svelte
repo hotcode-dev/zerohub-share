@@ -183,11 +183,13 @@
     </div>
 
     <p class="text-base font-semibold text-base-content">
-      {isDragging ? "Release to add files" : "Drop files here or click to browse"}
+      {isDragging
+        ? "Release to add files"
+        : "Drop files here or click to browse"}
     </p>
     <p class="mt-1 text-sm leading-relaxed text-base-content/70">
-      Any file type · Direct WebRTC transfer<span class="hidden sm:inline"
-        > · Paste anywhere with
+      Any file type · Direct WebRTC transfer<span class="hidden sm:inline">
+        · Paste anywhere with
         <kbd
           class="ml-1 rounded border border-base-300 bg-base-200 px-1.5 py-0.5 font-mono text-xs font-medium text-base-content"
         >

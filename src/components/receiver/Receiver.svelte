@@ -313,7 +313,8 @@
           {/if}
         </p>
         <p class="font-mono text-[11px] tabular-nums text-base-content/60">
-          {channelCount} {channelCount === 1 ? "channel" : "channels"} ready
+          {channelCount}
+          {channelCount === 1 ? "channel" : "channels"} ready
         </p>
       </div>
     </div>
@@ -331,7 +332,9 @@
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 20 20"
           fill="currentColor"
-          class="zh-chevron h-4 w-4 text-base-content/60 {isExpanded ? 'rotate-180' : ''}"
+          class="zh-chevron h-4 w-4 text-base-content/60 {isExpanded
+            ? 'rotate-180'
+            : ''}"
           aria-hidden="true"
         >
           <path

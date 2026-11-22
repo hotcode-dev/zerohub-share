@@ -367,9 +367,7 @@
   {#if queuedCount > 0}
     <div class="flex items-center justify-between pt-2">
       <div class="flex items-center gap-2">
-        <h3 class="text-sm font-semibold text-base-content">
-          Queued files
-        </h3>
+        <h3 class="text-sm font-semibold text-base-content">Queued files</h3>
         <span
           class="rounded-full bg-base-300/70 px-2 py-0.5 font-mono text-xs font-medium tabular-nums text-base-content/80"
         >

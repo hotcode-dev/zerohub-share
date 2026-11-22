@@ -36,13 +36,23 @@
 </script>
 
 {#if isModalOpen}
-  <div class="modal modal-open modal-bottom sm:modal-middle" role="dialog" aria-modal="true" aria-labelledby="qr-modal-title">
+  <div
+    class="modal modal-open modal-bottom sm:modal-middle"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="qr-modal-title"
+  >
     <div
       class="modal-box border border-base-300 bg-base-100 p-6 shadow-xl sm:max-w-sm sm:rounded-2xl"
     >
-      <div class="flex items-center justify-between border-b border-base-300 pb-4">
+      <div
+        class="flex items-center justify-between border-b border-base-300 pb-4"
+      >
         <div>
-          <h3 id="qr-modal-title" class="text-lg font-bold tracking-tight text-base-content">
+          <h3
+            id="qr-modal-title"
+            class="text-lg font-bold tracking-tight text-base-content"
+          >
             Scan to join hub
           </h3>
           <span class="mt-1 block text-sm leading-normal text-base-content/75">
@@ -52,7 +62,7 @@
         <button
           type="button"
           aria-label="Close QR code modal"
-          class="btn btn-ghost btn-circle min-h-[44px] min-w-[44px]"
+          class="btn btn-circle btn-ghost min-h-[44px] min-w-[44px]"
           onclick={close}
         >
           ✕
@@ -82,7 +92,9 @@
       </div>
     </div>
     <div class="modal-backdrop">
-      <button type="button" aria-label="Close QR code backdrop" onclick={close}>close</button>
+      <button type="button" aria-label="Close QR code backdrop" onclick={close}
+        >close</button
+      >
     </div>
   </div>
 {/if}

@@ -33,18 +33,26 @@
 </script>
 
 {#if isModalOpen}
-  <div class="modal modal-open modal-bottom sm:modal-middle" role="dialog" aria-modal="true" aria-labelledby="decrypt-modal-title">
+  <div
+    class="modal modal-open modal-bottom sm:modal-middle"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="decrypt-modal-title"
+  >
     <div
       class="modal-box border border-base-300 bg-base-100 p-6 shadow-xl sm:max-w-sm sm:rounded-2xl"
     >
       <div class="flex items-center justify-between pb-4">
-        <h3 id="decrypt-modal-title" class="text-lg font-bold tracking-tight text-base-content">
+        <h3
+          id="decrypt-modal-title"
+          class="text-lg font-bold tracking-tight text-base-content"
+        >
           Unlock encrypted file
         </h3>
         <button
           type="button"
           aria-label="Close unlock modal"
-          class="btn btn-ghost btn-circle min-h-[44px] min-w-[44px]"
+          class="btn btn-circle btn-ghost min-h-[44px] min-w-[44px]"
           onclick={unsaveClose}
         >
           ✕
@@ -87,7 +95,11 @@
       </form>
     </div>
     <div class="modal-backdrop">
-      <button type="button" aria-label="Close unlock backdrop" onclick={unsaveClose}>close</button>
+      <button
+        type="button"
+        aria-label="Close unlock backdrop"
+        onclick={unsaveClose}>close</button
+      >
     </div>
   </div>
 {/if}
