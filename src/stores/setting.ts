@@ -5,6 +5,8 @@ import { starWars, uniqueNamesGenerator } from "unique-names-generator";
 
 export const defaultSetting: Setting = {
   iceServer: stunServers[0],
+  iceUsername: "",
+  iceCredential: "",
   name: uniqueNamesGenerator({
     dictionaries: [starWars],
   }),

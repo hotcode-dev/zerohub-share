@@ -9,6 +9,7 @@
   import { createAvatar } from "@dicebear/core";
   import { openPeeps as avatarStyle } from "@dicebear/collection";
   import {
+    defaultTurnConfig,
     isProduction,
     waitIceCandidatesTimeout,
     zeroHubHosts,
@@ -24,6 +25,16 @@
   import { addToastMessage } from "../stores/toast";
   import Toast from "./Toast.svelte";
   import { MAX_DATA_CHANNELS } from "../constants";
+  import {
+    buildIceServers,
+    closeAllPeerChannels,
+    createInitialPeerConnectionState,
+    handleDataChannelClose,
+    handleDataChannelOpen,
+    handlePeerConnectionStateChange,
+    registerDataChannel,
+    type PeerConnectionState,
+  } from "../utils/webrtc";
 
   const searchParams = new URLSearchParams(window.location.search);
   const joinId = searchParams.get("id");
@@ -34,11 +45,14 @@
   const svgAvatar = avatar.toDataUri();
 
   let hubId = $state("");
+  let hubError = $state<string | null>(null);
   let copied = $state(false);
   let peers: {
     [peerId: string]: {
       isOnline: boolean;
+      connectionState: PeerConnectionState;
       dataChannels: Record<string, RTCDataChannel>;
+      allChannels: Record<string, RTCDataChannel>;
       receiver: Receiver | undefined;
       metadata: PeerMetaData;
       svgAvatar: string;
@@ -47,19 +61,34 @@
   let inviteLink = $state("");
   let qrModal: QrModal;
   let sender: Sender | undefined = $state(undefined);
+  const attachedRtcListeners = new Set<string>();
+  const notifiedFailedPeers = new Set<string>();
 
   let onlinePeers = $derived(
     Object.values(peers).filter(
-      (p) => p.isOnline && p.dataChannels && Object.keys(p.dataChannels).length > 0,
+      (p) =>
+        p.isOnline &&
+        p.dataChannels &&
+        Object.keys(p.dataChannels).length > 0,
+    ),
+  );
+  let connectingPeers = $derived(
+    Object.values(peers).filter(
+      (p) => !p.isOnline && p.connectionState === "connecting",
+    ),
+  );
+  let failedPeers = $derived(
+    Object.values(peers).filter(
+      (p) => !p.isOnline && p.connectionState === "failed",
     ),
   );
 
   function ensurePeerEntry(peer: Peer<PeerMetaData>) {
     const peerId = peer.id.toString();
     if (!peers[peerId]) {
+      const initial = createInitialPeerConnectionState();
       peers[peerId] = {
-        isOnline: false,
-        dataChannels: {},
+        ...initial,
         receiver: undefined,
         metadata: peer.metadata,
         svgAvatar: createAvatar(avatarStyle, {
@@ -77,6 +106,42 @@
     return peers[peerId];
   }
 
+  function attachPeerConnectionListeners(peer: Peer<PeerMetaData>) {
+    const peerId = peer.id.toString();
+    if (attachedRtcListeners.has(peerId)) {
+      return;
+    }
+    attachedRtcListeners.add(peerId);
+
+    const onStateChange = () => {
+      const peerEntry = peers[peerId];
+      if (!peerEntry) return;
+
+      handlePeerConnectionStateChange(
+        peerEntry,
+        peer.rtcConn.iceConnectionState,
+        peer.rtcConn.connectionState,
+      );
+
+      if (
+        peerEntry.connectionState === "failed" &&
+        !notifiedFailedPeers.has(peerId)
+      ) {
+        notifiedFailedPeers.add(peerId);
+        addToastMessage(
+          `Direct WebRTC connection to ${peerEntry.metadata.name} failed. On 4G/5G or strict NAT, use the same Wi-Fi or configure a TURN server in Settings.`,
+          "error",
+          8000,
+        );
+      }
+
+      peers = peers;
+    };
+
+    peer.rtcConn.addEventListener("iceconnectionstatechange", onStateChange);
+    peer.rtcConn.addEventListener("connectionstatechange", onStateChange);
+  }
+
   function handleDataChannel(
     peer: Peer<PeerMetaData>,
     dataChannel: RTCDataChannel,
@@ -84,8 +149,7 @@
     const peerId = peer.id.toString();
     const peerEntry = ensurePeerEntry(peer);
 
-    peerEntry.isOnline = true;
-    peerEntry.dataChannels[dataChannel.label] = dataChannel;
+    registerDataChannel(peerEntry, dataChannel);
 
     dataChannel.onmessage = async (event: MessageEvent<Uint8Array>) => {
       let payload: Uint8Array = new Uint8Array(event.data);
@@ -122,17 +186,13 @@
     };
 
     dataChannel.onopen = () => {
-      peerEntry.isOnline = true;
+      handleDataChannelOpen(peerEntry, dataChannel);
+      notifiedFailedPeers.delete(peerId);
       peers = peers;
     };
 
     dataChannel.onclose = () => {
-      delete peerEntry.dataChannels[dataChannel.label];
-
-      if (Object.keys(peerEntry.dataChannels).length === 0) {
-        peerEntry.isOnline = false;
-      }
-
+      handleDataChannelClose(peerEntry, dataChannel.label);
       peers = peers;
     };
 
@@ -144,11 +204,7 @@
     logLevel: isProduction ? LogLevel.Error : LogLevel.Debug,
     waitIceCandidatesTimeout: waitIceCandidatesTimeout,
     rtcConfig: {
-      iceServers: [
-        {
-          urls: $settingAtom.iceServer,
-        },
-      ],
+      iceServers: buildIceServers($settingAtom, defaultTurnConfig),
     },
     dataChannelConfig: {
       numberOfChannels: MAX_DATA_CHANNELS,
@@ -171,34 +227,52 @@
   }
 
   zeroHub.onHubInfo = (hubInfo) => {
+    hubError = null;
     hubId = hubInfo.id;
     createInviteLink(hubInfo.id);
   };
 
   zeroHub.onZeroHubError = (error) => {
     console.error("ZeroHub error:", error);
-    addToastMessage("ZeroHub Error: " + error.message, "error");
+    const friendlyMessage = joinId && !hubId
+      ? "Could not join this hub. The invite link may have expired or the other device disconnected."
+      : "ZeroHub Error: " + error.message;
+    hubError = friendlyMessage;
+    addToastMessage(friendlyMessage, "error", 6000);
   };
 
   zeroHub.onPeerStatusChange = (peer) => {
     const peerEntry = ensurePeerEntry(peer);
+    attachPeerConnectionListeners(peer);
 
     switch (peer.status) {
-      case PeerStatus.Connected:
-        if (zeroHub.myPeerId && peer.id > zeroHub.myPeerId) {
-          peerEntry.isOnline = true;
+      case PeerStatus.Pending:
+      case PeerStatus.Offering:
+      case PeerStatus.AnswerPending:
+      case PeerStatus.Answering:
+      case PeerStatus.AcceptPending:
+        if (!peerEntry.isOnline && peerEntry.connectionState !== "failed") {
+          peerEntry.connectionState = "connecting";
         }
         break;
+      case PeerStatus.Connected:
+        handlePeerConnectionStateChange(
+          peerEntry,
+          peer.rtcConn.iceConnectionState,
+          peer.rtcConn.connectionState,
+        );
+        break;
+      case PeerStatus.WebRTCDisconnected:
+        handlePeerConnectionStateChange(
+          peerEntry,
+          peer.rtcConn.iceConnectionState,
+          peer.rtcConn.connectionState,
+        );
+        break;
       case PeerStatus.ZeroHubDisconnected:
-        Object.values(peerEntry.dataChannels).forEach((channel) => {
-          try {
-            channel.close();
-          } catch (error) {
-            console.error("Failed to close data channel", error);
-          }
-        });
-        peerEntry.dataChannels = {};
-        peerEntry.isOnline = false;
+        closeAllPeerChannels(peerEntry);
+        attachedRtcListeners.delete(peer.id.toString());
+        notifiedFailedPeers.delete(peer.id.toString());
         break;
     }
 
@@ -422,7 +496,7 @@
             </span>
           </div>
 
-          {#if onlinePeers.length > 0}
+          {#if onlinePeers.length > 0 || connectingPeers.length > 0 || failedPeers.length > 0}
             <div class="flex flex-col gap-3">
               {#each Object.values(peers) as peer}
                 {#if peer.isOnline && peer.dataChannels && Object.keys(peer.dataChannels).length > 0}
@@ -432,6 +506,62 @@
                     svgAvatar={peer.svgAvatar}
                     dataChannels={peer.dataChannels}
                   />
+                {:else if peer.connectionState === "connecting"}
+                  <div
+                    class="flex items-center justify-between gap-3 rounded-xl border border-base-300 bg-base-200/40 px-3.5 py-3"
+                  >
+                    <div class="flex min-w-0 items-center gap-3">
+                      <img
+                        src={peer.svgAvatar}
+                        width="36"
+                        height="36"
+                        class="h-9 w-9 shrink-0 rounded-full border border-base-300 bg-base-100"
+                        alt=""
+                        aria-hidden="true"
+                      />
+                      <div class="min-w-0">
+                        <p class="truncate text-sm font-semibold text-base-content">
+                          {peer.metadata.name}
+                        </p>
+                        <p class="text-xs text-base-content/65">
+                          Establishing WebRTC connection…
+                        </p>
+                      </div>
+                    </div>
+                    <span
+                      class="loading loading-spinner loading-xs shrink-0 text-primary"
+                      aria-hidden="true"
+                    ></span>
+                  </div>
+                {:else if peer.connectionState === "failed"}
+                  <div
+                    class="flex flex-col gap-2 rounded-xl border border-error/40 bg-error/5 px-3.5 py-3"
+                    role="alert"
+                  >
+                    <div class="flex items-center gap-3">
+                      <img
+                        src={peer.svgAvatar}
+                        width="36"
+                        height="36"
+                        class="h-9 w-9 shrink-0 rounded-full border border-error/40 bg-base-100"
+                        alt=""
+                        aria-hidden="true"
+                      />
+                      <div class="min-w-0">
+                        <p class="truncate text-sm font-semibold text-base-content">
+                          {peer.metadata.name}
+                        </p>
+                        <p class="text-xs font-medium text-error">
+                          WebRTC connection failed
+                        </p>
+                      </div>
+                    </div>
+                    <p class="text-xs leading-relaxed text-base-content/75">
+                      Direct P2P was blocked by cellular (4G/5G) CGNAT or a
+                      firewall. Connect both devices to the same Wi-Fi, or
+                      configure a TURN server in Settings.
+                    </p>
+                  </div>
                 {/if}
               {/each}
             </div>
@@ -470,6 +600,39 @@
         </section>
       </aside>
     </div>
+  {:else if hubError}
+    <!-- Hub Connection Error State -->
+    <section
+      aria-label="Hub connection error"
+      class="flex flex-1 flex-col items-center justify-center rounded-2xl border border-error/30 bg-base-100 px-6 py-16 text-center shadow-sm"
+    >
+      <h2 class="text-lg font-semibold text-base-content">
+        Unable to connect to hub
+      </h2>
+      <p class="mt-2 max-w-md text-sm leading-relaxed text-base-content/75">
+        {hubError}
+      </p>
+      <div class="mt-6 flex flex-wrap items-center justify-center gap-3">
+        <button
+          type="button"
+          class="btn btn-primary min-h-[44px] rounded-xl px-5 text-sm font-semibold"
+          onclick={() => {
+            window.location.href = window.location.pathname;
+          }}
+        >
+          Start a new hub
+        </button>
+        <button
+          type="button"
+          class="btn min-h-[44px] rounded-xl border border-base-300 bg-base-100 px-5 text-sm font-semibold text-base-content hover:bg-base-200"
+          onclick={() => {
+            window.location.reload();
+          }}
+        >
+          Retry
+        </button>
+      </div>
+    </section>
   {:else}
     <!-- Connecting State -->
     <section

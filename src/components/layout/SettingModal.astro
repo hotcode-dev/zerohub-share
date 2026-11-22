@@ -87,12 +87,53 @@ import Cog from "../icons/Cog.astro";
         <input
           type="text"
           name="iceServer"
-          placeholder="stun:stun.l.google.com:19302…"
+          placeholder="stun:stun.l.google.com:19302, turn:…"
           class="input input-bordered min-h-[44px] w-full rounded-xl bg-base-100 font-mono text-base leading-normal focus:border-primary"
           id="ice-input"
           autocomplete="off"
           spellcheck="false"
         />
+        <span class="text-xs text-base-content/65">
+          Comma-separated URLs. Add a TURN server for 4G/5G cellular or strict
+          NAT networks.
+        </span>
+      </div>
+
+      <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <div class="form-control w-full gap-1.5">
+          <label
+            for="ice-username-input"
+            class="text-sm font-medium text-base-content"
+          >
+            TURN username
+          </label>
+          <input
+            type="text"
+            name="iceUsername"
+            placeholder="Optional"
+            class="input input-bordered min-h-[44px] w-full rounded-xl bg-base-100 font-mono text-base leading-normal focus:border-primary"
+            id="ice-username-input"
+            autocomplete="off"
+            spellcheck="false"
+          />
+        </div>
+        <div class="form-control w-full gap-1.5">
+          <label
+            for="ice-credential-input"
+            class="text-sm font-medium text-base-content"
+          >
+            TURN credential
+          </label>
+          <input
+            type="password"
+            name="iceCredential"
+            placeholder="Optional"
+            class="input input-bordered min-h-[44px] w-full rounded-xl bg-base-100 font-mono text-base leading-normal focus:border-primary"
+            id="ice-credential-input"
+            autocomplete="off"
+            spellcheck="false"
+          />
+        </div>
       </div>
 
       <div class="form-control w-full gap-2">
@@ -206,6 +247,12 @@ import Cog from "../icons/Cog.astro";
 
   const nameInput = document.getElementById("name-input") as HTMLInputElement;
   const iceInput = document.getElementById("ice-input") as HTMLInputElement;
+  const iceUsernameInput = document.getElementById(
+    "ice-username-input",
+  ) as HTMLInputElement;
+  const iceCredentialInput = document.getElementById(
+    "ice-credential-input",
+  ) as HTMLInputElement;
   const sizePerChannelInput = document.getElementById(
     "size-per-channel-input",
   ) as HTMLInputElement;
@@ -223,6 +270,8 @@ import Cog from "../icons/Cog.astro";
   settingAtom.subscribe((s) => {
     nameInput.value = s.name;
     iceInput.value = s.iceServer;
+    iceUsernameInput.value = s.iceUsername ?? "";
+    iceCredentialInput.value = s.iceCredential ?? "";
     sizePerChannelInput.value = Math.max(
       1,
       Math.round(s.bytesPerDataChannel / (1024 * 1024)),
@@ -240,6 +289,8 @@ import Cog from "../icons/Cog.astro";
     settingAtom.set({
       name: nameInput.value.trim() || defaultSetting.name,
       iceServer: iceInput.value.trim() || defaultSetting.iceServer,
+      iceUsername: iceUsernameInput.value.trim(),
+      iceCredential: iceCredentialInput.value.trim(),
       bytesPerDataChannel: chunkBytes,
       autoDownload: autoDownloadInput.checked,
     });
@@ -250,6 +301,8 @@ import Cog from "../icons/Cog.astro";
     e.preventDefault();
     nameInput.value = defaultSetting.name;
     iceInput.value = defaultSetting.iceServer;
+    iceUsernameInput.value = defaultSetting.iceUsername ?? "";
+    iceCredentialInput.value = defaultSetting.iceCredential ?? "";
     sizePerChannelInput.value = Math.round(
       defaultSetting.bytesPerDataChannel / (1024 * 1024),
     ).toString();

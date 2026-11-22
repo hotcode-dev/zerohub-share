@@ -93,6 +93,8 @@ export interface ReceivingFilePartChunks {
 export interface Setting {
   name: string;
   iceServer: string;
+  iceUsername?: string;
+  iceCredential?: string;
   autoDownload: boolean;
   bytesPerDataChannel: number;
 }
