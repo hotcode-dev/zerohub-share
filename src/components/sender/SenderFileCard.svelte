@@ -23,7 +23,7 @@
 
   let ext = $derived(
     sendingFileSelection.file.name.includes(".")
-      ? sendingFileSelection.file.name.split(".").pop()?.slice(0, 5) ?? "FILE"
+      ? (sendingFileSelection.file.name.split(".").pop()?.slice(0, 5) ?? "FILE")
       : "FILE",
   );
 </script>
@@ -42,7 +42,9 @@
       <p class="truncate text-sm font-semibold text-base-content">
         {sendingFileSelection.file.name}
       </p>
-      <div class="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-base-content/65">
+      <div
+        class="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-base-content/65"
+      >
         <span class="font-mono tabular-nums">
           {humanFileSize(sendingFileSelection.file.size)}
         </span>
@@ -65,7 +67,9 @@
           <div
             class="flex flex-col gap-1.5 rounded-xl border border-base-300 bg-base-200/50 p-3"
           >
-            <div class="flex flex-wrap items-center justify-between gap-2 text-xs">
+            <div
+              class="flex flex-wrap items-center justify-between gap-2 text-xs"
+            >
               <div class="flex min-w-0 items-center gap-2">
                 <img
                   src={peers[peerId].svgAvatar}
@@ -91,7 +95,8 @@
                     Error: {sendingFile.error.message}
                   </span>
                 {:else if sendingFile.status === FileStatus.WaitingAccept}
-                  <span class="font-sans text-warning">Waiting for accept…</span>
+                  <span class="font-sans text-warning">Waiting for accept…</span
+                  >
                 {:else if sendingFile.status === FileStatus.Success}
                   <span class="text-success">
                     Sent · {humanFileSize(sendingFile.bitrate)}/s

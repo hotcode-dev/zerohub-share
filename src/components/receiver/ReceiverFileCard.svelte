@@ -11,12 +11,15 @@
 
   let ext = $derived(
     receivingFile.fileMetadata.name.includes(".")
-      ? receivingFile.fileMetadata.name.split(".").pop()?.slice(0, 5) ?? "FILE"
+      ? (receivingFile.fileMetadata.name.split(".").pop()?.slice(0, 5) ??
+          "FILE")
       : "FILE",
   );
 </script>
 
-<article class="flex flex-col gap-2.5 rounded-xl border border-base-300 bg-base-100 p-3">
+<article
+  class="flex flex-col gap-2.5 rounded-xl border border-base-300 bg-base-100 p-3"
+>
   <div class="flex items-center gap-3">
     <div
       class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-base-300 bg-base-200 font-mono text-[11px] font-semibold uppercase text-primary"
@@ -28,7 +31,9 @@
       <p class="truncate text-sm font-semibold text-base-content">
         {receivingFile.fileMetadata.name}
       </p>
-      <div class="mt-0.5 flex flex-wrap items-center gap-x-2 text-xs text-base-content/65">
+      <div
+        class="mt-0.5 flex flex-wrap items-center gap-x-2 text-xs text-base-content/65"
+      >
         <span class="font-mono tabular-nums">
           {humanFileSize(receivingFile.fileMetadata.size)}
         </span>
@@ -41,7 +46,9 @@
   </div>
 
   <div class="flex flex-col gap-1.5">
-    <div class="flex items-center justify-between font-mono text-[11px] tabular-nums">
+    <div
+      class="flex items-center justify-between font-mono text-[11px] tabular-nums"
+    >
       {#if receivingFile.status === FileStatus.Processing}
         <span class="text-primary">
           Receiving · {humanFileSize(receivingFile.bitrate)}/s

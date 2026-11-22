@@ -67,9 +67,7 @@
   let onlinePeers = $derived(
     Object.values(peers).filter(
       (p) =>
-        p.isOnline &&
-        p.dataChannels &&
-        Object.keys(p.dataChannels).length > 0,
+        p.isOnline && p.dataChannels && Object.keys(p.dataChannels).length > 0,
     ),
   );
   let connectingPeers = $derived(
@@ -234,9 +232,10 @@
 
   zeroHub.onZeroHubError = (error) => {
     console.error("ZeroHub error:", error);
-    const friendlyMessage = joinId && !hubId
-      ? "Could not join this hub. The invite link may have expired or the other device disconnected."
-      : "ZeroHub Error: " + error.message;
+    const friendlyMessage =
+      joinId && !hubId
+        ? "Could not join this hub. The invite link may have expired or the other device disconnected."
+        : "ZeroHub Error: " + error.message;
     hubError = friendlyMessage;
     addToastMessage(friendlyMessage, "error", 6000);
   };
@@ -336,12 +335,14 @@
     >
       {#if hubId}
         <span class="relative flex h-2 w-2" aria-hidden="true">
-          <span class="relative inline-flex h-2 w-2 rounded-full bg-success"></span>
+          <span class="relative inline-flex h-2 w-2 rounded-full bg-success"
+          ></span>
         </span>
         <span>
           Hub active ·
           <span class="font-mono tabular-nums">
-            {onlinePeers.length} {onlinePeers.length === 1 ? "peer" : "peers"}
+            {onlinePeers.length}
+            {onlinePeers.length === 1 ? "peer" : "peers"}
           </span>
         </span>
       {:else}
@@ -357,7 +358,10 @@
   {#if hubId}
     <div class="grid grid-cols-1 items-start gap-6 lg:grid-cols-12">
       <!-- Primary Column: Send Files -->
-      <section aria-labelledby="send-heading" class="flex flex-col gap-4 lg:col-span-7">
+      <section
+        aria-labelledby="send-heading"
+        class="flex flex-col gap-4 lg:col-span-7"
+      >
         <div class="flex items-center justify-between">
           <h2
             id="send-heading"
@@ -373,13 +377,18 @@
       </section>
 
       <!-- Secondary Column: Hub Invite & Connected Peers -->
-      <aside aria-label="Hub and peers" class="flex flex-col gap-6 lg:col-span-5">
+      <aside
+        aria-label="Hub and peers"
+        class="flex flex-col gap-6 lg:col-span-5"
+      >
         <!-- Hub & Invite Card -->
         <section
           aria-labelledby="hub-heading"
           class="rounded-2xl border border-base-300 bg-base-100 p-5 shadow-sm"
         >
-          <div class="flex items-center justify-between gap-3 border-b border-base-300 pb-4">
+          <div
+            class="flex items-center justify-between gap-3 border-b border-base-300 pb-4"
+          >
             <div class="flex min-w-0 items-center gap-3">
               <div
                 class="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-full border border-base-300 bg-base-200"
@@ -520,7 +529,9 @@
                         aria-hidden="true"
                       />
                       <div class="min-w-0">
-                        <p class="truncate text-sm font-semibold text-base-content">
+                        <p
+                          class="truncate text-sm font-semibold text-base-content"
+                        >
                           {peer.metadata.name}
                         </p>
                         <p class="text-xs text-base-content/65">
@@ -548,7 +559,9 @@
                         aria-hidden="true"
                       />
                       <div class="min-w-0">
-                        <p class="truncate text-sm font-semibold text-base-content">
+                        <p
+                          class="truncate text-sm font-semibold text-base-content"
+                        >
                           {peer.metadata.name}
                         </p>
                         <p class="text-xs font-medium text-error">
@@ -642,7 +655,8 @@
       <div
         class="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary"
       >
-        <span class="loading loading-spinner loading-md" aria-hidden="true"></span>
+        <span class="loading loading-spinner loading-md" aria-hidden="true"
+        ></span>
       </div>
       <h2 class="text-lg font-semibold text-base-content">
         Establishing peer-to-peer hub
