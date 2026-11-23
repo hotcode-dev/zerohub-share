@@ -1,12 +1,6 @@
 import { expect, test } from "vitest";
 import { BinaryReader } from "@bufbuild/protobuf/wire";
-import {
-  FileEvent,
-  FilePartEvent,
-  FilePartMetaData,
-  FileMetadata,
-  Message,
-} from "./message";
+import { FileEvent, FilePartEvent, Message } from "./message";
 
 // Regression test for the proto dependency manifest: `src/proto/message.ts`
 // is ts-proto-generated (v2.2.0) and pulls BinaryReader/BinaryWriter from
